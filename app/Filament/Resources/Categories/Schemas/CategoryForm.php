@@ -16,16 +16,17 @@ class CategoryForm
     {
         return $schema
             ->components([
-                // FileUpload::make('image')
-                //     ->image()
-                //     ->required(),
-                // TextInput::make('name')
-                //     ->required(),
-                // TextInput::make('description')
-                //     ->required(),
                 TextInput::make('name')->required(),
                 Textarea::make('description'),
-                TextInput::make('image')->url(),
+                // TextInput::make('image')->url(),
+
+                FileUpload::make('image')
+                    ->label('Category Image')
+                    ->disk('public')
+                    ->image()
+                    ->directory('categories')
+                    ->visibility('public')
+                    ->required(fn(string $context): bool => $context === 'create'),
 
                 Repeater::make('questions')
                     ->relationship('questions')

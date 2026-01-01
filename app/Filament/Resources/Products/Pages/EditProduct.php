@@ -47,6 +47,19 @@ class EditProduct extends EditRecord
 
     protected function afterSave(): void
     {
+        foreach ($this->record->images as $image) {
+            // Convert full URL back to storage path
+            $path = str_replace(
+                Storage::disk('public')->url(''),
+                '',
+                $image->image_url
+            );
+
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+
         // Remove old images
         $this->record->images()->delete();
 

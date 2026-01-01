@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductReview;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -236,7 +237,7 @@ Route::get('/contact-us', function () {
 
 Route::get('/product/{id}', function ($id) {
     // Load product with question relationship included in answers
-    $product = Product::with(['category', 'images', 'answers.question'])->find($id);
+    $product = Product::with(['category', 'images', 'answers.question', 'reviews.user'])->find($id);
 
     $product->increment('views');
 
@@ -280,6 +281,38 @@ Route::get('/product/{id}', function ($id) {
         'canRegister' => Route::has('register'),
     ]);
 });
+
+
+// Review Submission Endpoint
+Route::post('/product/{id}/review', function (Request $request, $id) {
+    // Validate the request
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'rate' => 'required|integer|min:1|max:5',
+        'comment' => 'required|string|max:1000',
+    ]);
+
+    // Check if product exists
+    $product = Product::findOrFail($id);
+
+    // Create the review
+    $review = new ProductReview();
+    $review->product_id = $id;
+    $review->name = $validated['name'];
+    $review->rate = $validated['rate'];
+    $review->comment = $validated['comment'];
+
+    // If user is authenticated, associate the review with the user
+    if (auth()->check()) {
+        $review->user_id = auth()->id();
+    }
+
+    $review->save();
+
+    // Redirect back with success message
+    return redirect()->back()->with('success', 'Thank you for your review! It has been submitted successfully.');
+})->name('product.review');
 
 
 Route::get('/dashboard', function () {
