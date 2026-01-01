@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Products\Schemas;
 
 use App\Models\Category;
 use App\Models\CategoryQuestion;
+use App\Models\Product;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -42,6 +43,41 @@ class ProductForm
                             ->label('Previous Price')
                             ->numeric()
                             ->prefix('₦'),
+
+                        TextInput::make('brand_name')
+                            ->required(),
+
+                        Toggle::make('is_new')
+                            ->label('Is New')
+                            ->default(false), // optional, defaults to false
+
+                        // Toggle::make('is_featured')
+                        //     ->label('Is Featured')
+                        //     ->default(false),
+
+                        Toggle::make('is_featured')
+                            ->label('Is Featured')
+                            ->default(false)
+                            ->disabled(function ($context, $record) {
+                                // If editing an existing product and it's already featured, allow toggling off
+                                if ($context === 'edit' && $record && $record->is_featured) {
+                                    return false;
+                                }
+
+                                // Check if featured limit is reached
+                                $featuredCount = Product::where('is_featured', true)->count();
+                                return $featuredCount >= 10;
+                            })
+                            ->helperText(function () {
+                                $featuredCount = Product::where('is_featured', true)->count();
+                                $remaining = 10 - $featuredCount;
+
+                                if ($featuredCount >= 10) {
+                                    return "Featured products limit reached (10/10). Unfeature some products first.";
+                                }
+
+                                return "{$featuredCount}/10 featured products used. {$remaining} spots remaining.";
+                            }),
 
                         Select::make('category_id')
                             ->label('Category')

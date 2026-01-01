@@ -35,8 +35,8 @@ class CategoryForm
                         Select::make('type')
                             ->options([
                                 'text' => 'Text',
-                                'number' => 'Number',
-                                'boolean' => 'Yes/No',
+                                // 'number' => 'Number',
+                                // 'boolean' => 'Yes/No',
                             ])
                             ->required(),
                         Toggle::make('is_required')->label('Required?'),

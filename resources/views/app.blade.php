@@ -11,10 +11,10 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
     <!-- Favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/images/icons/apple-touch-icon.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/images/icons/favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/images/icons/favicon-16x16.png') }}">
-    <link rel="shortcut icon" href="{{ asset('assets/images/icons/favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/images/demos/demo-4/logo.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/images/demos/demo-4/logo.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/images/demos/demo-4/logo.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/images/demos/demo-4/logo.png') }}">
 
     <!-- Line Awesome Icons -->
     <link rel="stylesheet"
@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/owl-carousel/owl.carousel.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/magnific-popup/magnific-popup.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/jquery.countdown.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/plugins/nouislider/nouislider.css') }}">
 
     <!-- Main CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
@@ -51,6 +52,8 @@
     <script src="{{ asset('assets/js/jquery.plugin.min.js') }}"></script>
     <script src="{{ asset('assets/js/jquery.magnific-popup.min.js') }}"></script>
     <script src="{{ asset('assets/js/jquery.countdown.min.js') }}"></script>
+    <script src="{{ asset('assets/js/wNumb.js') }}"></script>
+    <script src="{{ asset('assets/js/nouislider.min.js') }}"></script>
 
     <!-- Main JS File -->
     <script src="{{ asset('assets/js/main.js') }}"></script>

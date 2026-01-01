@@ -15,17 +15,21 @@ class ProductsTable
     {
         return $table
             ->columns([
-                TextColumn::make('category_id')
-                    ->numeric()
+                TextColumn::make('category.name')
                     ->sortable(),
                 TextColumn::make('name')
                     ->searchable(),
+
+                TextColumn::make('brand_name')
+                    ->searchable(),
+
                 TextColumn::make('price')
                     ->money()
                     ->sortable(),
                 TextColumn::make('previous_price')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('views'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

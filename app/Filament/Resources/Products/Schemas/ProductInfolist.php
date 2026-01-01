@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -31,6 +33,19 @@ class ProductInfolist
                     ->label('Previous Price')
                     ->money('NGN')
                     ->placeholder('—'),
+
+
+                IconEntry::make('is_new')
+                    ->label('Is New')
+                    ->boolean(),
+
+
+                IconEntry::make('is_featured')
+                    ->label('Is Featured')
+                    ->boolean(),
+
+                TextEntry::make('brand_name'),
+
 
                 TextEntry::make('description')
                     ->columnSpanFull(),
