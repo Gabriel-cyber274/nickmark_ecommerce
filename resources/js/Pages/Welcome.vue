@@ -4,6 +4,9 @@ import { onMounted, nextTick, onUnmounted, ref,  computed } from 'vue';
 import Skeleton from './Skeleton.vue'
 import { useWishlist } from '../composables/useWishlist';
 
+import { useCart } from '../composables/useCart';
+
+
 
 
 let prop = defineProps({
@@ -31,6 +34,7 @@ let prop = defineProps({
 });
 
 const { isInWishlist, toggleWishlist } = useWishlist(prop.auth);
+const { addToCart, isInCart } = useCart(prop.auth);
 
 const handleWishlistToggle = async (productId) => {
     try {
@@ -41,6 +45,18 @@ const handleWishlistToggle = async (productId) => {
         console.error('Error toggling wishlist:', error);
     }
 };
+
+// Add this function
+const handleAddToCart = async (productId) => {
+    try {
+        const result = await addToCart(productId, 1);
+        console.log(result.message);
+        // Optional: show a toast notification
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+    }
+};
+
 
 const popularCategories = ref(prop.popularCategories)
 
@@ -246,13 +262,19 @@ const brands = ref([
                                         </Link>
 
                                         <div class="product-action-vertical">
-                                            <a href="#" @click.prevent="handleWishlistToggle(product.id)"  
-                                            class="btn-product-icon btn-wishlist" :title="isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"></a>
+                                            <a
+                                                href="#"
+                                                @click.prevent="handleWishlistToggle(product.id)"
+                                                class="btn-product-icon btn-wishlist"
+                                                :class="{ 'active': isInWishlist(product.id) }"
+                                                :title="isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+                                            ></a>
+
                                         </div><!-- End .product-action -->
                                         
 
                                         <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart" title="Add to cart"><span>add to cart</span></a>
+                                            <a href="#" class="btn-product btn-cart" @click.prevent="handleAddToCart(product.id)"  title="Add to cart"><span>add to cart</span></a>
                                             <Link :href="'/product/' + product.id" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></Link>
                                         </div><!-- End .product-action -->
                                     </figure><!-- End .product-media -->
@@ -327,11 +349,17 @@ const brands = ref([
                                         </Link>
 
                                         <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist" title="Add to wishlist"></a>
+                                            <a
+                                                href="#"
+                                                @click.prevent="handleWishlistToggle(product.id)"
+                                                class="btn-product-icon btn-wishlist"
+                                                :class="{ 'active': isInWishlist(product.id) }"
+                                                :title="isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+                                            ></a>
                                         </div><!-- End .product-action -->
 
                                         <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart" title="Add to cart"><span>add to cart</span></a>
+                                            <a href="#" class="btn-product btn-cart" @click.prevent="handleAddToCart(product.id)" title="Add to cart"><span>add to cart</span></a>
                                             <Link :href="'/product/' + product.id" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></Link>
                                         </div><!-- End .product-action -->
                                     </figure><!-- End .product-media -->
@@ -417,11 +445,17 @@ const brands = ref([
                                         </Link>
 
                                         <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist" title="Add to wishlist"></a>
+                                        <a
+                                                href="#"
+                                                @click.prevent="handleWishlistToggle(product.id)"
+                                                class="btn-product-icon btn-wishlist"
+                                                :class="{ 'active': isInWishlist(product.id) }"
+                                                :title="isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+                                            ></a>
                                         </div><!-- End .product-action -->
 
                                         <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart" title="Add to cart"><span>add to cart</span></a>
+                                            <a href="#" class="btn-product btn-cart" @click.prevent="handleAddToCart(product.id)" title="Add to cart"><span>add to cart</span></a>
                                             <Link :href="'/product/' + product.id" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></Link>
                                         </div><!-- End .product-action -->
                                     </figure><!-- End .product-media -->
@@ -675,5 +709,13 @@ const brands = ref([
   .brand img {
     width: 60px !important;
   }
+}
+
+
+/* Added to wishlist */
+.btn-wishlist.active::before {
+    content: '\f233'; 
+    font-family: "molla";
+    font-weight: 400;
 }
 </style>

@@ -1,7 +1,8 @@
 <script setup>
-import { onMounted, nextTick, onUnmounted, ref } from 'vue';
+import { onMounted, nextTick, onUnmounted, ref, computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import { useWishlist } from '../composables/useWishlist';
+import { useCart } from '../composables/useCart';
 
 const searchQuery = ref('');
 
@@ -30,6 +31,78 @@ let prop = defineProps({
 
 const { wishlistCount, syncWishlistToServer } = useWishlist(prop.auth);
 
+const { cartItems, cartCount, cartTotal, removeFromCart, syncCartToServer } = useCart(prop.auth);
+
+const cartProducts = ref([]);
+const isLoadingCart = ref(false);
+
+// Fetch cart products for dropdown
+const fetchCartProducts = async () => {
+    if (cartItems.value.length === 0) {
+        cartProducts.value = [];
+        return;
+    }
+
+    isLoadingCart.value = true;
+    
+    try {
+        if (prop.auth) {
+            // For authenticated users
+            const response = await fetch('/api/cart', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'include'
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                cartProducts.value = data.slice(0, 3); // Show only first 3 items in dropdown
+            }
+        } else {
+            // For guest users
+            const response = await fetch('/api/cart/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ items: cartItems.value })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                cartProducts.value = data.slice(0, 3); // Show only first 3 items in dropdown
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching cart products:', error);
+    } finally {
+        isLoadingCart.value = false;
+    }
+};
+
+// Calculate dropdown cart total
+const dropdownCartTotal = computed(() => {
+    return cartProducts.value.reduce((total, item) => {
+        const price = parseFloat(item.product?.price || item.price || 0);
+        const quantity = item.quantity || 1;
+        return total + (price * quantity);
+    }, 0);
+});
+
+// Handle remove from cart in dropdown
+const handleDropdownRemove = async (productId) => {
+    await removeFromCart(productId);
+    await fetchCartProducts();
+};
+
+// Watch cartItems changes to update dropdown
+const updateCartDropdown = () => {
+    fetchCartProducts();
+};
 
 const loginErrors = ref({});
 const registerErrors = ref({});
@@ -50,16 +123,11 @@ const handleLogout = async()=> {
         const data = await response.json();
 
         if (response.ok) {
-            // Close the modal
             window.$('#signin-modal').modal('hide');
-            
-            // Redirect to dashboard
             window.location.href = '/'
-            // router.visit('/');
-        } else {
         }
     } catch (error) {
-    } finally {
+        console.error('Logout error:', error);
     }
 }
 
@@ -83,17 +151,10 @@ const handleLogin = async (event) => {
         const data = await response.json();
 
         if (response.ok) {
-            // Close the modal
             window.$('#signin-modal').modal('hide');
-            
-            // Clear forms
             loginForm.value = { email: '', password: '' };
             registerForm.value = { name: '', email: '', password: '' };
-            
-            
             window.location.href = '/dashboard';
-            
-
         } else {
             if (data.errors) {
                 loginErrors.value = data.errors;
@@ -128,15 +189,10 @@ const handleRegister = async (event) => {
         const data = await response.json();
 
         if (response.ok) {
-            // Close the modal
             window.$('#signin-modal').modal('hide');
-            
-            // Clear forms
             loginForm.value = { email: '', password: '' };
             registerForm.value = { name: '', email: '', password: '' };
-            
             window.location.href = '/dashboard';
-            
         } else {
             if (data.errors) {
                 registerErrors.value = data.errors;
@@ -154,18 +210,11 @@ const handleRegister = async (event) => {
 onMounted(() => {
     nextTick(() => {
         setTimeout(() => {
-            // Initialize mobile menu
             initMobileMenu();
-            
-            // Initialize carousels
             initCarousels();
-            
-            // Initialize other features
             initStickyHeader();
             initScrollTop();
             initCountdowns();
-
-
         }, 200);
     });
 });
@@ -205,7 +254,6 @@ function initMobileMenu() {
     
     if (!mobileMenuToggler || !mobileMenuContainer) return;
     
-    // Open mobile menu
     mobileMenuToggler.addEventListener('click', function(e) {
         e.preventDefault();
         document.body.classList.add('mmenu-active');
@@ -213,7 +261,6 @@ function initMobileMenu() {
         mobileMenuOverlay.classList.add('active');
     });
     
-    // Close mobile menu
     function closeMobileMenu() {
         document.body.classList.remove('mmenu-active');
         mobileMenuContainer.classList.remove('open');
@@ -228,7 +275,6 @@ function initMobileMenu() {
         mobileMenuOverlay.addEventListener('click', closeMobileMenu);
     }
     
-    // Handle submenu toggles
     const menuItems = document.querySelectorAll('.mobile-menu li > a');
     menuItems.forEach(item => {
         if (item.nextElementSibling && item.nextElementSibling.tagName === 'UL') {
@@ -237,10 +283,8 @@ function initMobileMenu() {
                 const parent = this.parentElement;
                 const submenu = this.nextElementSibling;
                 
-                // Toggle current submenu
                 parent.classList.toggle('open');
                 
-                // Slide toggle effect
                 if (parent.classList.contains('open')) {
                     submenu.style.display = 'block';
                 } else {
@@ -260,7 +304,6 @@ function initCarousels() {
             }
         });
 
-        // Initialize intro slider
         $('.intro-slider').owlCarousel({
             loop: true,
             dots: true,
@@ -275,7 +318,6 @@ function initCarousels() {
             }
         });
 
-        // Initialize other carousels
         $('.new-arrivals .owl-carousel, .trending-products .owl-carousel').each(function() {
             $(this).owlCarousel({
                 nav: true,
@@ -292,7 +334,6 @@ function initCarousels() {
             });
         });
 
-        // Initialize brand carousel
         $('.owl-simple').owlCarousel({
             nav: false,
             dots: false,
@@ -374,23 +415,31 @@ function initCountdowns() {
 }
 
 onUnmounted(() => {
-    // Clean up event listeners
     document.body.classList.remove('mmenu-active');
 });
-
-
 
 const categories = ref([])
 
 onMounted(async () => {
     const response = await fetch('/api/categories')
     categories.value = await response.json()
-
+    
     if(prop.auth != null) {
         await syncWishlistToServer();
+        await syncCartToServer();
+    }
+    
+    // Fetch cart products for dropdown
+    await fetchCartProducts();
+    
+    // Update cart dropdown when clicking on it
+    const cartDropdown = document.querySelector('.cart-dropdown .dropdown-toggle');
+    if (cartDropdown) {
+        cartDropdown.addEventListener('click', updateCartDropdown);
     }
 })
 </script>
+
 
 <template>
     <div class="page-wrapper">
@@ -461,71 +510,85 @@ onMounted(async () => {
                             <Link href="/wishlist" title="Wishlist">
                                 <div class="icon">
                                     <i class="icon-heart-o"></i>
-                                    <span class="wishlist-count badge">{{ wishlistCount }}</span>
+                                    <span class="wishlist-count badge" v-if="wishlistCount > 0">{{ wishlistCount }}</span>
                                 </div>
                                 <p>Wishlist</p>
                             </Link>
                         </div>
 
-                        <div class="dropdown cart-dropdown">
-                            <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
-                                <div class="icon">
-                                    <i class="icon-shopping-cart"></i>
-                                    <span class="cart-count">2</span>
-                                </div>
-                                <p>Cart</p>
-                            </a>
+ 
+    <div class="dropdown cart-dropdown">
+        <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+            <div class="icon">
+                <i class="icon-shopping-cart"></i>
+                <span class="cart-count" v-if="cartCount > 0">{{ cartCount }}</span>
+            </div>
+            <p>Cart</p>
+        </a>
 
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <div class="dropdown-cart-products">
-                                    <div class="product">
-                                        <div class="product-cart-details">
-                                            <h4 class="product-title">
-                                                <a href="product.html">Beige knitted elastic runner shoes</a>
-                                            </h4>
-                                            <span class="cart-product-info">
-                                                <span class="cart-product-qty">1</span>
-                                                x $84.00
-                                            </span>
-                                        </div>
-                                        <figure class="product-image-container">
-                                            <a href="product.html" class="product-image">
-                                                <img src="/assets/images/products/cart/product-1.jpg" alt="product">
-                                            </a>
-                                        </figure>
-                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                    </div>
+        <div class="dropdown-menu dropdown-menu-right">
+            <!-- Loading State -->
+            <div v-if="isLoadingCart" class="text-center py-3">
+                <p>Loading...</p>
+            </div>
 
-                                    <div class="product">
-                                        <div class="product-cart-details">
-                                            <h4 class="product-title">
-                                                <a href="product.html">Blue utility pinafore denim dress</a>
-                                            </h4>
-                                            <span class="cart-product-info">
-                                                <span class="cart-product-qty">1</span>
-                                                x $76.00
-                                            </span>
-                                        </div>
-                                        <figure class="product-image-container">
-                                            <a href="product.html" class="product-image">
-                                                <img src="/assets/images/products/cart/product-2.jpg" alt="product">
-                                            </a>
-                                        </figure>
-                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                    </div>
-                                </div>
+            <!-- Empty Cart -->
+            <div v-else-if="cartProducts.length === 0" class="text-center py-3">
+                <p class="mb-2">Your cart is empty</p>
+                <Link href="/categories" class="btn btn-sm btn-outline-primary-2">Shop Now</Link>
+            </div>
 
-                                <div class="dropdown-cart-total">
-                                    <span>Total</span>
-                                    <span class="cart-total-price">$160.00</span>
-                                </div>
-
-                                <div class="dropdown-cart-action">
-                                    <Link href="/cart" class="btn btn-primary">View Cart</Link>
-                                    <Link href="/checkout" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></Link>
-                                </div>
-                            </div>
+            <!-- Cart Items -->
+            <template v-else>
+                <div class="dropdown-cart-products">
+                    <div v-for="item in cartProducts" :key="item.product_id || item.id" class="product">
+                        <div class="product-cart-details">
+                            <h4 class="product-title">
+                                <Link :href="`/product/${item.product_id || item.id}`">
+                                    {{ item.product?.name || item.name }}
+                                </Link>
+                            </h4>
+                            <span class="cart-product-info">
+                                <span class="cart-product-qty">{{ item.quantity }}</span>
+                                x ₦{{ parseFloat(item.product?.price || item.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                            </span>
                         </div>
+                        <figure class="product-image-container">
+                            <Link :href="`/product/${item.product_id || item.id}`" class="product-image">
+                                <img 
+                                    :src="item.product?.images?.[0]?.image_url || item.images?.[0]?.image_url" 
+                                    :alt="item.product?.name || item.name"
+                                >
+                            </Link>
+                        </figure>
+                        <a 
+                            href="#" 
+                            @click.prevent="handleDropdownRemove(item.product_id || item.id)" 
+                            class="btn-remove" 
+                            title="Remove Product"
+                        >
+                            <i class="icon-close"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="dropdown-cart-total">
+                    <span>Total</span>
+                    <span class="cart-total-price">
+                        ₦{{ dropdownCartTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                    </span>
+                </div>
+
+                <div class="dropdown-cart-action">
+                    <Link href="/cart" class="btn btn-primary">View Cart</Link>
+                    <Link href="/checkout" class="btn btn-outline-primary-2">
+                        <span>Checkout</span>
+                        <i class="icon-long-arrow-right"></i>
+                    </Link>
+                </div>
+            </template>
+        </div>
+    </div>
                     </div>
                 </div>
             </div>
@@ -624,11 +687,9 @@ onMounted(async () => {
 	            			<div class="widget">
 	            				<h4 class="widget-title">My Account</h4>
 	            				<ul class="widget-list">
-	            					<li><a href="#">Sign In</a></li>
-	            					<li><a href="cart.html">View Cart</a></li>
-	            					<li><a href="#">My Wishlist</a></li>
-	            					<li><a href="#">My Order</a></li>
-	            					<li><a href="#">Help</a></li>
+	            					<li><Link href="/cart">View Cart</Link></li>
+	            					<li><Link href="/wishlist">My Wishlist</Link></li>
+	            					<li><Link href="/dashboard">My Order</Link></li>
 	            				</ul>
 	            			</div>
 	            		</div>

@@ -2,6 +2,9 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import { onMounted, nextTick, onUnmounted, ref, reactive, computed, watch } from 'vue';
 import Skeleton from './Skeleton.vue';
+import { useWishlist } from '../composables/useWishlist';
+import { useCart } from '../composables/useCart';
+
 
 let prop = defineProps({
     canLogin: {
@@ -32,6 +35,31 @@ let prop = defineProps({
         type: Object  
     }
 });
+
+const { isInWishlist, toggleWishlist } = useWishlist(prop.auth);
+const { addToCart, isInCart } = useCart(prop.auth);
+
+// Add this function
+const handleAddToCart = async (productId) => {
+    try {
+        const result = await addToCart(productId, 1);
+        console.log(result.message);
+        // Optional: show a toast notification
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+    }
+};
+
+const handleWishlistToggle = async (productId) => {
+    try {
+        const result = await toggleWishlist(productId);
+        // Optional: show a toast notification
+        console.log(result.message);
+    } catch (error) {
+        console.error('Error toggling wishlist:', error);
+    }
+};
+
 
 // Track current image for each product
 const productImages = reactive({});
@@ -276,13 +304,19 @@ onMounted(() => {
                                             </Link>
 
                                             <div class="product-action-vertical">
-                                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                            <a
+                                                href="#"
+                                                @click.prevent="handleWishlistToggle(product.id)"
+                                                class="btn-product-icon btn-wishlist"
+                                                :class="{ 'active': isInWishlist(product.id) }"
+                                                :title="isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+                                            ></a>
+
                                                 <Link :href="`/product/${product.id}`" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></Link>
-                                                <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
                                             </div>
 
                                             <div class="product-action">
-                                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                                <a href="#" @click.prevent="handleAddToCart(product.id)" class="btn-product btn-cart"><span>add to cart</span></a>
                                             </div>
                                         </figure>
 
@@ -545,5 +579,12 @@ onMounted(() => {
 
 .form-range::-moz-range-thumb:hover {
     background: #b85;
+}
+
+/* Added to wishlist */
+.btn-wishlist.active::before {
+    content: '\f233'; 
+    font-family: "molla";
+    font-weight: 400;
 }
 </style>

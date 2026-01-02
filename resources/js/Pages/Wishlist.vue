@@ -3,6 +3,8 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { onMounted, ref, computed } from 'vue';
 import Skeleton from './Skeleton.vue';
 import { useWishlist } from '../composables/useWishlist';
+import { useCart } from '../composables/useCart';
+
 
 const props = defineProps({
     canLogin: Boolean,
@@ -17,6 +19,19 @@ const props = defineProps({
 const { wishlistItems, toggleWishlist, isInWishlist } = useWishlist(props.auth);
 const guestWishlistProducts = ref([]);
 const isLoading = ref(false);
+
+const { addToCart, isInCart } = useCart(props.auth);
+
+// Add this function
+const handleAddToCart = async (productId) => {
+    try {
+        const result = await addToCart(productId, 1);
+        console.log(result.message);
+        // Optional: show a toast notification
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+    }
+};
 
 // Fetch product details for guest wishlist
 const fetchGuestWishlistProducts = async () => {
@@ -131,7 +146,7 @@ onMounted(() => {
                                         </div>
                                     </td>
                                     <td class="price-col">
-                                        <div v-if="item.product?.previous_price || item.previous_price">
+                                        <div class="d-flex flex-column" v-if="item.product?.previous_price || item.previous_price">
                                             <span class="new-price">
                                                 ₦{{ parseFloat(item.product?.price || item.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                             </span>
@@ -147,7 +162,7 @@ onMounted(() => {
                                         <span class="in-stock">In stock</span>
                                     </td>
                                     <td class="action-col">
-                                        <button class="btn btn-block btn-outline-primary-2">
+                                        <button @click.prevent="handleAddToCart(item.product?.id || item.id)" class="btn btn-block btn-outline-primary-2">
                                             <i class="icon-cart-plus"></i>Add to Cart
                                         </button>
                                     </td>

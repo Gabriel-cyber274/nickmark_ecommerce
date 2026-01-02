@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
+use App\Models\UserCart;
 use App\Models\UserWishlist;
 
 Route::get('/user', function (Request $request) {
@@ -166,3 +167,161 @@ Route::post('/wishlist/products', function (Request $request) {
 
     return response()->json($products);
 })->name('api.wishlist.products');
+
+
+
+
+// Add these routes to your api.php file after the wishlist routes
+
+Route::middleware('web')->group(function () {
+    // Get user's cart
+    Route::get('/cart', function (Request $request) {
+        if (auth()->check()) {
+            $cart = UserCart::where('user_id', auth()->id())
+                ->with(['product.images', 'product.category'])
+                ->get();
+            return response()->json($cart);
+        }
+        return response()->json([]);
+    })->name('api.cart.index');
+
+    // Add item to cart
+    Route::post('/cart/add', function (Request $request) {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        if (auth()->check()) {
+            $cartItem = UserCart::where('user_id', auth()->id())
+                ->where('product_id', $validated['product_id'])
+                ->first();
+
+            if ($cartItem) {
+                $cartItem->quantity += $validated['quantity'];
+                $cartItem->save();
+                return response()->json([
+                    'message' => 'Cart updated',
+                    'cart_item' => $cartItem
+                ]);
+            } else {
+                $cartItem = UserCart::create([
+                    'user_id' => auth()->id(),
+                    'product_id' => $validated['product_id'],
+                    'quantity' => $validated['quantity']
+                ]);
+                return response()->json([
+                    'message' => 'Added to cart',
+                    'cart_item' => $cartItem
+                ]);
+            }
+        }
+
+        return response()->json(['message' => 'Please login to save cart'], 401);
+    })->name('api.cart.add');
+
+    // Update cart item quantity
+    Route::post('/cart/update', function (Request $request) {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        if (auth()->check()) {
+            $cartItem = UserCart::where('user_id', auth()->id())
+                ->where('product_id', $validated['product_id'])
+                ->first();
+
+            if ($cartItem) {
+                $cartItem->quantity = $validated['quantity'];
+                $cartItem->save();
+                return response()->json([
+                    'message' => 'Cart updated',
+                    'cart_item' => $cartItem
+                ]);
+            }
+
+            return response()->json(['message' => 'Item not found in cart'], 404);
+        }
+
+        return response()->json(['message' => 'Unauthorized'], 401);
+    })->name('api.cart.update');
+
+    // Remove item from cart
+    Route::post('/cart/remove', function (Request $request) {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id'
+        ]);
+
+        if (auth()->check()) {
+            $cartItem = UserCart::where('user_id', auth()->id())
+                ->where('product_id', $validated['product_id'])
+                ->first();
+
+            if ($cartItem) {
+                $cartItem->delete();
+                return response()->json(['message' => 'Removed from cart']);
+            }
+
+            return response()->json(['message' => 'Item not found in cart'], 404);
+        }
+
+        return response()->json(['message' => 'Unauthorized'], 401);
+    })->name('api.cart.remove');
+
+    // Sync guest cart to authenticated user
+    Route::post('/cart/sync', function (Request $request) {
+        $validated = $request->validate([
+            'items' => 'required|array',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1'
+        ]);
+
+        if (auth()->check()) {
+            foreach ($validated['items'] as $item) {
+                $cartItem = UserCart::where('user_id', auth()->id())
+                    ->where('product_id', $item['product_id'])
+                    ->first();
+
+                if ($cartItem) {
+                    // If item exists, add to existing quantity
+                    $cartItem->quantity += $item['quantity'];
+                    $cartItem->save();
+                } else {
+                    // Create new cart item
+                    UserCart::create([
+                        'user_id' => auth()->id(),
+                        'product_id' => $item['product_id'],
+                        'quantity' => $item['quantity']
+                    ]);
+                }
+            }
+            return response()->json(['message' => 'Cart synced successfully']);
+        }
+
+        return response()->json(['message' => 'Unauthorized'], 401);
+    })->name('api.cart.sync');
+});
+
+// Get cart products for guest users
+Route::post('/cart/products', function (Request $request) {
+    $validated = $request->validate([
+        'items' => 'required|array',
+        'items.*.product_id' => 'required|exists:products,id',
+        'items.*.quantity' => 'required|integer|min:1'
+    ]);
+
+    $productIds = array_column($validated['items'], 'product_id');
+    $products = Product::with(['images', 'category'])
+        ->whereIn('id', $productIds)
+        ->get();
+
+    // Add quantity to each product
+    $productsWithQuantity = $products->map(function ($product) use ($validated) {
+        $item = collect($validated['items'])->firstWhere('product_id', $product->id);
+        $product->quantity = $item['quantity'];
+        return $product;
+    });
+
+    return response()->json($productsWithQuantity);
+})->name('api.cart.products');

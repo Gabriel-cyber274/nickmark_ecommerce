@@ -2,6 +2,10 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import { onMounted, nextTick, onUnmounted, ref, reactive } from 'vue';
 import Skeleton from './Skeleton.vue';
+import { useWishlist } from '../composables/useWishlist';
+import { useCart } from '../composables/useCart';
+
+
 
 let prop = defineProps({
     canLogin: {
@@ -23,6 +27,52 @@ let prop = defineProps({
         type: Object  
     }
 });
+
+
+const { isInWishlist, toggleWishlist } = useWishlist(prop.auth);
+const { addToCart, isInCart } = useCart(prop.auth);
+
+const quantity = ref(1);
+
+// Add this function
+const handleAddToCart = async (productId) => {
+    try { 
+        const qty = parseInt(quantity.value);
+        
+        // Validate quantity
+        if (qty < 1 || qty > 10 || isNaN(qty)) {
+            console.error('Invalid quantity');
+            return;
+        }
+        
+        const result = await addToCart(productId, qty);
+        console.log(result.message);
+        // Optional: show a toast notification
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+    }
+};
+
+const handleAddRecommendedToCart = async (productId) => {
+    try {
+        const result = await addToCart(productId, 1);
+        console.log(result.message);
+        // Optional: show a toast notification
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+    }
+};
+
+
+const handleWishlistToggle = async (productId) => {
+    try {
+        const result = await toggleWishlist(productId);
+        // Optional: show a toast notification
+        console.log(result.message);
+    } catch (error) {
+        console.error('Error toggling wishlist:', error);
+    }
+};
 
 // State for current main image of the main product
 const currentMainImage = ref(null);
@@ -304,17 +354,33 @@ const formatAnswer = (answer) => {
                                 </div>
 
                                 <div class="details-filter-row details-row-size">
-                                    <label for="qty">Qty:</label>
-                                    <div class="product-details-quantity">
-                                        <input type="number" id="qty" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
+                                        <label for="qty">Qty:</label>
+                                        <div class="product-details-quantity">
+                                            <input 
+                                                type="number" 
+                                                id="qty" 
+                                                class="form-control" 
+                                                v-model.number="quantity" 
+                                                min="1" 
+                                                max="10" 
+                                                step="1" 
+                                                data-decimals="0" 
+                                                required
+                                                @input="validateQuantity"
+                                            >
+                                        </div>
                                     </div>
-                                </div>
 
                                 <div class="product-details-action">
-                                    <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-
+                                    <a href="#" @click.prevent="handleAddToCart(product.id)" class="btn-product btn-cart"><span>add to cart</span></a>
                                     <div class="details-action-wrapper">
-                                        <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
+                                    
+                                        <a       href="#"
+                                                @click.prevent="handleWishlistToggle(product.id)"
+                                                class="btn-product btn-wishlist"
+                                                :class="{ 'active': isInWishlist(product.id) }"
+                                                title="wishlist"
+                                                ><span>{{isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to Wishlist' }}</span></a>
                                     </div>
                                 </div>
 
@@ -512,12 +578,18 @@ const formatAnswer = (answer) => {
                             </Link>
 
                             <div class="product-action-vertical">
-                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+<a
+                                                href="#"
+                                                @click.prevent="handleWishlistToggle(recProduct.id)"
+                                                class="btn-product-icon btn-wishlist"
+                                                :class="{ 'active': isInWishlist(recProduct.id) }"
+                                                :title="isInWishlist(recProduct.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+                                            ></a>
                                 <Link :href="`/product/${recProduct.id}`" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></Link>
                             </div>
 
                             <div class="product-action">
-                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                <a href="#" @click.prevent="handleAddRecommendedToCart(recProduct.id)" class="btn-product btn-cart"><span>add to cart</span></a>
                             </div>
                         </figure>
 
@@ -611,5 +683,22 @@ const formatAnswer = (answer) => {
     color: #dc3545;
     font-size: 0.875em;
     margin-top: 0.25rem;
+}
+
+/* Added to wishlist */
+.btn-wishlist.active::before {
+    content: '\f233'; 
+    font-family: "molla";
+    font-weight: 400;
+}
+
+
+
+input:invalid {
+    border-color: #dc3545;
+}
+
+input:valid {
+    border-color: #28a745;
 }
 </style>
