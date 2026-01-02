@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, nextTick, onUnmounted, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import { useWishlist } from '../composables/useWishlist';
 
 const searchQuery = ref('');
 
@@ -15,6 +16,20 @@ const registerForm = ref({
     email: '',
     password: ''
 });
+
+let prop = defineProps({
+    page: {
+        type: String,
+        required: false,
+        default: null,
+    },
+    auth: {
+        type: Object  
+    }
+})
+
+const { wishlistCount, syncWishlistToServer } = useWishlist(prop.auth);
+
 
 const loginErrors = ref({});
 const registerErrors = ref({});
@@ -71,10 +86,14 @@ const handleLogin = async (event) => {
             // Close the modal
             window.$('#signin-modal').modal('hide');
             
-            // Redirect to dashboard
-            // router.visit('/dashboard');
+            // Clear forms
+            loginForm.value = { email: '', password: '' };
+            registerForm.value = { name: '', email: '', password: '' };
             
-            window.location.href = '/dashboard'
+            
+            window.location.href = '/dashboard';
+            
+
         } else {
             if (data.errors) {
                 loginErrors.value = data.errors;
@@ -112,9 +131,12 @@ const handleRegister = async (event) => {
             // Close the modal
             window.$('#signin-modal').modal('hide');
             
-            // Redirect to dashboard
-            // router.visit('/dashboard');
-            window.location.href = '/dashboard'
+            // Clear forms
+            loginForm.value = { email: '', password: '' };
+            registerForm.value = { name: '', email: '', password: '' };
+            
+            window.location.href = '/dashboard';
+            
         } else {
             if (data.errors) {
                 registerErrors.value = data.errors;
@@ -142,6 +164,8 @@ onMounted(() => {
             initStickyHeader();
             initScrollTop();
             initCountdowns();
+
+
         }, 200);
     });
 });
@@ -354,22 +378,17 @@ onUnmounted(() => {
     document.body.classList.remove('mmenu-active');
 });
 
-let prop = defineProps({
-    page: {
-        type: String,
-        required: false,
-        default: null,
-    },
-    auth: {
-        type: Object  
-    }
-})
+
 
 const categories = ref([])
 
 onMounted(async () => {
     const response = await fetch('/api/categories')
     categories.value = await response.json()
+
+    if(prop.auth != null) {
+        await syncWishlistToServer();
+    }
 })
 </script>
 
@@ -382,16 +401,6 @@ onMounted(async () => {
                         <a href="tel:#"><i class="icon-phone"></i>Call: +0123 456 789</a>
                     </div>
 
-                    <!-- <div class="header-right">
-                        <ul class="top-menu">
-                            <li>
-                                <a href="#">Links</a>
-                                <ul>
-                                    <li><a href="#signin-modal" data-toggle="modal">Sign in / Sign up</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div> -->
                    <div class="header-right">
                         <ul class="top-menu">
                             <li>
@@ -449,13 +458,13 @@ onMounted(async () => {
 
                     <div class="header-right">
                         <div class="wishlist">
-                            <a href="wishlist.html" title="Wishlist">
+                            <Link href="/wishlist" title="Wishlist">
                                 <div class="icon">
                                     <i class="icon-heart-o"></i>
-                                    <span class="wishlist-count badge">3</span>
+                                    <span class="wishlist-count badge">{{ wishlistCount }}</span>
                                 </div>
                                 <p>Wishlist</p>
-                            </a>
+                            </Link>
                         </div>
 
                         <div class="dropdown cart-dropdown">
@@ -512,8 +521,8 @@ onMounted(async () => {
                                 </div>
 
                                 <div class="dropdown-cart-action">
-                                    <a href="cart.html" class="btn btn-primary">View Cart</a>
-                                    <a href="checkout.html" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
+                                    <Link href="/cart" class="btn btn-primary">View Cart</Link>
+                                    <Link href="/checkout" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></Link>
                                 </div>
                             </div>
                         </div>

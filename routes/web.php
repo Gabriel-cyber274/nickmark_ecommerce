@@ -7,6 +7,7 @@ use App\Models\ContactUs;
 use App\Models\Faq;
 use App\Models\Product;
 use App\Models\ProductReview;
+use App\Models\UserWishlist;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -231,6 +232,40 @@ Route::get('/faq', function () {
 
 Route::get('/contact-us', function () {
     return Inertia::render('ContactUsPage', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'auth' => auth()->user(),
+    ]);
+});
+
+Route::get('/wishlist', function () {
+    $wishlist = [];
+    if (auth()->check()) {
+        $wishlist = UserWishlist::where('user_id', auth()->id())
+            ->with(['product.images', 'product.category', 'product.answers'])
+            ->get();
+    }
+
+    return Inertia::render('Wishlist', [
+        'wishlist' => $wishlist,
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'auth' => auth()->user(),
+    ]);
+});
+
+
+Route::get('/cart', function () {
+    return Inertia::render('CartPage', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'auth' => auth()->user(),
+    ]);
+});
+
+
+Route::get('/checkout', function () {
+    return Inertia::render('CheckoutPage', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'auth' => auth()->user(),

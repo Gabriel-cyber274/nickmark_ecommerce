@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { onMounted, nextTick, onUnmounted, ref,  computed } from 'vue';
 import Skeleton from './Skeleton.vue'
+import { useWishlist } from '../composables/useWishlist';
 
 
 
@@ -28,6 +29,18 @@ let prop = defineProps({
         type: Object  
     }
 });
+
+const { isInWishlist, toggleWishlist } = useWishlist(prop.auth);
+
+const handleWishlistToggle = async (productId) => {
+    try {
+        const result = await toggleWishlist(productId);
+        // Optional: show a toast notification
+        console.log(result.message);
+    } catch (error) {
+        console.error('Error toggling wishlist:', error);
+    }
+};
 
 const popularCategories = ref(prop.popularCategories)
 
@@ -233,8 +246,10 @@ const brands = ref([
                                         </Link>
 
                                         <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist" title="Add to wishlist"></a>
+                                            <a href="#" @click.prevent="handleWishlistToggle(product.id)"  
+                                            class="btn-product-icon btn-wishlist" :title="isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"></a>
                                         </div><!-- End .product-action -->
+                                        
 
                                         <div class="product-action">
                                             <a href="#" class="btn-product btn-cart" title="Add to cart"><span>add to cart</span></a>

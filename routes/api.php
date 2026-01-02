@@ -1,12 +1,14 @@
 <?php
 
 use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
+use App\Models\UserWishlist;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -73,3 +75,94 @@ Route::post('/logout', function (Request $request) {
         'message' => 'Logged out successfully'
     ], 200);
 })->middleware(['web', 'auth']);
+
+// Add web middleware to all wishlist routes that need authentication
+Route::middleware('web')->group(function () {
+    Route::get('/wishlist', function (Request $request) {
+        if (auth()->check()) {
+            $wishlist = UserWishlist::where('user_id', auth()->id())
+                ->with(['product.images', 'product.category'])
+                ->get();
+            return response()->json($wishlist);
+        }
+        return response()->json([]);
+    })->name('api.wishlist.index');
+
+    Route::post('/wishlist/check', function (Request $request) {
+        $validated = $request->validate([
+            'product_ids' => 'required|array',
+            'product_ids.*' => 'exists:products,id'
+        ]);
+
+        // For authenticated users, check in database
+        if (auth()->check()) {
+            $wishlistItems = UserWishlist::where('user_id', auth()->id())
+                ->whereIn('product_id', $validated['product_ids'])
+                ->pluck('product_id')
+                ->toArray();
+
+            return response()->json(['wishlist_items' => $wishlistItems]);
+        }
+
+        // For guests, return empty array
+        return response()->json(['wishlist_items' => []]);
+    })->name('api.wishlist.check');
+
+    Route::post('/wishlist/toggle', function (Request $request) {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id'
+        ]);
+
+        if (auth()->check()) {
+            $wishlistItem = UserWishlist::where('user_id', auth()->id())
+                ->where('product_id', $validated['product_id'])
+                ->first();
+
+            if ($wishlistItem) {
+                $wishlistItem->delete();
+                return response()->json(['message' => 'Removed from wishlist', 'inWishlist' => false]);
+            } else {
+                UserWishlist::create([
+                    'user_id' => auth()->id(),
+                    'product_id' => $validated['product_id']
+                ]);
+                return response()->json(['message' => 'Added to wishlist', 'inWishlist' => true]);
+            }
+        }
+
+        return response()->json(['message' => 'Please login to save wishlist'], 401);
+    })->name('api.wishlist.toggle');
+
+    Route::post('/wishlist/sync', function (Request $request) {
+        $validated = $request->validate([
+            'product_ids' => 'required|array',
+            'product_ids.*' => 'exists:products,id'
+        ]);
+
+        if (auth()->check()) {
+            foreach ($validated['product_ids'] as $productId) {
+                UserWishlist::firstOrCreate([
+                    'user_id' => auth()->id(),
+                    'product_id' => $productId
+                ]);
+            }
+            return response()->json(['message' => 'Wishlist synced successfully']);
+        }
+
+        return response()->json(['message' => 'Unauthorized'], 401);
+    })->name('api.wishlist.sync');
+});
+
+// This route doesn't need authentication - it's for guest users
+Route::post('/wishlist/products', function (Request $request) {
+    $validated = $request->validate([
+        'product_ids' => 'required|array',
+        'product_ids.*' => 'exists:products,id'
+    ]);
+
+    $products = Product::with(['images', 'category'])
+        ->whereIn('id', $validated['product_ids'])
+        ->get();
+
+    return response()->json($products);
+})->name('api.wishlist.products');
