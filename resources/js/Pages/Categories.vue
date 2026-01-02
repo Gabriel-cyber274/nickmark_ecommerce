@@ -27,6 +27,9 @@ let prop = defineProps({
     filters: {
         type: Object,
         default: () => ({})
+    },
+    auth: {
+        type: Object  
     }
 });
 
@@ -216,7 +219,7 @@ onMounted(() => {
 </script>
 
 <template>
-<Skeleton page='categories'>
+<Skeleton page='categories' :auth="auth">
     <main class="main">
         <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
             <div class="container">

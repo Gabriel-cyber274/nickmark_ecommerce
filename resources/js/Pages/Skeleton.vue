@@ -4,6 +4,131 @@ import { Link, router } from '@inertiajs/vue3';
 
 const searchQuery = ref('');
 
+// Login and Register form data
+const loginForm = ref({
+    email: '',
+    password: ''
+});
+
+const registerForm = ref({
+    name: '',
+    email: '',
+    password: ''
+});
+
+const loginErrors = ref({});
+const registerErrors = ref({});
+const isLoggingIn = ref(false);
+const isRegistering = ref(false);
+
+const handleLogout = async()=> {
+    try {
+        const response = await fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Close the modal
+            window.$('#signin-modal').modal('hide');
+            
+            // Redirect to dashboard
+            window.location.href = '/'
+            // router.visit('/');
+        } else {
+        }
+    } catch (error) {
+    } finally {
+    }
+}
+
+// Handle Login
+const handleLogin = async (event) => {
+    event.preventDefault();
+    loginErrors.value = {};
+    isLoggingIn.value = true;
+
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify(loginForm.value)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Close the modal
+            window.$('#signin-modal').modal('hide');
+            
+            // Redirect to dashboard
+            // router.visit('/dashboard');
+            
+            window.location.href = '/dashboard'
+        } else {
+            if (data.errors) {
+                loginErrors.value = data.errors;
+            } else if (data.message) {
+                loginErrors.value = { general: data.message };
+            }
+        }
+    } catch (error) {
+        loginErrors.value = { general: 'An error occurred. Please try again.' };
+    } finally {
+        isLoggingIn.value = false;
+    }
+};
+
+// Handle Register
+const handleRegister = async (event) => {
+    event.preventDefault();
+    registerErrors.value = {};
+    isRegistering.value = true;
+
+    try {
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify(registerForm.value)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Close the modal
+            window.$('#signin-modal').modal('hide');
+            
+            // Redirect to dashboard
+            // router.visit('/dashboard');
+            window.location.href = '/dashboard'
+        } else {
+            if (data.errors) {
+                registerErrors.value = data.errors;
+            } else if (data.message) {
+                registerErrors.value = { general: data.message };
+            }
+        }
+    } catch (error) {
+        registerErrors.value = { general: 'An error occurred. Please try again.' };
+    } finally {
+        isRegistering.value = false;
+    }
+};
+
 onMounted(() => {
     nextTick(() => {
         setTimeout(() => {
@@ -229,12 +354,15 @@ onUnmounted(() => {
     document.body.classList.remove('mmenu-active');
 });
 
-defineProps({
+let prop = defineProps({
     page: {
         type: String,
         required: false,
         default: null,
     },
+    auth: {
+        type: Object  
+    }
 })
 
 const categories = ref([])
@@ -254,7 +382,7 @@ onMounted(async () => {
                         <a href="tel:#"><i class="icon-phone"></i>Call: +0123 456 789</a>
                     </div>
 
-                    <div class="header-right">
+                    <!-- <div class="header-right">
                         <ul class="top-menu">
                             <li>
                                 <a href="#">Links</a>
@@ -263,7 +391,26 @@ onMounted(async () => {
                                 </ul>
                             </li>
                         </ul>
+                    </div> -->
+                   <div class="header-right">
+                        <ul class="top-menu">
+                            <li>
+                                <a href="#">Account</a>
+                                <ul>
+                                    <template v-if="auth != null">
+                                        <li v-if="page != 'dashboard'"><Link href="/dashboard">Dashboard</Link></li>
+                                        <!-- <li><a href="#" @click.prevent="handleLogout">Logout</a></li> -->
+                                        <li><button @click.prevent="handleLogout" class="logout-btn" style="background: none; border: none; color: inherit; cursor: pointer; font: inherit; padding: 0;">Logout</button></li>
+                                    </template>
+                                    <template v-else>
+                                        <li><a href="#signin-modal" data-toggle="modal">Sign in / Sign up</a></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </ul>
                     </div>
+               
+               
                 </div>
             </div>
 
@@ -574,91 +721,110 @@ onMounted(async () => {
                                 </li>
                             </ul>
                             <div class="tab-content" id="tab-content-5">
+                                <!-- Login Tab -->
                                 <div class="tab-pane fade show active" id="signin" role="tabpanel" aria-labelledby="signin-tab">
-                                    <form action="#">
+                                    <form @submit="handleLogin">
+                                        <div v-if="loginErrors.general" class="alert alert-danger">
+                                            {{ loginErrors.general }}
+                                        </div>
+                                        
                                         <div class="form-group">
-                                            <label for="singin-email">Username or email address *</label>
-                                            <input type="text" class="form-control" id="singin-email" name="singin-email" required>
+                                            <label for="singin-email">Email address *</label>
+                                            <input 
+                                                type="email" 
+                                                class="form-control" 
+                                                :class="{ 'is-invalid': loginErrors.email }"
+                                                id="singin-email" 
+                                                v-model="loginForm.email"
+                                                required>
+                                            <div v-if="loginErrors.email" class="invalid-feedback d-block">
+                                                {{ loginErrors.email[0] }}
+                                            </div>
                                         </div>
 
                                         <div class="form-group">
                                             <label for="singin-password">Password *</label>
-                                            <input type="password" class="form-control" id="singin-password" name="singin-password" required>
+                                            <input 
+                                                type="password" 
+                                                class="form-control" 
+                                                :class="{ 'is-invalid': loginErrors.password }"
+                                                id="singin-password" 
+                                                v-model="loginForm.password"
+                                                required>
+                                            <div v-if="loginErrors.password" class="invalid-feedback d-block">
+                                                {{ loginErrors.password[0] }}
+                                            </div>
                                         </div>
 
                                         <div class="form-footer">
-                                            <button type="submit" class="btn btn-outline-primary-2">
-                                                <span>LOG IN</span>
+                                            <button type="submit" class="btn btn-outline-primary-2" :disabled="isLoggingIn">
+                                                <span>{{ isLoggingIn ? 'LOGGING IN...' : 'LOG IN' }}</span>
                                                 <i class="icon-long-arrow-right"></i>
                                             </button>
-
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="signin-remember">
-                                                <label class="custom-control-label" for="signin-remember">Remember Me</label>
-                                            </div>
 
                                             <a href="#" class="forgot-link">Forgot Your Password?</a>
                                         </div>
                                     </form>
-                                    <div class="form-choice">
-                                        <p class="text-center">or sign in with</p>
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <a href="#" class="btn btn-login btn-g">
-                                                    <i class="icon-google"></i>
-                                                    Login With Google
-                                                </a>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <a href="#" class="btn btn-login btn-f">
-                                                    <i class="icon-facebook-f"></i>
-                                                    Login With Facebook
-                                                </a>
+                                </div>
+                                
+                                <!-- Register Tab -->
+                                <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
+                                    <form @submit="handleRegister">
+                                        <div v-if="registerErrors.general" class="alert alert-danger">
+                                            {{ registerErrors.general }}
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="register-name">Your name *</label>
+                                            <input 
+                                                type="text" 
+                                                class="form-control" 
+                                                :class="{ 'is-invalid': registerErrors.name }"
+                                                id="register-name" 
+                                                v-model="registerForm.name"
+                                                required>
+                                            <div v-if="registerErrors.name" class="invalid-feedback d-block">
+                                                {{ registerErrors.name[0] }}
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
-                                    <form action="#">
+                                        
                                         <div class="form-group">
                                             <label for="register-email">Your email address *</label>
-                                            <input type="email" class="form-control" id="register-email" name="register-email" required>
+                                            <input 
+                                                type="email" 
+                                                class="form-control" 
+                                                :class="{ 'is-invalid': registerErrors.email }"
+                                                id="register-email" 
+                                                v-model="registerForm.email"
+                                                required>
+                                            <div v-if="registerErrors.email" class="invalid-feedback d-block">
+                                                {{ registerErrors.email[0] }}
+                                            </div>
                                         </div>
 
                                         <div class="form-group">
                                             <label for="register-password">Password *</label>
-                                            <input type="password" class="form-control" id="register-password" name="register-password" required>
+                                            <input 
+                                                type="password" 
+                                                class="form-control" 
+                                                :class="{ 'is-invalid': registerErrors.password }"
+                                                id="register-password" 
+                                                v-model="registerForm.password"
+                                                minlength="8"
+                                                required>
+                                            <div v-if="registerErrors.password" class="invalid-feedback d-block">
+                                                {{ registerErrors.password[0] }}
+                                            </div>
+                                            <small class="form-text text-muted">Minimum 8 characters</small>
                                         </div>
 
                                         <div class="form-footer">
-                                            <button type="submit" class="btn btn-outline-primary-2">
-                                                <span>SIGN UP</span>
+                                            <button type="submit" class="btn btn-outline-primary-2" :disabled="isRegistering">
+                                                <span>{{ isRegistering ? 'SIGNING UP...' : 'SIGN UP' }}</span>
                                                 <i class="icon-long-arrow-right"></i>
                                             </button>
-
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="register-policy" required>
-                                                <label class="custom-control-label" for="register-policy">I agree to the <a href="#">privacy policy</a> *</label>
-                                            </div>
                                         </div>
                                     </form>
-                                    <div class="form-choice">
-                                        <p class="text-center">or sign in with</p>
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <a href="#" class="btn btn-login btn-g">
-                                                    <i class="icon-google"></i>
-                                                    Login With Google
-                                                </a>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <a href="#" class="btn btn-login  btn-f">
-                                                    <i class="icon-facebook-f"></i>
-                                                    Login With Facebook
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -672,5 +838,15 @@ onMounted(async () => {
 <style scoped>
 .menu.sf-arrows .sf-with-ul::after {
     display: none !important;
+}
+
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
 }
 </style>

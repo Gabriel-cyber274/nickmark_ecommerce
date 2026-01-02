@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -34,5 +35,34 @@ class Product extends Model
     public function reviews()
     {
         return $this->hasMany(ProductReview::class);
+    }
+
+
+    /* =======================
+     *  MODEL EVENTS
+     * ======================= */
+    protected static function booted(): void
+    {
+        static::deleting(function (Product $product) {
+            foreach ($product->images as $image) {
+                if (! $image->image_url) {
+                    continue;
+                }
+
+                // Convert full URL → storage path
+                $path = str_replace(
+                    Storage::disk('public')->url(''),
+                    '',
+                    $image->image_url
+                );
+
+                if (Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
+                }
+            }
+
+            // Delete image records
+            $product->images()->delete();
+        });
     }
 }

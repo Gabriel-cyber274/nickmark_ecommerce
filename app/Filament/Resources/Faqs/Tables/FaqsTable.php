@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Products\Tables;
+namespace App\Filament\Resources\Faqs\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -9,27 +9,16 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class ProductsTable
+class FaqsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('category.name')
-                    ->sortable(),
-                TextColumn::make('name')
+                TextColumn::make('question')
                     ->searchable(),
-
-                TextColumn::make('brand_name')
-                    ->searchable(),
-
-                TextColumn::make('price')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('previous_price')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('views'),
+                // TextColumn::make('answer')
+                //     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

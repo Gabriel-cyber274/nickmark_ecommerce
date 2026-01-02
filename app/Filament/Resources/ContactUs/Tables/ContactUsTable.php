@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Products\Tables;
+namespace App\Filament\Resources\ContactUs\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -9,27 +9,21 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class ProductsTable
+class ContactUsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('category.name')
-                    ->sortable(),
                 TextColumn::make('name')
                     ->searchable(),
-
-                TextColumn::make('brand_name')
+                TextColumn::make('email')
+                    ->label('Email address')
                     ->searchable(),
-
-                TextColumn::make('price')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('previous_price')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('views'),
+                TextColumn::make('phone')
+                    ->searchable(),
+                TextColumn::make('subject')
+                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

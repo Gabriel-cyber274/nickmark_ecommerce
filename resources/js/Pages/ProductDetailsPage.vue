@@ -18,6 +18,9 @@ let prop = defineProps({
     },
     product: {
         type: Object  
+    },
+    auth: {
+        type: Object  
     }
 });
 
@@ -248,7 +251,7 @@ const formatAnswer = (answer) => {
 </script>
 
 <template>
-<Skeleton page='product'>
+<Skeleton page='product' :auth="auth">
     <main class="main mt-3">
         <div class="page-content">
             <div class="container">

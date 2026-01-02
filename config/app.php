@@ -41,6 +41,9 @@ return [
 
     'debug' => (bool) env('APP_DEBUG', false),
 
+
+    'admin_email' => env('ADMIN_EMAIL', "gab@gmail.com"),
+
     /*
     |--------------------------------------------------------------------------
     | Application URL

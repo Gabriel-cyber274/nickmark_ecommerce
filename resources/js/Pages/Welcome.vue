@@ -23,6 +23,9 @@ let prop = defineProps({
     },
     newProductCategories : {
         type: Object  
+    },
+    auth: {
+        type: Object  
     }
 });
 
@@ -58,24 +61,24 @@ const allProducts = computed(() => {
 
 
 onMounted(()=>{
-    console.log('recommend', prop.recommendedProducts)
+    console.log('recommend', prop.auth)
 })
 
 
 const brands = ref([
-  { id: 1, src: "assets/images/brands/1.png" },
-  { id: 2, src: "assets/images/brands/2.png" },
-  { id: 3, src: "assets/images/brands/3.png" },
-  { id: 4, src: "assets/images/brands/4.png" },
-  { id: 5, src: "assets/images/brands/5.png" },
-  { id: 6, src: "assets/images/brands/6.png" },
+  { id: 1, src: "assets/images/brands/1.png", name: 'samsung' },
+  { id: 2, src: "assets/images/brands/2.png", name: 'dell' },
+  { id: 3, src: "assets/images/brands/3.png", name: 'apple' },
+  { id: 4, src: "assets/images/brands/4.png", name: 'windows' },
+  { id: 5, src: "assets/images/brands/5.png", name: 'asus' },
+  { id: 6, src: "assets/images/brands/6.png", name: 'hp' },
 ]);
 
 </script>
 
 <template>
     <Head title="Welcome" />
-    <Skeleton page="home">
+    <Skeleton page="home" :auth="auth">
 
                 <main class="main">
             <div class="intro-slider-container mb-5">
@@ -361,13 +364,13 @@ const brands = ref([
   <div class="brand-marquee-container mt-5 mb-5">
     <div class="brand-marquee">
       <div class="brand-marquee-content">
-        <a v-for="brand in brands" :key="brand.id" href="#" class="brand">
+        <Link v-for="brand in brands" :key="brand.id" :href="'/categories?search='+brand.name" class="brand">
           <img :src="brand.src" alt="Brand Name">
-        </a>
+        </Link>
         <!-- Duplicate for seamless loop -->
-        <a v-for="brand in brands" :key="`${brand.id}-duplicate`" href="#" class="brand">
+        <Link v-for="brand in brands" :key="`${brand.id}-duplicate`" :href="'/categories?search='+brand.name" class="brand">
           <img :src="brand.src" alt="Brand Name">
-        </a>
+        </Link>
       </div>
     </div>
   </div>

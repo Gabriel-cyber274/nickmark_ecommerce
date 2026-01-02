@@ -10,14 +10,9 @@ defineProps({
     canRegister: {
         type: Boolean,
     },
-    laravelVersion: {
-        type: String,
-        required: true,
-    },
-    phpVersion: {
-        type: String,
-        required: true,
-    },
+    auth: {
+        type: Object  
+    }
 });
 
 // Initialize Owl Carousel after component mounts
@@ -67,7 +62,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-<Skeleton page="about">
+<Skeleton page="about" :auth="auth">
         <main class="main mt-3">
             <div class="container">
 	        	<div class="page-header page-header-big text-center" style="background-image: url('assets/images/about-header-bg.jpg')">

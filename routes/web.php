@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Mail\ContactUsAdminMail;
 use App\Models\Category;
+use App\Models\ContactUs;
+use App\Models\Faq;
 use App\Models\Product;
 use App\Models\ProductReview;
 use Illuminate\Foundation\Application;
@@ -9,9 +12,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request; // Make sure this is at the top of your routes file
-
-
-
+use Illuminate\Support\Facades\Mail;
 
 Route::get('/', function () {
     $categories = Category::withSum('products', 'views')->get();
@@ -87,6 +88,7 @@ Route::get('/', function () {
         'recommendedProducts' => $recommendedProducts,
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
+        'auth' => auth()->user(),
     ]);
 });
 
@@ -204,6 +206,7 @@ Route::get('/categories', function (Request $request) {
         ],
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
+        'auth' => auth()->user(),
     ]);
 });
 
@@ -212,17 +215,17 @@ Route::get('/about', function () {
     return Inertia::render('AboutPage', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+        'auth' => auth()->user(),
     ]);
 });
 
 Route::get('/faq', function () {
+    $faq = Faq::all();
     return Inertia::render('FaqPage', [
+        'faq' => $faq,
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+        'auth' => auth()->user(),
     ]);
 });
 
@@ -230,10 +233,38 @@ Route::get('/contact-us', function () {
     return Inertia::render('ContactUsPage', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+        'auth' => auth()->user(),
     ]);
 });
+
+
+Route::post('/contact-us', function (Request $request) {
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'phone' => 'nullable|string|max:20',
+        'subject' => 'nullable|string|max:255',
+        'message' => 'required|string',
+    ]);
+
+    $contact = ContactUs::create([
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+        'phone' => $validated['phone'],
+        'subject' => $validated['subject'],
+        'content' => $validated['message'],
+    ]);
+
+    $adminEmail = config('app.admin_email');
+
+    // Send email to admin
+    Mail::to($adminEmail)->send(new ContactUsAdminMail($contact));
+
+
+    return redirect()->back()->with('success', 'Thank you for contacting us! We will get back to you soon.');
+})->name('contact-us.store');
+
+
 
 Route::get('/product/{id}', function ($id) {
     // Load product with question relationship included in answers
@@ -279,6 +310,7 @@ Route::get('/product/{id}', function ($id) {
         'recommendProducts' => $recommendProducts,
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
+        'auth' => auth()->user(),
     ]);
 });
 
@@ -316,8 +348,14 @@ Route::post('/product/{id}/review', function (Request $request, $id) {
 
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    return Inertia::render('UserDashboardPage', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'auth' => auth()->user(),
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
