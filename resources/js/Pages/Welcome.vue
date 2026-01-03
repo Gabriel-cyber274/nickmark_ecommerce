@@ -3,9 +3,13 @@ import { Head, Link } from '@inertiajs/vue3';
 import { onMounted, nextTick, onUnmounted, ref,  computed } from 'vue';
 import Skeleton from './Skeleton.vue'
 import { useWishlist } from '../composables/useWishlist';
+import { usePage } from '@inertiajs/vue3';
 
 import { useCart } from '../composables/useCart';
 
+import { watch } from 'vue';
+
+const page = usePage();
 
 
 
@@ -32,6 +36,38 @@ let prop = defineProps({
         type: Object  
     }
 });
+
+
+const toast = ref({
+    show: false,
+    message: '',
+    type: 'success'
+});
+
+const showToast = (message, type = 'success') => {
+    toast.value.message = message;
+    toast.value.type = type;
+    toast.value.show = true;
+    
+    setTimeout(() => {
+        toast.value.show = false;
+    }, 5000);
+};
+
+const closeToast = () => {
+    toast.value.show = false;
+};
+
+// Watch for flash messages
+watch(() => page.props.flash, (flash) => {
+    if (flash?.success) {
+        showToast(flash.success, 'success');
+    }
+    if (flash?.error) {
+        showToast(flash.error, 'error');
+    }
+}, { deep: true, immediate: true });
+
 
 const { isInWishlist, toggleWishlist } = useWishlist(prop.auth);
 const { addToCart, isInCart } = useCart(prop.auth);
@@ -107,6 +143,25 @@ const brands = ref([
 
 <template>
     <Head title="Welcome" />
+
+      <!-- Toast Notification -->
+    <transition name="toast">
+        <div v-if="toast.show" :class="['toast-notification', `toast-${toast.type}`]">
+            <div class="toast-content">
+                <div class="toast-icon">
+                    <i v-if="toast.type === 'success'" class="icon-check"></i>
+                    <i v-if="toast.type === 'error'" class="icon-close"></i>
+                    <i v-if="toast.type === 'warning'" class="icon-exclamation"></i>
+                    <i v-if="toast.type === 'info'" class="icon-info"></i>
+                </div>
+                <div class="toast-message">{{ toast.message }}</div>
+                <button class="toast-close" @click="closeToast">
+                    <i class="icon-close"></i>
+                </button>
+            </div>
+        </div>
+    </transition>
+
     <Skeleton page="home" :auth="auth">
 
                 <main class="main">
@@ -717,5 +772,122 @@ const brands = ref([
     content: '\f233'; 
     font-family: "molla";
     font-weight: 400;
+}
+
+
+/* Toast Notification Styles */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.3s ease-out;
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    background: #fff;
+    border-radius: 8px;
+}
+
+.toast-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.toast-message {
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.toast-close {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    margin-left: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.toast-close:hover {
+    opacity: 1;
+}
+
+.toast-success {
+    border-left: 4px solid #10b981;
+}
+
+.toast-success .toast-icon {
+    color: #10b981;
+}
+
+.toast-error {
+    border-left: 4px solid #ef4444;
+}
+
+.toast-error .toast-icon {
+    color: #ef4444;
+}
+
+.toast-warning {
+    border-left: 4px solid #f59e0b;
+}
+
+.toast-warning .toast-icon {
+    color: #f59e0b;
+}
+
+.toast-info {
+    border-left: 4px solid #3b82f6;
+}
+
+.toast-info .toast-icon {
+    color: #3b82f6;
+}
+
+/* Toast Animations */
+.toast-enter-active, .toast-leave-active {
+    transition: all 0.3s ease;
+}
+
+.toast-enter-from {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.toast-leave-to {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 </style>

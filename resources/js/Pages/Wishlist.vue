@@ -178,7 +178,7 @@ onMounted(() => {
                             </tbody>
                         </table>
 
-                        <div class="wishlist-share">
+                        <!-- <div class="wishlist-share">
                             <div class="social-icons social-icons-sm mb-2">
                                 <label class="social-label">Share on:</label>
                                 <a href="#" class="social-icon" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
@@ -187,7 +187,7 @@ onMounted(() => {
                                 <a href="#" class="social-icon" title="Youtube" target="_blank"><i class="icon-youtube"></i></a>
                                 <a href="#" class="social-icon" title="Pinterest" target="_blank"><i class="icon-pinterest"></i></a>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>

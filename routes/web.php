@@ -1,13 +1,18 @@
 <?php
 
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use App\Mail\ContactUsAdminMail;
 use App\Models\Category;
 use App\Models\ContactUs;
+use App\Models\DiscountCode;
 use App\Models\Faq;
 use App\Models\Product;
 use App\Models\ProductReview;
+use App\Models\State;
 use App\Models\UserWishlist;
+use Carbon\Carbon;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -91,7 +96,7 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'auth' => auth()->user(),
     ]);
-});
+})->name('home');
 
 
 
@@ -265,12 +270,27 @@ Route::get('/cart', function () {
 
 
 Route::get('/checkout', function () {
+    $state = State::with(['cities.dispatchFee', 'dispatchFee'])->get();
+
+    // Only get discount codes that haven't expired yet
+    $discountCodes = DiscountCode::where('expires_at', '>', Carbon::now())->get();
+
     return Inertia::render('CheckoutPage', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'auth' => auth()->user(),
+        'stateandcity' => $state,
+        'codes' => $discountCodes,
+        'auth' => auth()->user()?->load('userInfo'),
     ]);
-});
+})->name('checkout');
+
+// Paystack routes
+Route::post('/paystack/initiate', [OrderController::class, 'initiatePaystack'])->name('paystack.initiate');
+Route::get('/paystack/callback', [OrderController::class, 'handlePaystackCallback'])->name('paystack.callback');
+
+// WhatsApp order route
+Route::post('/order/whatsapp', [OrderController::class, 'createWhatsAppOrder'])->name('order.whatsapp');
+
 
 
 Route::post('/contact-us', function (Request $request) {
@@ -383,13 +403,60 @@ Route::post('/product/{id}/review', function (Request $request, $id) {
 
 
 Route::get('/dashboard', function () {
+    $user = auth()->user()->load(['userInfo.state', 'userInfo.city']);
+
+    // Get user orders with items and product details
+    $orders = auth()->user()->orders()
+        ->with(['items.product.images', 'state', 'city'])
+        ->latest()
+        ->get();
+
+    // Get states and cities for the address form
+    $states = \App\Models\State::all();
+    $cities = \App\Models\City::all();
+
     return Inertia::render('UserDashboardPage', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'auth' => $user,
+        'orders' => $orders,
+        'states' => $states,
+        'cities' => $cities,
+    ]);
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/orders/{id}', function ($id) {
+    $order = \App\Models\Order::with([
+        'items.product.images',
+        'items.product.category',
+        'user',
+        'state',
+        'city',
+        'discount'
+    ])->findOrFail($id);
+
+    // Ensure the order belongs to the authenticated user
+    if (auth()->check() && $order->user_id !== auth()->id()) {
+        abort(403, 'Unauthorized access to this order.');
+    }
+
+    return Inertia::render('OrderDetails', [
+        'order' => $order,
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'auth' => auth()->user(),
     ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('order.details');
 
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Update user account details
+    Route::post('/user/update-account', [UserController::class, 'updateAccount'])
+        ->name('user.update-account');
+
+    // Update user billing/shipping address
+    Route::post('/user/update-address', [UserController::class, 'updateAddress'])
+        ->name('user.update-address');
+});
 
 
 Route::middleware('auth')->group(function () {

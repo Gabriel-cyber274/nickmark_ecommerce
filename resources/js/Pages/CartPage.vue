@@ -19,7 +19,6 @@ const fetchCartProducts = async () => {
     isLoading.value = true;
     
     if (props.auth) {
-        // For authenticated users, products are already loaded with cart items
         const response = await fetch('/api/cart', {
             headers: {
                 'Accept': 'application/json',
@@ -33,7 +32,6 @@ const fetchCartProducts = async () => {
             cartProducts.value = data;
         }
     } else {
-        // For guest users, fetch product details
         if (cartItems.value.length > 0) {
             const response = await fetch('/api/cart/products', {
                 method: 'POST',
@@ -172,19 +170,6 @@ onMounted(() => {
                             </table>
 
                             <div class="cart-bottom">
-                                <div class="cart-discount">
-                                    <form action="#">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="coupon code">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-outline-primary-2" type="submit">
-                                                    <i class="icon-long-arrow-right"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-
                                 <Link href="/categories" class="btn btn-outline-dark-2">
                                     <span>CONTINUE SHOPPING</span>
                                     <i class="icon-refresh"></i>
@@ -202,49 +187,6 @@ onMounted(() => {
                                             <td>Subtotal:</td>
                                             <td>₦{{ subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
                                         </tr>
-                                        <tr class="summary-shipping">
-                                            <td>Shipping:</td>
-                                            <td>&nbsp;</td>
-                                        </tr>
-
-                                        <tr class="summary-shipping-row">
-                                            <td>
-                                                <div class="custom-control custom-radio">
-                                                    <input type="radio" id="free-shipping" name="shipping" class="custom-control-input" checked>
-                                                    <label class="custom-control-label" for="free-shipping">Free Shipping</label>
-                                                </div>
-                                            </td>
-                                            <td>₦0.00</td>
-                                        </tr>
-
-                                        <tr class="summary-shipping-row">
-                                            <td>
-                                                <div class="custom-control custom-radio">
-                                                    <input type="radio" id="standard-shipping" name="shipping" class="custom-control-input">
-                                                    <label class="custom-control-label" for="standard-shipping">Standard:</label>
-                                                </div>
-                                            </td>
-                                            <td>₦1,000.00</td>
-                                        </tr>
-
-                                        <tr class="summary-shipping-row">
-                                            <td>
-                                                <div class="custom-control custom-radio">
-                                                    <input type="radio" id="express-shipping" name="shipping" class="custom-control-input">
-                                                    <label class="custom-control-label" for="express-shipping">Express:</label>
-                                                </div>
-                                            </td>
-                                            <td>₦2,000.00</td>
-                                        </tr>
-
-                                        <tr class="summary-shipping-estimate" v-if="auth">
-                                            <td>
-                                                Estimate for Your State<br> 
-                                                <Link href="/dashboard">Change address</Link>
-                                            </td>
-                                            <td>&nbsp;</td>
-                                        </tr>
-
                                         <tr class="summary-total">
                                             <td>Total:</td>
                                             <td>₦{{ subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>

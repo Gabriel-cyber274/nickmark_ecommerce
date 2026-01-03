@@ -65,4 +65,17 @@ class Product extends Model
             $product->images()->delete();
         });
     }
+
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_items')
+            ->withPivot('quantity')
+            ->withTimestamps();
+    }
 }
