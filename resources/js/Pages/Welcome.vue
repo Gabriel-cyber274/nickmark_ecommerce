@@ -75,10 +75,17 @@ const { addToCart, isInCart } = useCart(prop.auth);
 const handleWishlistToggle = async (productId) => {
     try {
         const result = await toggleWishlist(productId);
-        // Optional: show a toast notification
-        console.log(result.message);
+        // Show toast notification
+        const isAdded = isInWishlist(productId);
+        showToast(
+            isAdded 
+                ? 'Product added to wishlist!' 
+                : 'Product removed from wishlist!',
+            'success'
+        );
     } catch (error) {
         console.error('Error toggling wishlist:', error);
+        showToast('Failed to update wishlist. Please try again.', 'error');
     }
 };
 
@@ -86,10 +93,11 @@ const handleWishlistToggle = async (productId) => {
 const handleAddToCart = async (productId) => {
     try {
         const result = await addToCart(productId, 1);
-        console.log(result.message);
-        // Optional: show a toast notification
+        // Show toast notification
+        showToast('Product added to cart!', 'success');
     } catch (error) {
         console.error('Error adding to cart:', error);
+        showToast('Failed to add product to cart. Please try again.', 'error');
     }
 };
 

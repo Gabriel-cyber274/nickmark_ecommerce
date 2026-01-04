@@ -693,11 +693,11 @@ onMounted(() => {
                                     <h4 class="mb-3">Payment Method</h4>
                                     
                                     <button type="button" @click="handleSubmit('paystack')" class="btn btn-outline-primary-2 btn-block mb-2">
-                                        <span class="btn-text">Pay with Paystack</span>
+                                        Pay with Paystack
                                     </button>
                                     
                                     <button type="button" @click="handleSubmit('whatsapp')" class="btn btn-outline-success-2 btn-block">
-                                        <span class="btn-text">Order via WhatsApp</span>
+                                        Order via WhatsApp
                                     </button>
                                 </div>
                             </div>
