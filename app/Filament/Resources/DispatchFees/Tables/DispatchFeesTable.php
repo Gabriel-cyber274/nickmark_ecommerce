@@ -14,6 +14,7 @@ class DispatchFeesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('state.name')->label('State')->sortable(),
                 TextColumn::make('city.name')->label('City')->sortable()->toggleable(),

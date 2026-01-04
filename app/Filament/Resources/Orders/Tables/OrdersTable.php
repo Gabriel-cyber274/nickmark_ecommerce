@@ -14,6 +14,7 @@ class OrdersTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('user.name')
                     ->numeric()

@@ -171,7 +171,7 @@
         {{-- <a href="{{ route('admin.orders.show', $order->id) }}" class="btn">
             View Order in Admin Panel
         </a> --}}
-        <a href="" class="btn">
+        <a href="{{ url('admin/orders/' . $order->id) }}" class="btn">
             View Order in Admin Panel
         </a>
     </center>
