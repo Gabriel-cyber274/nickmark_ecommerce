@@ -295,6 +295,7 @@ function initMobileMenu() {
     });
 }
 
+
 function initCarousels() {
     if (window.$ && window.$.fn.owlCarousel) {
         $('.owl-carousel').each(function() {
@@ -310,6 +311,9 @@ function initCarousels() {
             nav: false,
             items: 1,
             autoHeight: false,
+            autoplay: true,
+            autoplayTimeout: 5000,
+            autoplayHoverPause: true,
             responsive: {
                 1200: {
                     nav: true,
@@ -323,7 +327,10 @@ function initCarousels() {
                 nav: true,
                 dots: true,
                 margin: 20,
-                loop: false,
+                loop: false, // Changed to true for autoplay
+                // autoplay: true,
+                // autoplayTimeout: 4000,
+                // autoplayHoverPause: true,
                 responsive: {
                     0: { items: 2 },
                     480: { items: 2 },
@@ -338,7 +345,10 @@ function initCarousels() {
             nav: false,
             dots: false,
             margin: 30,
-            loop: false,
+            loop: true, // Changed to true for autoplay
+            autoplay: true,
+            autoplayTimeout: 3000,
+            autoplayHoverPause: true,
             responsive: {
                 0: { items: 2 },
                 420: { items: 3 },

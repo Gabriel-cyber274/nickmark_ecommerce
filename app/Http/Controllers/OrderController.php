@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AdminNewOrderMail;
+use App\Mail\OrderConfirmationMail;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
@@ -9,6 +11,8 @@ use App\Models\UserInfo;
 use App\Services\PaystackService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class OrderController extends Controller
@@ -43,7 +47,7 @@ class OrderController extends Controller
             route('paystack.callback'),
             [
                 'order_data' => $validated,
-                'user_id' => auth()->id(),
+                'user_id' => auth()->id(), // This returns null if not authenticated
             ]
         );
 
@@ -81,10 +85,19 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
 
+            // Get user_id from metadata, ensure it's null if not set
+            $userId = isset($metadata['user_id']) && !empty($metadata['user_id'])
+                ? $metadata['user_id']
+                : null;
+
             // Create the order
-            $order = $this->createOrder($orderData, 'paystack', $reference, $metadata['user_id'] ?? null);
+            $order = $this->createOrder($orderData, 'paystack', $reference, $userId);
 
             DB::commit();
+
+            // Send emails
+            $this->sendOrderEmails($order);
+
 
             // Clear cart if user is authenticated
             if (auth()->check()) {
@@ -95,10 +108,46 @@ class OrderController extends Controller
                 ->with('success', 'Payment successful! Your order has been placed.');
         } catch (\Exception $e) {
             DB::rollBack();
+
+            Log::error('Order creation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return redirect()->route('checkout')
-                ->with('error', 'Failed to process order: ' . $e->getMessage());
+                ->with('error', 'Failed to process order. Please contact support.');
         }
     }
+
+
+    protected function sendOrderEmails(Order $order): void
+    {
+        try {
+            // Send confirmation email to customer
+            Mail::to($order->email)
+                ->send(new OrderConfirmationMail($order));
+
+            // Send notification email to admin
+            $adminEmail = config('app.admin_email');
+            if ($adminEmail) {
+                Mail::to($adminEmail)
+                    ->send(new AdminNewOrderMail($order));
+            }
+
+            Log::info('Order emails sent successfully', [
+                'order_id' => $order->id,
+                'customer_email' => $order->email,
+                'admin_email' => $adminEmail,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send order emails', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+    }
+
 
     public function createWhatsAppOrder(Request $request)
     {
@@ -128,7 +177,11 @@ class OrderController extends Controller
             DB::beginTransaction();
 
             $reference = 'WA-' . strtoupper(Str::random(10));
-            $order = $this->createOrder($validated, 'whatsapp', $reference, auth()->id());
+
+            // Ensure user_id is null if not authenticated
+            $userId = auth()->check() ? auth()->id() : null;
+
+            $order = $this->createOrder($validated, 'whatsapp', $reference, $userId);
 
             DB::commit();
 
@@ -145,6 +198,12 @@ class OrderController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
+            Log::error('WhatsApp order creation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create order: ' . $e->getMessage()
@@ -178,13 +237,18 @@ class OrderController extends Controller
         // Determine order status based on payment method
         $status = $paymentMethod === 'paystack' ? 'paid' : 'pending';
 
+        // CRITICAL FIX: Ensure user_id is explicitly null if not provided
+        // Cast empty string or false to null
+        $userId = $userId ?: null;
+
         // Create order
         $order = Order::create([
-            'user_id' => $userId,
+            'user_id' => $userId, // Will be null for guest users
             'discount_id' => $discountId,
             'reference' => $reference,
             'payment_method' => $paymentMethod,
             'subtotal' => $data['subtotal'],
+            'delivery_method' => $data['delivery_method'],
             'total' => $data['total'],
             'name' => $data['first_name'] . ' ' . $data['last_name'],
             'email' => $data['email'],
@@ -211,6 +275,7 @@ class OrderController extends Controller
             User::find($userId)->update([
                 'name' => $data['first_name'] . ' ' . $data['last_name'],
             ]);
+
             UserInfo::updateOrCreate(
                 ['user_id' => $userId],
                 [

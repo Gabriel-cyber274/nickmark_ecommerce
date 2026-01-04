@@ -3,12 +3,12 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { onMounted, ref, computed, watch } from 'vue';
 import Skeleton from './Skeleton.vue';
 import { useCart } from '../composables/useCart';
-
 import { usePage } from '@inertiajs/vue3';
 
 const page = usePage();
 
-
+// Cart storage key constant
+const CART_STORAGE_KEY = 'guest_cart';
 
 const props = defineProps({
     canLogin: Boolean,
@@ -18,12 +18,11 @@ const props = defineProps({
     codes: Array 
 });
 
-onMounted(()=> {
+onMounted(() => {
     console.log('auth', props.auth)
-})
+});
 
-
-// Watch for flash messages (add this with your existing code)
+// Watch for flash messages
 watch(() => page.props.flash, (flash) => {
     if (flash?.success) {
         showToast(flash.success, 'success');
@@ -32,7 +31,6 @@ watch(() => page.props.flash, (flash) => {
         showToast(flash.error, 'error');
     }
 }, { deep: true, immediate: true });
-
 
 const prepareOrderData = () => {
     return {
@@ -121,17 +119,14 @@ const selectedCity = computed(() => {
 const dispatchFee = computed(() => {
     if (checkoutForm.value.delivery_method !== 'dispatch') return 0;
     
-    // First check if city has a dispatch fee
     if (selectedCity.value?.dispatch_fee) {
         return parseFloat(selectedCity.value.dispatch_fee.amount);
     }
     
-    // If city doesn't have fee, use state's dispatch fee
     if (selectedState.value?.dispatch_fee) {
         return parseFloat(selectedState.value.dispatch_fee.amount);
     }
     
-    // Default fee if neither city nor state has a fee set
     return 2000;
 });
 
@@ -211,7 +206,6 @@ const subtotal = computed(() => {
 const discountAmount = computed(() => {
     if (!appliedDiscount.value) return 0;
     
-    // Check if subtotal (without shipping) meets minimum amount
     if (subtotal.value < parseFloat(appliedDiscount.value.min_amount)) {
         return 0;
     }
@@ -231,13 +225,11 @@ const applyDiscountCode = () => {
         return;
     }
     
-    // Check if codes array exists and has items
     if (!props.codes || !Array.isArray(props.codes) || props.codes.length === 0) {
         showToast('No discount codes available at the moment', 'error');
         return;
     }
     
-    // Find the code in the codes array
     const code = props.codes.find(c => c.code.toUpperCase() === discountCode.value.trim().toUpperCase());
     
     if (!code) {
@@ -245,14 +237,11 @@ const applyDiscountCode = () => {
         return;
     }
     
-    
-    // Check if subtotal meets minimum amount
     if (subtotal.value < parseFloat(code.min_amount)) {
         showToast(`Minimum order amount of ₦${parseFloat(code.min_amount).toLocaleString()} required for this code`, 'warning');
         return;
     }
     
-    // Apply the discount
     appliedDiscount.value = code;
     showToast(`Discount code applied! You saved ₦${parseFloat(code.discount_amount).toLocaleString()}`, 'success');
 };
@@ -280,13 +269,25 @@ const handleCreateAccount = async () => {
                 name: `${checkoutForm.value.first_name} ${checkoutForm.value.last_name}`,
                 email: checkoutForm.value.email,
                 password: checkoutForm.value.password
-            })
+            }),
+            credentials: 'include',
         });
 
         const data = await response.json();
 
         if (response.ok) {
+            if (data.csrf_token) {
+                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                if (csrfMeta) {
+                    csrfMeta.setAttribute('content', data.csrf_token);
+                }
+            }
+            
             showToast('Account created successfully!', 'success');
+            
+            // Wait for session to establish
+            await new Promise(resolve => setTimeout(resolve, 500));
+
             return true;
         } else {
             if (data.errors) {
@@ -308,31 +309,45 @@ const handleCreateAccount = async () => {
 const handlePaystackPayment = async () => {
     try {
         const orderData = prepareOrderData();
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+        
+        if (!csrfToken) {
+            showToast('Security token missing. Please refresh the page.', 'error');
+            return;
+        }
         
         const response = await fetch('/paystack/initiate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                'X-CSRF-TOKEN': csrfToken
             },
-            body: JSON.stringify(orderData)
+            body: JSON.stringify(orderData),
+            credentials: 'include'
         });
 
         const data = await response.json();
 
         if (response.ok && data.authorization_url) {
+            // Clear guest cart before redirecting
+            if (!props.auth) {
+                localStorage.removeItem(CART_STORAGE_KEY);
+            }
+            
             // Redirect to Paystack payment page
             window.location.href = data.authorization_url;
         } else {
-            showToast('Failed to initialize payment. Please try again.', 'error');
+            const errorMessage = data.message || 'Failed to initialize payment. Please try again.';
+            showToast(errorMessage, 'error');
+            console.error('Paystack initiation error:', data);
         }
     } catch (error) {
         console.error('Payment error:', error);
         showToast('An error occurred. Please try again.', 'error');
     }
 };
-
 
 // Handle WhatsApp order
 const handleWhatsAppOrder = async () => {
@@ -352,7 +367,11 @@ const handleWhatsAppOrder = async () => {
         const data = await response.json();
 
         if (response.ok && data.success) {
-            // Construct WhatsApp message
+            // Clear guest cart for non-authenticated users
+            if (!props.auth) {
+                localStorage.removeItem(CART_STORAGE_KEY);
+            }
+            
             const orderDetails = `
 🛍️ *New Order* - Ref: ${data.reference}
 
@@ -380,15 +399,13 @@ ${checkoutForm.value.notes ? `*Notes:* ${checkoutForm.value.notes}` : ''}
             `.trim();
             
             const encodedMessage = encodeURIComponent(orderDetails);
-            const whatsappUrl = `https://wa.me/YOUR_PHONE_NUMBER?text=${encodedMessage}`;
+            const phoneNumber = "2347018521912";
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
             
-            // Show success message
             showToast('Order created successfully! Redirecting to WhatsApp...', 'success');
             
-            // Redirect after a short delay
             setTimeout(() => {
                 window.open(whatsappUrl, '_blank');
-                // Redirect to home or order confirmation page
                 router.visit('/');
             }, 1500);
         } else {
@@ -399,7 +416,6 @@ ${checkoutForm.value.notes ? `*Notes:* ${checkoutForm.value.notes}` : ''}
         showToast('An error occurred. Please try again.', 'error');
     }
 };
-
 
 // Handle order submission
 const handleSubmit = async (paymentMethod) => {
@@ -426,14 +442,12 @@ const handleSubmit = async (paymentMethod) => {
     if (paymentMethod === 'paystack') {
         await handlePaystackPayment();
     } else if (paymentMethod === 'whatsapp') {
-        handleWhatsAppOrder();
+        await handleWhatsAppOrder();
     }
 };
 
-
-// If state/city mapping fails, fall back to empty values
+// Initialize form on mount
 watch(() => checkoutForm.value.state, () => {
-    // Only update city if we successfully set a state
     if (checkoutForm.value.state && props.auth?.user_info?.city_id) {
         const state = props.stateandcity.find(s => s.name === checkoutForm.value.state);
         if (state && state.cities) {
@@ -447,12 +461,10 @@ onMounted(() => {
     fetchCartProducts();
     
     if (props.auth) {
-        // Fill basic user info
         checkoutForm.value.first_name = props.auth.name?.split(' ')[0] || '';
         checkoutForm.value.last_name = props.auth.name?.split(' ').slice(1).join(' ') || '';
         checkoutForm.value.email = props.auth.email || '';
         
-        // Check if user_info exists and fill the rest
         if (props.auth.user_info) {
             const userInfo = props.auth.user_info;
             
@@ -460,14 +472,11 @@ onMounted(() => {
             checkoutForm.value.address = userInfo.address || '';
             checkoutForm.value.postal_code = userInfo.postal_code || '';
             
-            // To set state and city, we need to find the names from the stateandcity prop
             if (userInfo.state_id && props.stateandcity) {
-                // Find state by state_id
                 const state = props.stateandcity.find(s => s.id == userInfo.state_id);
                 if (state) {
                     checkoutForm.value.state = state.name;
                     
-                    // After setting state, find and set city
                     if (userInfo.city_id && state.cities) {
                         const city = state.cities.find(c => c.id == userInfo.city_id);
                         if (city) {
@@ -480,6 +489,8 @@ onMounted(() => {
     }
 });
 </script>
+
+
 
 <template>
 <Skeleton page='checkout' :auth="auth">

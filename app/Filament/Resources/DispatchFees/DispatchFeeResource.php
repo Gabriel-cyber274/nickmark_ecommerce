@@ -20,7 +20,7 @@ class DispatchFeeResource extends Resource
 {
     protected static ?string $model = DispatchFee::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTruck;
 
     protected static ?string $recordTitleAttribute = 'state_id';
     protected static ?string $navigationLabel = 'Dispatch Fees';

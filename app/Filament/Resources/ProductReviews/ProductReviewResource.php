@@ -20,7 +20,7 @@ class ProductReviewResource extends Resource
 {
     protected static ?string $model = ProductReview::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
     protected static ?string $recordTitleAttribute = 'name';
 

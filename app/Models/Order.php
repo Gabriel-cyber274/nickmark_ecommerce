@@ -23,7 +23,8 @@ class Order extends Model
         'postal_code',
         'order_note',
         'status',
-        'subtotal'
+        'subtotal',
+        'delivery_method'
     ];
 
     protected $casts = [

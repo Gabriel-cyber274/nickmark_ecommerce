@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,13 +34,22 @@ Route::post('/register', function (Request $request) {
         'password' => Hash::make($validated['password']),
     ]);
 
+    $order = Order::where('email', $validated['email'])
+        ->update(['user_id' => $user->id]);
+
+
+
     // Log the user in using web guard (session-based)
     Auth::login($user);
+
+    // Regenerate session to get new CSRF token
+    $request->session()->regenerate();
 
     return response()->json([
         'message' => 'Registration successful',
         'user' => $user,
-        'redirect' => '/dashboard'
+        'redirect' => '/dashboard',
+        'csrf_token' => csrf_token(),
     ], 201);
 })->middleware('web');
 
@@ -57,7 +67,8 @@ Route::post('/login', function (Request $request) {
         return response()->json([
             'message' => 'Login successful',
             'user' => Auth::user(),
-            'redirect' => '/dashboard'
+            'redirect' => '/dashboard',
+            'csrf_token' => csrf_token(),
         ], 200);
     }
 

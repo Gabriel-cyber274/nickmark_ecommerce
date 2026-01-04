@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { onMounted, nextTick, onUnmounted } from 'vue';
 import Skeleton from './Skeleton.vue'
 
-defineProps({
+let props = defineProps({
     canLogin: {
         type: Boolean,
     },
@@ -12,8 +12,13 @@ defineProps({
     },
     auth: {
         type: Object  
-    }
+    },
+    companyReview: Array
 });
+
+onMounted(()=> {
+    console.log('review', props.companyReview)
+})
 
 // Initialize Owl Carousel after component mounts
 onMounted(() => {
@@ -29,12 +34,16 @@ onMounted(() => {
                 });
 
                 // Initialize testimonials carousel
+                // Initialize testimonials carousel
                 $('.owl-testimonials-photo').owlCarousel({
                     nav: false,
                     dots: true,
                     margin: 20,
-                    loop: false,
+                    loop: true, // Changed to true for continuous sliding
                     items: 1,
+                    autoplay: true, // Enable auto-slide
+                    autoplayTimeout: 5000, // Time between slides (5 seconds)
+                    autoplayHoverPause: true, // Pause on mouse hover
                     responsive: {
                         1200: {
                             nav: true,
@@ -219,30 +228,24 @@ onUnmounted(() => {
 
                 <div class="about-testimonials bg-light-2 pt-6 pb-6">
                     <div class="container">
-                        <h2 class="title text-center mb-3">What Customer Say About Us</h2><!-- End .title text-center -->
+                        <h2 class="title text-center mb-3">What Customer Say About Us</h2>
 
                         <div class="owl-carousel owl-simple owl-testimonials-photo">
-                            <blockquote class="testimonial text-center">
-                                <img src="assets/images/testimonials/user-1.jpg" alt="user">
-                                <p>" Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Pellentesque aliquet nibh nec urna. <br>In nisi neque, aliquet vel, dapibus id, mattis vel, nisi. Sed pretium, ligula sollicitudin laoreet viverra, tortor libero sodales leo, eget blandit nunc tortor eu nibh. Nullam mollis. Ut justo. Suspendisse potenti. "</p>
-                                <cite>
-                                    Jenson Gregory
-                                    <span>Customer</span>
-                                </cite>
-                            </blockquote><!-- End .testimonial -->
-
-                            <blockquote class="testimonial text-center">
-                                <img src="assets/images/testimonials/user-2.jpg" alt="user">
-                                <p>" Impedit, ratione sequi, sunt incidunt magnam et. Delectus obcaecati optio eius error libero perferendis nesciunt atque dolores magni recusandae! Doloremque quidem error eum quis similique doloribus natus qui ut ipsum.Velit quos ipsa exercitationem, vel unde obcaecati impedit eveniet non. "</p>
-
-                                <cite>
-                                    Victoria Ventura
-                                    <span>Customer</span>
-                                </cite>
-                            </blockquote><!-- End .testimonial -->
-                        </div><!-- End .testimonials-slider owl-carousel -->
-                    </div><!-- End .container -->
-                </div><!-- End .bg-light-2 pt-5 pb-6 -->
+                        <blockquote 
+                            v-for="review in companyReview" 
+                            :key="review.id" 
+                            class="testimonial text-center"
+                        >
+                            <i class="icon-quote-left" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
+                            <p>"{{ review.review }}"</p>
+                            <cite>
+                                {{ review.name }}
+                                <span>{{ review.relationship }}</span>
+                            </cite>
+                        </blockquote>
+                        </div>
+                    </div>
+                </div>
             </div><!-- End .page-content -->
         </main><!-- End .main -->
 </Skeleton>

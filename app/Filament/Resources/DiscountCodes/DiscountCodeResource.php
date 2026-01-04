@@ -20,7 +20,7 @@ class DiscountCodeResource extends Resource
 {
     protected static ?string $model = DiscountCode::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
 
     protected static ?string $recordTitleAttribute = 'code';
     protected static ?string $navigationLabel = 'Discount Codes';

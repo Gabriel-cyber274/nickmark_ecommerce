@@ -20,7 +20,7 @@ class ContactUsResource extends Resource
 {
     protected static ?string $model = ContactUs::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedEnvelope;
 
     protected static ?string $recordTitleAttribute = 'name';
 

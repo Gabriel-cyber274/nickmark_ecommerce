@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Mail\ContactUsAdminMail;
 use App\Models\Category;
+use App\Models\CompanyReview;
 use App\Models\ContactUs;
 use App\Models\DiscountCode;
 use App\Models\Faq;
@@ -218,10 +219,13 @@ Route::get('/categories', function (Request $request) {
 
 
 Route::get('/about', function () {
+    $companyReview = CompanyReview::orderBy('id', 'desc')->get();
+
     return Inertia::render('AboutPage', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'auth' => auth()->user(),
+        'companyReview' => $companyReview
     ]);
 });
 
