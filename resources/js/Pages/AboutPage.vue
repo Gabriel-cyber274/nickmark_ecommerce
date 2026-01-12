@@ -148,9 +148,9 @@ onUnmounted(() => {
                         </div><!-- End .col-lg-7 -->
                     </div><!-- End .row -->
 
-                    <hr class="mt-4 mb-6">
+                    <!-- <hr class="mt-4 mb-6"> -->
 
-                    <h2 class="title text-center mb-4">Meet Our Team</h2><!-- End .title text-center mb-2 -->
+                    <!-- <h2 class="title text-center mb-4">Meet Our Team</h2>
 
                     <div class="row">
                         <div class="col-md-4">
@@ -160,21 +160,21 @@ onUnmounted(() => {
 
                                     <figcaption class="member-overlay">
                                         <div class="member-overlay-content">
-                                            <h3 class="member-title">Samanta Grey<span>Founder & CEO</span></h3><!-- End .member-title -->
+                                            <h3 class="member-title">Samanta Grey<span>Founder & CEO</span></h3>
                                             <p>Sed pretium, ligula sollicitudin viverra, tortor libero sodales leo, eget blandit nunc.</p> 
                                             <div class="social-icons social-icons-simple">
                                                 <a href="#" class="social-icon" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
                                                 <a href="#" class="social-icon" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>
                                                 <a href="#" class="social-icon" title="Instagram" target="_blank"><i class="icon-instagram"></i></a>
-                                            </div><!-- End .soial-icons -->
-                                        </div><!-- End .member-overlay-content -->
-                                    </figcaption><!-- End .member-overlay -->
-                                </figure><!-- End .member-media -->
+                                            </div>
+                                        </div>
+                                    </figcaption>
+                                </figure>
                                 <div class="member-content">
-                                    <h3 class="member-title">Samanta Grey<span>Founder & CEO</span></h3><!-- End .member-title -->
-                                </div><!-- End .member-content -->
-                            </div><!-- End .member -->
-                        </div><!-- End .col-md-4 -->
+                                    <h3 class="member-title">Samanta Grey<span>Founder & CEO</span></h3>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="col-md-4">
                             <div class="member member-anim text-center">
@@ -183,21 +183,21 @@ onUnmounted(() => {
 
                                     <figcaption class="member-overlay">
                                         <div class="member-overlay-content">
-                                            <h3 class="member-title">Bruce Sutton<span>Sales & Marketing Manager</span></h3><!-- End .member-title -->
+                                            <h3 class="member-title">Bruce Sutton<span>Sales & Marketing Manager</span></h3>
                                             <p>Sed pretium, ligula sollicitudin viverra, tortor libero sodales leo, eget blandit nunc.</p> 
                                             <div class="social-icons social-icons-simple">
                                                 <a href="#" class="social-icon" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
                                                 <a href="#" class="social-icon" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>
                                                 <a href="#" class="social-icon" title="Instagram" target="_blank"><i class="icon-instagram"></i></a>
-                                            </div><!-- End .soial-icons -->
-                                        </div><!-- End .member-overlay-content -->
-                                    </figcaption><!-- End .member-overlay -->
-                                </figure><!-- End .member-media -->
+                                            </div>
+                                        </div>
+                                    </figcaption>
+                                </figure>
                                 <div class="member-content">
-                                    <h3 class="member-title">Bruce Sutton<span>Sales & Marketing Manager</span></h3><!-- End .member-title -->
-                                </div><!-- End .member-content -->
-                            </div><!-- End .member -->
-                        </div><!-- End .col-md-4 -->
+                                    <h3 class="member-title">Bruce Sutton<span>Sales & Marketing Manager</span></h3>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="col-md-4">
                             <div class="member member-anim text-center">
@@ -206,23 +206,24 @@ onUnmounted(() => {
 
                                     <figcaption class="member-overlay">
                                         <div class="member-overlay-content">
-                                            <h3 class="member-title">Janet Joy<span>Product Manager</span></h3><!-- End .member-title -->
+                                            <h3 class="member-title">Janet Joy<span>Product Manager</span></h3>
                                             <p>Sed pretium, ligula sollicitudin viverra, tortor libero sodales leo, eget blandit nunc.</p> 
                                             <div class="social-icons social-icons-simple">
                                                 <a href="#" class="social-icon" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
                                                 <a href="#" class="social-icon" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>
                                                 <a href="#" class="social-icon" title="Instagram" target="_blank"><i class="icon-instagram"></i></a>
-                                            </div><!-- End .soial-icons -->
-                                        </div><!-- End .member-overlay-content -->
-                                    </figcaption><!-- End .member-overlay -->
-                                </figure><!-- End .member-media -->
+                                            </div>
+                                        </div>
+                                    </figcaption>
+                                </figure>
                                 <div class="member-content">
-                                    <h3 class="member-title">Janet Joy<span>Product Manager</span></h3><!-- End .member-title -->
-                                </div><!-- End .member-content -->
-                            </div><!-- End .member -->
-                        </div><!-- End .col-md-4 -->
-                    </div><!-- End .row -->
-                </div><!-- End .container -->
+                                    <h3 class="member-title">Janet Joy<span>Product Manager</span></h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+                
+                </div>
 
                 <div class="mb-2"></div><!-- End .mb-2 -->
 
