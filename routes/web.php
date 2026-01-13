@@ -244,6 +244,7 @@ Route::get('/contact-us', function () {
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'auth' => auth()->user(),
+        'googleMapsApiKey' => config('app.google_maps_api_key'),
     ]);
 });
 

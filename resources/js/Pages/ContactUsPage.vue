@@ -3,7 +3,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { onMounted, nextTick, onUnmounted, ref, reactive } from 'vue';
 import Skeleton from './Skeleton.vue'
 
-defineProps({
+let props = defineProps({
     canLogin: {
         type: Boolean,
     },
@@ -12,6 +12,10 @@ defineProps({
     },
     auth: {
         type: Object  
+    },
+    googleMapsApiKey: {
+        type: String,
+        default: ''
     }
 });
 
@@ -59,7 +63,7 @@ const loadGoogleMaps = () => {
     }
 
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyA2Y4kuivv1HiS9uRG47VPs2eqfT-JT3FE&callback=initMap`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${props.googleMapsApiKey}&callback=initMap`;
     script.async = true;
     script.defer = true;
     window.initMap = initMap;
