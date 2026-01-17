@@ -328,7 +328,7 @@ onUnmounted(() => {
 <Skeleton page='contact-us' :auth="auth">
         <main class="main mt-3">
             <div class="container">
-                <div class="page-header page-header-big text-center" style="background-image: url('assets/images/contact-header-bg.jpg')">
+                <div class="page-header page-header-big text-center" style="background-image: url('assets/images/contactus.jpg')">
                     <h1 class="page-title text-white">Contact us<span class="text-white">Get in Touch with Our Team</span></h1>
                 </div><!-- End .page-header -->
             </div><!-- End .container -->
