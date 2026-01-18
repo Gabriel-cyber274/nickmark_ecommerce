@@ -15,7 +15,6 @@ let props = defineProps({
     },
     googleMapsApiKey: {
         type: String,
-        default: ''
     }
 });
 

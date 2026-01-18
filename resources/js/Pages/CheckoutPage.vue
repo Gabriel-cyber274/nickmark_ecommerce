@@ -696,9 +696,9 @@ onMounted(() => {
                                         Pay with Paystack
                                     </button>
                                     
-                                    <button type="button" @click="handleSubmit('whatsapp')" class="btn btn-outline-success-2 btn-block">
+                                    <!-- <button type="button" @click="handleSubmit('whatsapp')" class="btn btn-outline-success-2 btn-block">
                                         Order via WhatsApp
-                                    </button>
+                                    </button> -->
                                 </div>
                             </div>
                         </aside>
