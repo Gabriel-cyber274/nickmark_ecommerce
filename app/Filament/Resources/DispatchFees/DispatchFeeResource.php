@@ -27,6 +27,8 @@ class DispatchFeeResource extends Resource
     protected static ?string $pluralLabel = 'Dispatch Fees';
     protected static ?string $modelLabel = 'Dispatch Fee';
 
+    protected static ?int $navigationSort = 7;
+
     public static function form(Schema $schema): Schema
     {
         return DispatchFeeForm::configure($schema);

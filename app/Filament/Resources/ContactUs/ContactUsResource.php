@@ -29,6 +29,8 @@ class ContactUsResource extends Resource
     protected static ?string $pluralLabel = 'Contacts';
     protected static ?string $slug = 'Contacts';
 
+    protected static ?int $navigationSort = 5;
+
 
     public static function form(Schema $schema): Schema
     {

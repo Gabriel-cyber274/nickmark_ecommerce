@@ -13,6 +13,8 @@ class EditProduct extends EditRecord
 {
     protected static string $resource = ProductResource::class;
 
+    protected array $images = [];
+
     protected function getHeaderActions(): array
     {
         return [
@@ -25,12 +27,11 @@ class EditProduct extends EditRecord
     {
         $data['images'] = $this->record->images
             ->pluck('image_url')
-            ->map(fn($url) => str_replace(Storage::disk('public')->url(''), '', $url))
+            ->map(fn ($url) => str_replace(Storage::disk('public')->url(''), '', $url))
             ->toArray();
 
         return $data;
     }
-
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
@@ -43,7 +44,6 @@ class EditProduct extends EditRecord
 
         return $data;
     }
-
 
     protected function afterSave(): void
     {
@@ -63,7 +63,7 @@ class EditProduct extends EditRecord
         // Remove old images
         $this->record->images()->delete();
 
-        if (!empty($this->images)) {
+        if (! empty($this->images)) {
             foreach ($this->images as $path) {
                 ProductImage::create([
                     'product_id' => $this->record->id,
@@ -72,6 +72,4 @@ class EditProduct extends EditRecord
             }
         }
     }
-
-    protected array $images = [];
 }

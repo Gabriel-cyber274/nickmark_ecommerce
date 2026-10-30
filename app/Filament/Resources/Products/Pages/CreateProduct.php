@@ -11,6 +11,8 @@ class CreateProduct extends CreateRecord
 {
     protected static string $resource = ProductResource::class;
 
+    protected array $images = [];
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $this->images = $data['images'] ?? [];
@@ -25,12 +27,9 @@ class CreateProduct extends CreateRecord
             foreach ($this->images as $path) {
                 ProductImage::create([
                     'product_id' => $this->record->id,
-                    // ✅ convert path → full URL
                     'image_url' => Storage::disk('public')->url($path),
                 ]);
             }
         }
     }
-
-    protected array $images = [];
 }

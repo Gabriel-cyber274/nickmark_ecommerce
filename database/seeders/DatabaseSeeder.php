@@ -29,7 +29,8 @@ class DatabaseSeeder extends Seeder
             StateSeeder::class,
             CitySeeder::class,
             DispatchFeeSeeder::class,
-            CompanyReviewSeeder::class
+            CompanyReviewSeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }

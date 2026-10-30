@@ -27,6 +27,8 @@ class DiscountCodeResource extends Resource
     protected static ?string $pluralLabel = 'Discount Codes';
     protected static ?string $modelLabel = 'Discount Code';
 
+    protected static ?int $navigationSort = 6;
+
     public static function form(Schema $schema): Schema
     {
         return DiscountCodeForm::configure($schema);
