@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductAnswer;
 use Illuminate\Database\Seeder;
 
 class ProductSeeder extends Seeder
@@ -442,6 +443,46 @@ class ProductSeeder extends Seeder
                     ...$productData,
                     'views' => rand(100, 10000),
                 ]);
+
+                // Create product answers for category questions
+                $questions = $categories[$categoryName]->questions;
+                foreach ($questions as $question) {
+$answerValue = match ($question->question) {
+                        'Graphics Card' => str_contains($product->name, 'RTX') ? 'NVIDIA ' . str_replace('RTX', '', $product->name . ' has RTX graphics') : (str_contains($product->name, '40') ? 'NVIDIA RTX 40' . rand(50, 90) . 'GB' : (str_contains($product->name, '30') ? 'NVIDIA RTX 30' . rand(50, 90) . 'GB' : 'Integrated graphics')),
+                        'RAM Size' => str_contains($product->name, 'MacBook Pro 16') ? '36GB' : (str_contains($product->name, 'Dell XPS') ? '32GB' : (str_contains($product->name, 'ASUS ROG') ? '16GB' : (str_contains($product->name, 'ThinkPad') ? '32GB' : (str_contains($product->name, 'HP Spectre') ? '16GB' : rand(8, 32) . 'GB')))),
+                        'Screen Size' => str_contains($product->name, '16"') ? '16 inches' : (str_contains($product->name, '15.6"') ? '15.6 inches' : (str_contains($product->name, '14"') ? '14 inches' : (str_contains($product->name, '12.9"') ? '12.9 inches' : rand(12, 18) . ' inches'))),
+                        'Storage Capacity' => str_contains($product->name, '256GB') ? '256GB' : (str_contains($product->name, '512GB') ? '512GB' : rand(128, 1024) . 'GB'),
+                        'Camera Megapixels' => str_contains($product->name, '200MP') ? '200MP' : (str_contains($product->name, '48MP') ? '48MP' : (str_contains($product->name, '50MP') ? '50MP' : rand(12, 108) . 'MP')),
+                        'Battery Capacity' => str_contains($product->name, '10000mAh') ? '10000mAh' : (str_contains($product->name, '24000mAh') ? '24000mAh' : rand(3000, 5000) . 'mAh'),
+                        '5G Support' => 'Yes',
+                        'Cellular Connectivity' => 'Yes',
+                        'Stylus Support' => 'Yes',
+                        'Power Supply' => '900W',
+                        'Connection Type' => match ($question->question) {
+                            'Computer Accessories' => 'USB-C',
+                            'Phone Accessories' => 'USB-C',
+                            default => 'USB-A',
+                        },
+                        'Compatibility' => match ($categoryName) {
+                            'Laptops' => 'Compatible with most laptops',
+                            'Mobile Phones' => 'Compatible with latest smartphones',
+                            default => 'Universal compatibility',
+                        },
+                        'Noise Cancellation' => 'Yes',
+                        'Battery Life' => str_contains($product->name, 'WH-1000XM5') ? '30 hours' : (str_contains($product->name, 'AirPods Pro') ? '6 hours' : (str_contains($product->name, 'QuietComfort') ? '24 hours' : (str_contains($product->name, 'Momentum 4') ? '60 hours' : (str_contains($product->name, 'Charge 5') ? '20 hours' : rand(5, 30) . ' hours')))),
+                        'Wireless Charging' => 'Yes',
+                        'MagSafe Support' => 'Yes',
+                        'Print Speed' => '40 ppm',
+                        'Paper Capacity' => '250 sheets',
+                        default => 'Sample answer',
+                    };
+
+                    ProductAnswer::create([
+                        'product_id' => $product->id,
+                        'category_question_id' => $question->id,
+                        'answer' => $answerValue,
+                    ]);
+                }
 
                 // Create placeholder product images (using placeholder URLs since we don't have actual images)
                 // In production, you would upload actual images via the Filament admin

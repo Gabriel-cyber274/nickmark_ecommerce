@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\CategoryQuestion;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -91,5 +92,76 @@ class CategorySeeder extends Seeder
                 'updated_at' => $now,
             ],
         ]);
+
+        $categories = \App\Models\Category::all()->keyBy('name');
+
+        $questions = [
+            'Laptops' => [
+                ['question' => 'Graphics Card', 'type' => 'select', 'is_required' => true],
+                ['question' => 'RAM Size', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Screen Size', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Processor', 'type' => 'text', 'is_required' => false],
+            ],
+            'Mobile Phones' => [
+                ['question' => 'Storage Capacity', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Camera Megapixels', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Battery Capacity', 'type' => 'select', 'is_required' => false],
+                ['question' => '5G Support', 'type' => 'select', 'is_required' => false],
+            ],
+            'Tablets' => [
+                ['question' => 'Screen Size', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Storage Capacity', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Cellular Connectivity', 'type' => 'select', 'is_required' => false],
+                ['question' => 'Stylus Support', 'type' => 'select', 'is_required' => false],
+            ],
+            'Desktop Computers' => [
+                ['question' => 'Graphics Card', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Power Supply', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Processor', 'type' => 'text', 'is_required' => false],
+                ['question' => 'RAM Size', 'type' => 'select', 'is_required' => false],
+            ],
+            'Audio Devices' => [
+                ['question' => 'Noise Cancellation', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Battery Life', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Connection Type', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Waterproof Rating', 'type' => 'text', 'is_required' => false],
+            ],
+            'Computer Accessories' => [
+                ['question' => 'Connection Type', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Compatibility', 'type' => 'text', 'is_required' => true],
+                ['question' => 'Ergonomics', 'type' => 'select', 'is_required' => false],
+                ['question' => 'Backlighting', 'type' => 'select', 'is_required' => false],
+            ],
+            'Phone Accessories' => [
+                ['question' => 'Compatibility', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Wireless Charging', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Waterproof Rating', 'type' => 'text', 'is_required' => false],
+                ['question' => 'MagSafe Support', 'type' => 'select', 'is_required' => false],
+            ],
+            'Gaming Devices' => [
+                ['question' => 'Storage Capacity', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Controller Type', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Resolution', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Compatibility', 'type' => 'text', 'is_required' => false],
+            ],
+            'Office Equipment' => [
+                ['question' => 'Print Speed', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Paper Capacity', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Connection Type', 'type' => 'select', 'is_required' => true],
+                ['question' => 'Color Printing', 'type' => 'select', 'is_required' => false],
+            ],
+        ];
+
+        foreach ($questions as $categoryName => $categoryQuestions) {
+            $category = $categories[$categoryName];
+            foreach ($categoryQuestions as $catQuestion) {
+                CategoryQuestion::create([
+                    'category_id' => $category->id,
+                    'question' => $catQuestion['question'],
+                    'type' => $catQuestion['type'],
+                    'is_required' => $catQuestion['is_required'],
+                ]);
+            }
+        }
     }
 }
