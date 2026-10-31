@@ -1,11 +1,12 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
-import { onMounted, nextTick, onUnmounted, ref, reactive } from 'vue';
+import { onMounted, nextTick, onUnmounted, ref, reactive, computed } from 'vue';
 import Skeleton from './Skeleton.vue';
 import { useWishlist } from '../composables/useWishlist';
 import { useCart } from '../composables/useCart';
 import { usePage } from '@inertiajs/vue3';
 import { watch } from 'vue';
+import VueEasyLightbox from 'vue-easy-lightbox';
 
 
 const page = usePage();
@@ -65,6 +66,23 @@ watch(() => page.props.flash, (flash) => {
 
 const { isInWishlist, toggleWishlist } = useWishlist(prop.auth);
 const { addToCart, isInCart } = useCart(prop.auth);
+
+const lightboxVisible = ref(false);
+const lightboxIndex = ref(0);
+
+const lightboxImages = computed(() =>
+    (prop.product.images || []).map(img => img.image_url)
+);
+
+const openLightbox = (imageUrl) => {
+    const idx = lightboxImages.value.indexOf(imageUrl);
+    lightboxIndex.value = idx >= 0 ? idx : 0;
+    lightboxVisible.value = true;
+};
+
+const closeLightbox = () => {
+    lightboxVisible.value = false;
+};
 
 const quantity = ref(1);
 
@@ -378,9 +396,9 @@ const formatAnswer = (answer) => {
                                     <figure class="product-main-image">
                                         <img id="product-zoom" :src="currentMainImage" :data-zoom-image="currentMainImage" alt="product image">
 
-                                        <a href="#" id="btn-product-gallery" class="btn-product-gallery">
+                                        <button id="btn-product-gallery" class="btn-product-gallery" @click.stop.prevent="openLightbox(currentMainImage)">
                                             <i class="icon-arrows"></i>
-                                        </a>
+                                        </button>
                                     </figure>
 
                                     <div id="product-zoom-gallery" class="product-image-gallery">
@@ -394,6 +412,12 @@ const formatAnswer = (answer) => {
                                             <img :src="item.image_url" alt="product side">
                                         </a>
                                     </div>
+                                    <VueEasyLightbox
+    :visible="lightboxVisible"
+    :imgs="lightboxImages"
+    :index="lightboxIndex"
+    @hide="closeLightbox"
+/>
                                 </div>
                             </div>
                         </div>

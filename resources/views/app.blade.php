@@ -25,7 +25,6 @@
     <!-- Plugins CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/owl-carousel/owl.carousel.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/plugins/magnific-popup/magnific-popup.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/jquery.countdown.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/nouislider/nouislider.css') }}">
 
@@ -52,7 +51,6 @@
     <script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
     <script src="{{ asset('assets/js/bootstrap-input-spinner.js') }}"></script>
     <script src="{{ asset('assets/js/jquery.plugin.min.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery.magnific-popup.min.js') }}"></script>
     <script src="{{ asset('assets/js/jquery.countdown.min.js') }}"></script>
     <script src="{{ asset('assets/js/wNumb.js') }}"></script>
     <script src="{{ asset('assets/js/nouislider.min.js') }}"></script>

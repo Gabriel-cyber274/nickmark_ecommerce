@@ -645,9 +645,9 @@ onMounted(async () => {
                         </nav>
                     </div>
 
-                    <div class="header-right">
-                        <i class="la la-lightbulb-o"></i><p>Clearance<span class="highlight">&nbsp;Up to 30% Off</span></p>
-                    </div>
+                    <!-- <div class="header-right"> -->
+                        
+                    <!-- </div> -->
                 </div>
             </div>
         </header>
