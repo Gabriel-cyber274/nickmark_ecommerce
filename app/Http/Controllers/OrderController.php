@@ -221,11 +221,14 @@ class OrderController extends Controller
             // Send order emails (including admin email with receipt)
             $this->sendOrderEmails($order);
 
+            $receiptUrl = $receiptPath ? asset('storage/' . $receiptPath) : null;
+
             return response()->json([
                 'success' => true,
                 'message' => 'Order created successfully',
                 'order_id' => $order->id,
-                'reference' => $order->reference
+                'reference' => $order->reference,
+                'receipt_url' => $receiptUrl
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

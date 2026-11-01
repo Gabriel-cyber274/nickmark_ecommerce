@@ -434,6 +434,11 @@ const handleWhatsAppOrder = async () => {
                 localStorage.removeItem(CART_STORAGE_KEY);
             }
             
+            let receiptInfo = '';
+            if (data.receipt_url) {
+                receiptInfo = `\n\n*Payment Receipt:* ${data.receipt_url}`;
+            }
+
             const orderDetails = `
 🛍️ *New Order* - Ref: ${data.reference}
 
@@ -464,6 +469,7 @@ ${checkoutForm.value.notes ? `*Notes:* ${checkoutForm.value.notes}` : ''}
 Account Name: ${bankDetails.value.account_name}
 Account Number: ${bankDetails.value.account_number}
 Bank: ${bankDetails.value.bank_name}
+${receiptInfo}
 
 *Please make payment and upload receipt. Order status will be pending until payment is verified.*
             `.trim();
@@ -770,10 +776,6 @@ onMounted(() => {
                                         Pay with Paystack
                                     </button>
                                     
-                                    <button v-if="whatsappEnabled" type="button" @click="handleSubmit('whatsapp')" class="btn btn-outline-success-2 btn-block mb-2">
-                                        <span>Order via WhatsApp</span>
-                                    </button>
-
                                     <!-- Bank Details for WhatsApp Payment -->
                                     <div v-if="whatsappEnabled && (bankDetails.account_name || bankDetails.account_number || bankDetails.bank_name)" class="mt-3 p-3 bg-light rounded">
                                         <h5 class="mb-3"><i class="icon-bank mr-2"></i>Bank Account Details</h5>
@@ -781,6 +783,12 @@ onMounted(() => {
                                         <p class="mb-1"><strong>Account Number:</strong> {{ bankDetails.account_number }}</p>
                                         <p class="mb-1"><strong>Bank:</strong> {{ bankDetails.bank_name }}</p>
                                         <p class="text-muted small mb-2">Make payment to the above account and upload receipt below.</p>
+                                        
+                                        <!-- Info about WhatsApp order -->
+                                        <div class="alert alert-info py-2 mb-3" style="font-size: 0.875rem;">
+                                            <i class="icon-info mr-1"></i>
+                                            <strong>Important:</strong> After making payment to the bank account above, please click the <strong>"Order via WhatsApp"</strong> button below to send your order details and receipt to our WhatsApp for processing.
+                                        </div>
                                         
                                         <!-- Receipt Upload -->
                                         <div class="mt-3">
@@ -793,6 +801,11 @@ onMounted(() => {
                                             >
                                             <small class="text-muted">Max 5MB. Image formats only.</small>
                                         </div>
+                                        
+                                        <!-- Order via WhatsApp Button - Moved below bank details and receipt -->
+                                        <button v-if="whatsappEnabled" type="button" @click="handleSubmit('whatsapp')" class="btn btn-outline-success-2 btn-block mt-3">
+                                            <span>Order via WhatsApp</span>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
