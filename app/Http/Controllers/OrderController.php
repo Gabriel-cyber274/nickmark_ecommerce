@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class OrderController extends Controller
@@ -123,24 +124,24 @@ class OrderController extends Controller
     protected function sendOrderEmails(Order $order): void
     {
         try {
-            // Send confirmation email to customer
+            // Send confirmation email to customer (queued)
             Mail::to($order->email)
-                ->send(new OrderConfirmationMail($order));
+                ->queue(new OrderConfirmationMail($order));
 
-            // Send notification email to admin
+            // Send notification email to admin (queued)
             $adminEmail = config('app.admin_email');
             if ($adminEmail) {
                 Mail::to($adminEmail)
-                    ->send(new AdminNewOrderMail($order));
+                    ->queue(new AdminNewOrderMail($order));
             }
 
-            Log::info('Order emails sent successfully', [
+            Log::info('Order emails queued successfully', [
                 'order_id' => $order->id,
                 'customer_email' => $order->email,
                 'admin_email' => $adminEmail,
             ]);
         } catch (\Exception $e) {
-            Log::error('Failed to send order emails', [
+            Log::error('Failed to queue order emails', [
                 'order_id' => $order->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -174,6 +175,7 @@ class OrderController extends Controller
             'bank_name' => 'nullable|string',
             'account_number' => 'nullable|string',
             'account_name' => 'nullable|string',
+            'receipt' => 'nullable|file|image|max:5120',
         ]);
 
         try {
@@ -184,7 +186,13 @@ class OrderController extends Controller
             // Ensure user_id is null if not authenticated
             $userId = auth()->check() ? auth()->id() : null;
 
-            $order = $this->createOrder($validated, 'whatsapp', $reference, $userId);
+            // Handle receipt upload
+            $receiptPath = null;
+            if ($request->hasFile('receipt')) {
+                $receiptPath = $request->file('receipt')->store('receipts', 'public');
+            }
+
+            $order = $this->createOrder($validated, 'whatsapp', $reference, $userId, $receiptPath);
 
             // Add bank details to order note for reference
             $bankName = $request->input('bank_name') ?? '';
@@ -192,10 +200,7 @@ class OrderController extends Controller
             $accountName = $request->input('account_name') ?? '';
 
             if ($bankName || $accountNumber || $accountName) {
-                $order->order_note = ($order->order_note ?? '') . "\n\nBank Details:
-- Bank: " . $bankName . "
-- Account Number: " . $accountNumber . "
-- Account Name: " . $accountName;
+                $order->order_note = ($order->order_note ?? '') . "\n\nBank Details:\n- Bank: " . $bankName . "\n- Account Number: " . $accountNumber . "\n- Account Name: " . $accountName;
                 $order->save();
             }
 
@@ -205,6 +210,9 @@ class OrderController extends Controller
             if (auth()->check()) {
                 auth()->user()->cartItems()->delete();
             }
+
+            // Send order emails (including admin email with receipt)
+            $this->sendOrderEmails($order);
 
             return response()->json([
                 'success' => true,
@@ -227,7 +235,7 @@ class OrderController extends Controller
         }
     }
 
-    protected function createOrder(array $data, string $paymentMethod, string $reference, $userId = null)
+    protected function createOrder(array $data, string $paymentMethod, string $reference, $userId = null, $receiptPath = null)
     {
         // Find state and city IDs
         $state = \App\Models\State::where('name', $data['state'])->first();
@@ -275,6 +283,7 @@ class OrderController extends Controller
             'postal_code' => $data['postal_code'],
             'order_note' => $data['notes'] ?? null,
             'status' => $status,
+            'receipt' => $receiptPath,
         ]);
 
         // Create order items

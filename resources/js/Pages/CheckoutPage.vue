@@ -35,22 +35,41 @@ watch(() => page.props.flash, (flash) => {
 }, { deep: true, immediate: true });
 
 // Fetch settings including payment method preferences
-const paystackEnabled = ref(true);
+const paystackEnabled = ref(false);
 const whatsappEnabled = ref(false);
+const bankDetails = ref({
+    account_name: '',
+    account_number: '',
+    bank_name: ''
+});
 
 onMounted(async () => {
     try {
+        console.log('Fetching settings from /settings...');
         const response = await axios.get('/settings', {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
-        paystackEnabled.value = response.data.paystack_enabled === true;
-        whatsappEnabled.value = response.data.whatsapp_enabled === true;
+        console.log('Settings response:', response.data);
+        paystackEnabled.value = response.data.is_paystack_enabled === true;
+        whatsappEnabled.value = response.data.is_whatsapp_enabled === true;
+        bankDetails.value = {
+            account_name: response.data.account_name || '',
+            account_number: response.data.account_number || '',
+            bank_name: response.data.bank_name || ''
+        };
+        console.log('paystackEnabled:', paystackEnabled.value);
+        console.log('whatsappEnabled:', whatsappEnabled.value);
     } catch (error) {
         console.error('Failed to fetch settings:', error);
         paystackEnabled.value = true;
         whatsappEnabled.value = false;
+        bankDetails.value = {
+            account_name: '',
+            account_number: '',
+            bank_name: ''
+        };
     }
 });
 
@@ -88,6 +107,7 @@ const isCartLoaded = ref(false);
 const cities = ref([]);
 const discountCode = ref('');
 const appliedDiscount = ref(null);
+const receiptFile = ref(null);
 const toast = ref({
     show: false,
     message: '',
@@ -378,14 +398,32 @@ const handleWhatsAppOrder = async () => {
     try {
         const orderData = prepareOrderData();
         
+        // Add bank details to order data
+        orderData.bank_name = bankDetails.value.bank_name;
+        orderData.account_number = bankDetails.value.account_number;
+        orderData.account_name = bankDetails.value.account_name;
+
+        const formData = new FormData();
+        Object.keys(orderData).forEach(key => {
+            if (key === 'cart_items') {
+                formData.append(key, JSON.stringify(orderData[key]));
+            } else {
+                formData.append(key, orderData[key]);
+            }
+        });
+        
+        // Add receipt file if selected
+        if (receiptFile.value) {
+            formData.append('receipt', receiptFile.value);
+        }
+
         const response = await fetch('/order/whatsapp', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             },
-            body: JSON.stringify(orderData)
+            body: formData
         });
 
         const data = await response.json();
@@ -395,11 +433,6 @@ const handleWhatsAppOrder = async () => {
             if (!props.auth) {
                 localStorage.removeItem(CART_STORAGE_KEY);
             }
-            
-            // Get bank details from settings
-            const accountName = "<?php echo config('general_settings.account_name') ?? ''; ?>";
-            const accountNumber = "<?php echo config('general_settings.account_number') ?? ''; ?>";
-            const bankName = "<?php echo config('general_settings.bank_name') ?? ''; ?>";
             
             const orderDetails = `
 🛍️ *New Order* - Ref: ${data.reference}
@@ -428,9 +461,9 @@ ${checkoutForm.value.notes ? `*Notes:* ${checkoutForm.value.notes}` : ''}
 
 *Payment Method: WhatsApp*
 *Bank Details for Payment:*
-Account Name: ${accountName}
-Account Number: ${accountNumber}
-Bank: ${bankName}
+Account Name: ${bankDetails.value.account_name}
+Account Number: ${bankDetails.value.account_number}
+Bank: ${bankDetails.value.bank_name}
 
 *Please make payment and upload receipt. Order status will be pending until payment is verified.*
             `.trim();
@@ -733,13 +766,34 @@ onMounted(() => {
                                 <div class="mt-3">
                                     <h4 class="mb-3">Payment Method</h4>
                                     
-                                    <button v-if="paystackEnabled.value" type="button" @click="handleSubmit('paystack')" class="btn btn-outline-primary-2 btn-block mb-2">
+                                    <button v-if="paystackEnabled" type="button" @click="handleSubmit('paystack')" class="btn btn-outline-primary-2 btn-block mb-2">
                                         Pay with Paystack
                                     </button>
                                     
-                                    <button v-if="whatsappEnabled.value" type="button" @click="handleSubmit('whatsapp')" :disabled="!whatsappEnabled.value" class="btn btn-outline-success-2 btn-block mb-2">
+                                    <button v-if="whatsappEnabled" type="button" @click="handleSubmit('whatsapp')" class="btn btn-outline-success-2 btn-block mb-2">
                                         <span>Order via WhatsApp</span>
                                     </button>
+
+                                    <!-- Bank Details for WhatsApp Payment -->
+                                    <div v-if="whatsappEnabled && (bankDetails.account_name || bankDetails.account_number || bankDetails.bank_name)" class="mt-3 p-3 bg-light rounded">
+                                        <h5 class="mb-3"><i class="icon-bank mr-2"></i>Bank Account Details</h5>
+                                        <p class="mb-1"><strong>Account Name:</strong> {{ bankDetails.account_name }}</p>
+                                        <p class="mb-1"><strong>Account Number:</strong> {{ bankDetails.account_number }}</p>
+                                        <p class="mb-1"><strong>Bank:</strong> {{ bankDetails.bank_name }}</p>
+                                        <p class="text-muted small mb-2">Make payment to the above account and upload receipt below.</p>
+                                        
+                                        <!-- Receipt Upload -->
+                                        <div class="mt-3">
+                                            <label class="form-label">Upload Payment Receipt (Optional)</label>
+                                            <input 
+                                                type="file" 
+                                                class="form-control" 
+                                                accept="image/*"
+                                                @change="receiptFile = $event.target.files[0]"
+                                            >
+                                            <small class="text-muted">Max 5MB. Image formats only.</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </aside>

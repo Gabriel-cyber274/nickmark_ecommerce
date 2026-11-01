@@ -355,7 +355,7 @@ onMounted(async () => {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
-        deliveryReturnsText.value = response.data.delivery_returns ?? '';
+        deliveryReturnsText.value = response.data.dispatch_return ?? '';
     } catch (error) {
         console.error('Failed to fetch settings:', error);
         deliveryReturnsText.value = '';

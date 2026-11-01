@@ -24,7 +24,8 @@ class Order extends Model
         'order_note',
         'status',
         'subtotal',
-        'delivery_method'
+        'delivery_method',
+        'receipt'
     ];
 
     protected $casts = [

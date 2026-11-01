@@ -167,6 +167,16 @@
         </div>
     @endif
 
+    @if ($order->receipt)
+        <div class="order-details">
+            <h3>Payment Receipt:</h3>
+            <p>
+                <img src="{{ asset('storage/' . $order->receipt) }}" alt="Payment Receipt" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px;">
+            </p>
+            <p><a href="{{ asset('storage/' . $order->receipt) }}" target="_blank">View Full Size</a></p>
+        </div>
+    @endif
+
     <center>
         {{-- <a href="{{ route('admin.orders.show', $order->id) }}" class="btn">
             View Order in Admin Panel
