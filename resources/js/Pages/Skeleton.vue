@@ -4,6 +4,7 @@ import { Link, router } from '@inertiajs/vue3';
 import { useWishlist } from '../composables/useWishlist';
 import { useCart } from '../composables/useCart';
 import { useSettings } from '../composables/useSettings';
+import GlobalLoader from '../Components/GlobalLoader.vue';
 
 const searchQuery = ref('');
 
@@ -457,6 +458,7 @@ onMounted(async () => {
 
 
 <template>
+    <GlobalLoader />
     <div class="page-wrapper">
         <header class="header header-intro-clearance header-4">
             <div class="header-top">
