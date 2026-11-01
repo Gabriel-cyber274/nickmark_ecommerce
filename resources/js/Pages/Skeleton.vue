@@ -3,6 +3,7 @@ import { onMounted, nextTick, onUnmounted, ref, computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import { useWishlist } from '../composables/useWishlist';
 import { useCart } from '../composables/useCart';
+import { useSettings } from '../composables/useSettings';
 
 const searchQuery = ref('');
 
@@ -32,6 +33,8 @@ let prop = defineProps({
 const { wishlistCount, syncWishlistToServer } = useWishlist(prop.auth);
 
 const { cartItems, cartCount, cartTotal, removeFromCart, syncCartToServer } = useCart(prop.auth);
+
+const { settings, loadSettings, getPrimaryPhone } = useSettings();
 
 const cartProducts = ref([]);
 const isLoadingCart = ref(false);
@@ -431,6 +434,8 @@ onUnmounted(() => {
 const categories = ref([])
 
 onMounted(async () => {
+    await loadSettings();
+    
     const response = await fetch('/api/categories')
     categories.value = await response.json()
     
@@ -457,7 +462,7 @@ onMounted(async () => {
             <div class="header-top">
                 <div class="container">
                     <div class="header-left">
-                        <a href="tel:08062965548"><i class="icon-phone"></i>Call: 08062965548</a>
+                        <a :href="`tel:${getPrimaryPhone()}`"><i class="icon-phone"></i>Call: {{ getPrimaryPhone() }}</a>
                     </div>
 
                    <div class="header-right">
@@ -665,7 +670,7 @@ onMounted(async () => {
 	            				<div class="widget-call">
                                     <i class="icon-phone"></i>
                                     Got Question? Call us 24/7
-                                    <a href="tel:08062965548">08062965548</a>         
+                                    <a :href="`tel:${getPrimaryPhone()}`">{{ getPrimaryPhone() }}</a>         
                                 </div>
 	            			</div>
 	            		</div>

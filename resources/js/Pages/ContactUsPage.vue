@@ -2,6 +2,7 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import { onMounted, nextTick, onUnmounted, ref, reactive } from 'vue';
 import Skeleton from './Skeleton.vue'
+import { useSettings } from '../composables/useSettings';
 
 let props = defineProps({
     canLogin: {
@@ -16,6 +17,16 @@ let props = defineProps({
     googleMapsApiKey: {
         type: String,
     }
+});
+
+// Load settings for phone numbers
+const { settings, loadSettings, getPhoneNumbers } = useSettings();
+
+onMounted(async () => {
+    await loadSettings();
+    nextTick(() => {
+        loadGoogleMaps();
+    });
 });
 
 // Contact form state
@@ -110,7 +121,7 @@ const initMap = () => {
                     Apapa, Lagos.
                 </p>
                 <p style="margin: 5px 0; color: #666; font-size: 14px;">
-                    📞 <a href="tel:08062965548">08062965548</a>
+                    📞 <a href="tel:${settings.value.phone_number1}">${settings.value.phone_number1}</a>
                 </p>
             </div>
         `
@@ -364,9 +375,7 @@ onUnmounted(() => {
                                             <li>
                                                 <i class="icon-phone"></i>
                                                 <strong>Phone:</strong><br>
-                                                <a href="tel:08062965548">08062965548</a><br>
-                                                <a href="tel:07044043049">07044043049</a><br>
-                                                <a href="tel:09027868088">09027868088</a>
+                                                <a v-for="phone in getPhoneNumbers()" :key="phone" :href="`tel:${phone}`">{{ phone }}</a><br>
                                             </li>
                                             <li>
                                                 <i class="icon-envelope"></i>
