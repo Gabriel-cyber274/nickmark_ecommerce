@@ -22,6 +22,8 @@ class SettingInfolist
                     ->label('Phone Number 2'),
                 TextEntry::make('phone_number3')
                     ->label('Phone Number 3'),
+                TextEntry::make('whatsapp_number')
+                    ->label('WhatsApp Number'),
                 IconEntry::make('is_paystack_enabled')->boolean(),
                 IconEntry::make('is_whatsapp_enabled')->boolean(),
             ]);

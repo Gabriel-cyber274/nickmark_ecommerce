@@ -49,6 +49,9 @@ class SettingsTable
                 TextColumn::make('phone_number3')
                     ->label('Phone 3')
                     ->toggleable(),
+                TextColumn::make('whatsapp_number')
+                    ->label('WhatsApp Number')
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()

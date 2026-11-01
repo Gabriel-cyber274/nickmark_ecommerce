@@ -22,6 +22,7 @@ class SettingsController extends Controller
                 'phone_number1' => '',
                 'phone_number2' => '',
                 'phone_number3' => '',
+                'whatsapp_number' => '',
             ]);
         }
 
@@ -35,6 +36,7 @@ class SettingsController extends Controller
             'phone_number1',
             'phone_number2',
             'phone_number3',
+            'whatsapp_number',
         ]));
     }
 }

@@ -41,6 +41,7 @@ const bankDetails = ref({
     account_number: '',
     bank_name: ''
 });
+const whatsappNumber = ref('');
 
 onMounted(async () => {
     isProcessing.value = true;
@@ -59,8 +60,10 @@ onMounted(async () => {
             account_number: response.data.account_number || '',
             bank_name: response.data.bank_name || ''
         };
+        whatsappNumber.value = response.data.whatsapp_number || '';
         console.log('paystackEnabled:', paystackEnabled.value);
         console.log('whatsappEnabled:', whatsappEnabled.value);
+        console.log('whatsappNumber:', whatsappNumber.value);
     } catch (error) {
         console.error('Failed to fetch settings:', error);
         paystackEnabled.value = true;
@@ -70,6 +73,7 @@ onMounted(async () => {
             account_number: '',
             bank_name: ''
         };
+        whatsappNumber.value = '';
     } finally {
         isProcessing.value = false;
     }
@@ -497,7 +501,7 @@ ${receiptInfo}
             `.trim();
             
             const encodedMessage = encodeURIComponent(orderDetails);
-            const phoneNumber = "2347018521912";
+            const phoneNumber = whatsappNumber.value || "2347018521912";
             const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
             
             showToast('Order created successfully! Redirecting to WhatsApp...', 'success');

@@ -28,6 +28,10 @@ class SettingForm
                 TextInput::make('phone_number3')
                     ->label('Phone Number 3')
                     ->tel(),
+                TextInput::make('whatsapp_number')
+                    ->label('WhatsApp Number')
+                    ->tel()
+                    ->helperText('WhatsApp number in international format (e.g., 2347018521912)'),
                 Toggle::make('is_paystack_enabled'),
                 Toggle::make('is_whatsapp_enabled'),
             ]);

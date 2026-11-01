@@ -14,6 +14,7 @@ class Setting extends Model
         'phone_number1',
         'phone_number2',
         'phone_number3',
+        'whatsapp_number',
         'is_paystack_enabled',
         'is_whatsapp_enabled',
     ];
