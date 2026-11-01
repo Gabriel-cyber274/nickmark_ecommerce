@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('general_settings', function (Blueprint $table) {
+        Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->string('key')->unique();
-            $table->text('value')->nullable();
+            $table->text('dispatch_return');
+            $table->string('account_number');
+            $table->string('bank_name');
+            $table->string('account_name');
+            $table->boolean('is_paystack_enabled')->default(true);
+            $table->boolean('is_whatsapp_enabled')->default(false);
             $table->timestamps();
         });
     }
@@ -24,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('general_settings');
+        Schema::dropIfExists('settings');
     }
 };
