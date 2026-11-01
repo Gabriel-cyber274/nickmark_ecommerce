@@ -43,6 +43,7 @@ const bankDetails = ref({
 });
 
 onMounted(async () => {
+    isProcessing.value = true;
     try {
         console.log('Fetching settings from /settings...');
         const response = await axios.get('/settings', {
@@ -69,6 +70,8 @@ onMounted(async () => {
             account_number: '',
             bank_name: ''
         };
+    } finally {
+        isProcessing.value = false;
     }
 });
 
@@ -106,6 +109,7 @@ const cities = ref([]);
 const discountCode = ref('');
 const appliedDiscount = ref(null);
 const receiptFile = ref(null);
+const isProcessing = ref(false);
 const toast = ref({
     show: false,
     message: '',
@@ -363,6 +367,8 @@ const handleCreateAccount = async () => {
 
 // Handle Paystack payment
 const handlePaystackPayment = async () => {
+    isProcessing.value = true;
+    
     try {
         const orderData = prepareOrderData();
 
@@ -402,11 +408,15 @@ const handlePaystackPayment = async () => {
     } catch (error) {
         console.error('Payment error:', error);
         showToast('An error occurred. Please try again.', 'error');
+    } finally {
+        isProcessing.value = false;
     }
 };
 
 // Handle WhatsApp order
 const handleWhatsAppOrder = async () => {
+    isProcessing.value = true;
+    
     try {
         const orderData = prepareOrderData();
         
@@ -502,6 +512,8 @@ ${receiptInfo}
     } catch (error) {
         console.error('WhatsApp order error:', error);
         showToast('An error occurred. Please try again.', 'error');
+    } finally {
+        isProcessing.value = false;
     }
 };
 
@@ -520,9 +532,12 @@ const handleSubmit = async (paymentMethod) => {
         return;
     }
     
+    isProcessing.value = true;
+    
     if (checkoutForm.value.create_account) {
         const accountCreated = await handleCreateAccount();
         if (!accountCreated) {
+            isProcessing.value = false;
             return;
         }
     }
@@ -536,6 +551,8 @@ const handleSubmit = async (paymentMethod) => {
         showToast('Paystack is currently disabled. Using WhatsApp payment instead.', 'warning');
         await handleWhatsAppOrder();
     }
+    
+    isProcessing.value = false;
 };
 
 // Initialize form on mount
@@ -784,8 +801,18 @@ onMounted(() => {
                                 <div class="mt-3">
                                     <h4 class="mb-3">Payment Method</h4>
                                     
-                                    <button v-if="paystackEnabled" type="button" @click="handleSubmit('paystack')" class="btn btn-outline-primary-2 btn-block mb-2">
-                                        Pay with Paystack
+                                    <button 
+                                        v-if="paystackEnabled" 
+                                        type="button" 
+                                        @click="handleSubmit('paystack')" 
+                                        class="btn btn-outline-primary-2 btn-block mb-2"
+                                        :disabled="isProcessing"
+                                    >
+                                        <span v-if="isProcessing">
+                                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                            Processing...
+                                        </span>
+                                        <span v-else>Pay with Paystack</span>
                                     </button>
                                     
                                     <!-- Bank Details for WhatsApp Payment -->
@@ -810,13 +837,24 @@ onMounted(() => {
                                                 class="form-control" 
                                                 accept="image/*"
                                                 @change="receiptFile = $event.target.files[0]"
+                                                :disabled="isProcessing"
                                             >
                                             <small class="text-muted">Max 5MB. Image formats only.</small>
                                         </div>
                                         
                                         <!-- Order via WhatsApp Button - Moved below bank details and receipt -->
-                                        <button v-if="whatsappEnabled" type="button" @click="handleSubmit('whatsapp')" class="btn btn-outline-success-2 btn-block mt-3">
-                                            <span>Order via WhatsApp</span>
+                                        <button 
+                                            v-if="whatsappEnabled" 
+                                            type="button" 
+                                            @click="handleSubmit('whatsapp')" 
+                                            class="btn btn-outline-success-2 btn-block mt-3"
+                                            :disabled="isProcessing"
+                                        >
+                                            <span v-if="isProcessing">
+                                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                Processing...
+                                            </span>
+                                            <span v-else>Order via WhatsApp</span>
                                         </button>
                                     </div>
                                 </div>
