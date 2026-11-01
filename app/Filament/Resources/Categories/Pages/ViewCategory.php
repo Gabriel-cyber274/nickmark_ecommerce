@@ -16,4 +16,11 @@ class ViewCategory extends ViewRecord
             EditAction::make(),
         ];
     }
+
+    public function getRelationManagers(): array
+    {
+        return [
+            'questions' => \App\Filament\Resources\Categories\RelationManagers\CategoryQuestionRelationManager::class,
+        ];
+    }
 }
