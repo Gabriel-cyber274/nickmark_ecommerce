@@ -472,4 +472,21 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Serve storage files (for Windows where symlink may not work)
+Route::get('/storage/{path}', function ($path) {
+    $fullPath = storage_path('app/public/' . $path);
+    
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+    
+    $mimeType = mime_content_type($fullPath);
+    $headers = [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000',
+    ];
+    
+    return response()->file($fullPath, $headers);
+})->where('path', '.*');
+
 require __DIR__ . '/auth.php';
