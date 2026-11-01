@@ -17,6 +17,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Hidden;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ProductForm
 {
@@ -111,13 +114,58 @@ class ProductForm
                         FileUpload::make('images')
                             ->label('Product Images')
                             ->disk('public')
+                            ->directory('products')
+                            ->visibility('public')
                             ->multiple()
                             ->image()
                             ->maxFiles(3)
                             ->reorderable()
-                            ->directory('products')
-                            ->visibility('public')
-                            ->columnSpanFull(),
+                            ->openable()
+                            ->downloadable()
+                            ->previewable()
+                            ->panelLayout('grid')
+                            ->imagePreviewHeight('150')
+                            ->columnSpanFull()
+                            ->dehydrated(false)
+                            ->afterStateHydrated(function (FileUpload $component, ?Product $record) {
+                                if (! $record) {
+                                    return;
+                                }
+
+                                $component->state(
+                                    $record->images()->pluck('image_url')
+                                        ->mapWithKeys(fn ($url) => [(string) Str::uuid() => $url])
+                                        ->all()
+                                );
+                            })
+                            ->getUploadedFileUsing(function (FileUpload $component, $file): ?array {
+                                // Handle TemporaryUploadedFile (new uploads)
+                                if ($file instanceof TemporaryUploadedFile) {
+                                    return [
+                                        'name' => $file->getClientOriginalName(),
+                                        'size' => $file->getSize(),
+                                        'type' => $file->getMimeType(),
+                                        'url'  => $file->temporaryUrl(),
+                                    ];
+                                }
+
+                                // Handle string (existing image URLs or local paths)
+                                if (is_string($file)) {
+                                    $isUrl = Str::startsWith($file, ['http://', 'https://']);
+
+                                    return [
+                                        'name' => basename(parse_url($file, PHP_URL_PATH) ?: $file),
+                                        'size' => (! $isUrl && Storage::disk('public')->exists($file))
+                                            ? Storage::disk('public')->size($file)
+                                            : 0,
+                                        'type' => 'image/jpeg',
+                                        'url'  => $isUrl ? $file : Storage::disk('public')->url($file),
+                                    ];
+                                }
+
+                                return null;
+                            })
+                            ->deleteUploadedFileUsing(fn () => null),
                     ]),
 
                 Section::make('Category Questions')

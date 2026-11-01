@@ -34,14 +34,12 @@ foreach ($attributes->all() as $__key => $__value) {
 
 unset($__defined_vars, $__key, $__value); ?>
 
-<select
+<input
     <?php echo e($attributes->class([
-            'fi-select-input',
-            'fi-select-input-has-inline-prefix' => $inlinePrefix,
+            'fi-input',
+            'fi-input-has-inline-prefix' => $inlinePrefix,
+            'fi-input-has-inline-suffix' => $inlineSuffix,
         ])); ?>
 
->
-    <?php echo e($slot); ?>
-
-</select>
-<?php /**PATH D:\Desktop-projects\nickmark-ecommerce\vendor\filament\support\resources\views/components/input/select.blade.php ENDPATH**/ ?>
+/>
+<?php /**PATH D:\Desktop-projects\nickmark-ecommerce\vendor\filament\support\resources\views/components/input/index.blade.php ENDPATH**/ ?>
