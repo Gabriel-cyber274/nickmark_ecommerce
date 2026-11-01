@@ -2,7 +2,6 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import { onMounted, ref, computed, watch } from 'vue';
 import Skeleton from './Skeleton.vue';
-import { useCart } from '../composables/useCart';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 
@@ -97,10 +96,9 @@ const prepareOrderData = () => {
         })),
         subtotal: subtotal.value,
         total: total.value
-    };
 };
+}
 
-const { cartItems } = useCart(props.auth);
 const cartProducts = ref([]);
 const isLoading = ref(true);
 const isCartLoaded = ref(false);
@@ -203,7 +201,10 @@ const fetchCartProducts = async () => {
     isLoading.value = true;
     isCartLoaded.value = false;
     
-    if (props.auth) {
+    // Check if user is truly authenticated (has user ID)
+    const isAuthenticated = props.auth && props.auth.id;
+    
+    if (isAuthenticated) {
         const response = await fetch('/api/cart', {
             headers: {
                 'Accept': 'application/json',
@@ -216,7 +217,18 @@ const fetchCartProducts = async () => {
             cartProducts.value = await response.json();
         }
     } else {
-        if (cartItems.value.length > 0) {
+        // Load guest cart from localStorage
+        const stored = localStorage.getItem(CART_STORAGE_KEY);
+        let guestCartItems = [];
+        if (stored) {
+            try {
+                guestCartItems = JSON.parse(stored);
+            } catch (e) {
+                guestCartItems = [];
+            }
+        }
+        
+        if (guestCartItems.length > 0) {
             const response = await fetch('/api/cart/products', {
                 method: 'POST',
                 headers: {
@@ -224,7 +236,7 @@ const fetchCartProducts = async () => {
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
-                body: JSON.stringify({ items: cartItems.value })
+                body: JSON.stringify({ items: guestCartItems })
             });
             
             if (response.ok) {
