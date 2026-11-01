@@ -152,6 +152,13 @@ class OrderController extends Controller
 
     public function createWhatsAppOrder(Request $request)
     {
+        // Handle cart_items sent as JSON string in FormData
+        $cartItems = $request->input('cart_items');
+        if (is_string($cartItems)) {
+            $cartItems = json_decode($cartItems, true);
+            $request->merge(['cart_items' => $cartItems]);
+        }
+
         $validated = $request->validate([
             'first_name' => 'required|string',
             'last_name' => 'required|string',

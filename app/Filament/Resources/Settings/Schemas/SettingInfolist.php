@@ -16,6 +16,12 @@ class SettingInfolist
                 TextEntry::make('account_number'),
                 TextEntry::make('bank_name'),
                 TextEntry::make('account_name'),
+                TextEntry::make('phone_number1')
+                    ->label('Phone Number 1'),
+                TextEntry::make('phone_number2')
+                    ->label('Phone Number 2'),
+                TextEntry::make('phone_number3')
+                    ->label('Phone Number 3'),
                 IconEntry::make('is_paystack_enabled')->boolean(),
                 IconEntry::make('is_whatsapp_enabled')->boolean(),
             ]);

@@ -19,6 +19,9 @@ class SettingsController extends Controller
                 'account_name' => '',
                 'account_number' => '',
                 'bank_name' => '',
+                'phone_number1' => '',
+                'phone_number2' => '',
+                'phone_number3' => '',
             ]);
         }
 
@@ -29,6 +32,9 @@ class SettingsController extends Controller
             'account_name',
             'account_number',
             'bank_name',
+            'phone_number1',
+            'phone_number2',
+            'phone_number3',
         ]));
     }
 }

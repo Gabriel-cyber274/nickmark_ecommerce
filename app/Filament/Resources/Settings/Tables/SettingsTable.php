@@ -40,6 +40,15 @@ class SettingsTable
                     ->label('Account Number'),
                 TextColumn::make('bank_name')
                     ->label('Bank Name'),
+                TextColumn::make('phone_number1')
+                    ->label('Phone 1')
+                    ->toggleable(),
+                TextColumn::make('phone_number2')
+                    ->label('Phone 2')
+                    ->toggleable(),
+                TextColumn::make('phone_number3')
+                    ->label('Phone 3')
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()

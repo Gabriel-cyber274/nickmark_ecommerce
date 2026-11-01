@@ -19,6 +19,15 @@ class SettingForm
                 TextInput::make('account_number'),
                 TextInput::make('bank_name'),
                 TextInput::make('account_name'),
+                TextInput::make('phone_number1')
+                    ->label('Phone Number 1')
+                    ->tel(),
+                TextInput::make('phone_number2')
+                    ->label('Phone Number 2')
+                    ->tel(),
+                TextInput::make('phone_number3')
+                    ->label('Phone Number 3')
+                    ->tel(),
                 Toggle::make('is_paystack_enabled'),
                 Toggle::make('is_whatsapp_enabled'),
             ]);

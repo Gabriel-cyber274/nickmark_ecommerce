@@ -11,6 +11,9 @@ class Setting extends Model
         'account_number',
         'bank_name',
         'account_name',
+        'phone_number1',
+        'phone_number2',
+        'phone_number3',
         'is_paystack_enabled',
         'is_whatsapp_enabled',
     ];
