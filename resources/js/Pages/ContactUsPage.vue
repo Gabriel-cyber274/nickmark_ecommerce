@@ -373,9 +373,12 @@ onUnmounted(() => {
                                                 Apapa, Lagos, Nigeria.
                                             </li>
                                             <li>
-                                                <i class="icon-phone"></i>
+                                               <i class="icon-phone"></i>
                                                 <strong>Phone:</strong><br>
-                                                <a v-for="phone in getPhoneNumbers()" :key="phone" :href="`tel:${phone}`">{{ phone }}</a><br>
+                                                <template v-for="(phone, index) in getPhoneNumbers()" :key="phone">
+                                                    <a :href="`tel:${phone}`">{{ phone }}</a><span v-if="index < getPhoneNumbers().length - 1">, </span>
+                                                </template>
+                                                <br>
                                             </li>
                                             <li>
                                                 <i class="icon-envelope"></i>
