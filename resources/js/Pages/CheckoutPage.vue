@@ -4,6 +4,8 @@ import { onMounted, ref, computed, watch } from 'vue';
 import Skeleton from './Skeleton.vue';
 import { useCart } from '../composables/useCart';
 import { usePage } from '@inertiajs/vue3';
+import axios from 'axios';
+
 
 const page = usePage();
 
@@ -19,7 +21,7 @@ const props = defineProps({
 });
 
 onMounted(() => {
-    console.log('auth', props.auth)
+    console.log('auth', props.auth);
 });
 
 // Watch for flash messages
@@ -31,6 +33,28 @@ watch(() => page.props.flash, (flash) => {
         showToast(flash.error, 'error');
     }
 }, { deep: true, immediate: true });
+
+// Fetch settings including payment method preferences
+const paystackEnabled = ref(true);
+const whatsappEnabled = ref(false);
+
+onMounted(async () => {
+    try {
+        const response = await axios.get('/settings', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        paystackEnabled.value = response.data.paystack_enabled === true;
+        whatsappEnabled.value = response.data.whatsapp_enabled === true;
+    } catch (error) {
+        console.error('Failed to fetch settings:', error);
+        paystackEnabled.value = true;
+        whatsappEnabled.value = false;
+    }
+});
+
+// ... rest of the file unchanged ...
 
 const prepareOrderData = () => {
     return {
@@ -372,6 +396,11 @@ const handleWhatsAppOrder = async () => {
                 localStorage.removeItem(CART_STORAGE_KEY);
             }
             
+            // Get bank details from settings
+            const accountName = "<?php echo config('general_settings.account_name') ?? ''; ?>";
+            const accountNumber = "<?php echo config('general_settings.account_number') ?? ''; ?>";
+            const bankName = "<?php echo config('general_settings.bank_name') ?? ''; ?>";
+            
             const orderDetails = `
 🛍️ *New Order* - Ref: ${data.reference}
 
@@ -396,6 +425,14 @@ ${cartProducts.value.map(item =>
 ${appliedDiscount.value ? `*Discount (${appliedDiscount.value.code}):* -₦${discountAmount.value.toLocaleString()}\n` : ''}*Total:* ₦${total.value.toLocaleString()}
 
 ${checkoutForm.value.notes ? `*Notes:* ${checkoutForm.value.notes}` : ''}
+
+*Payment Method: WhatsApp*
+*Bank Details for Payment:*
+Account Name: ${accountName}
+Account Number: ${accountNumber}
+Bank: ${bankName}
+
+*Please make payment and upload receipt. Order status will be pending until payment is verified.*
             `.trim();
             
             const encodedMessage = encodeURIComponent(orderDetails);
@@ -439,9 +476,13 @@ const handleSubmit = async (paymentMethod) => {
         }
     }
     
-    if (paymentMethod === 'paystack') {
+    // Check if Paystack is enabled, otherwise use WhatsApp
+    if (paymentMethod === 'paystack' && paystackEnabled.value) {
         await handlePaystackPayment();
-    } else if (paymentMethod === 'whatsapp') {
+    } else if (paymentMethod === 'whatsapp' && whatsappEnabled.value) {
+        await handleWhatsAppOrder();
+    } else if (paymentMethod === 'paystack' && !paystackEnabled.value) {
+        showToast('Paystack is currently disabled. Using WhatsApp payment instead.', 'warning');
         await handleWhatsAppOrder();
     }
 };
@@ -692,13 +733,13 @@ onMounted(() => {
                                 <div class="mt-3">
                                     <h4 class="mb-3">Payment Method</h4>
                                     
-                                    <button type="button" @click="handleSubmit('paystack')" class="btn btn-outline-primary-2 btn-block mb-2">
+                                    <button v-if="paystackEnabled.value" type="button" @click="handleSubmit('paystack')" class="btn btn-outline-primary-2 btn-block mb-2">
                                         Pay with Paystack
                                     </button>
                                     
-                                    <!-- <button type="button" @click="handleSubmit('whatsapp')" class="btn btn-outline-success-2 btn-block">
-                                        Order via WhatsApp
-                                    </button> -->
+                                    <button v-if="whatsappEnabled.value" type="button" @click="handleSubmit('whatsapp')" :disabled="!whatsappEnabled.value" class="btn btn-outline-success-2 btn-block mb-2">
+                                        <span>Order via WhatsApp</span>
+                                    </button>
                                 </div>
                             </div>
                         </aside>

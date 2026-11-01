@@ -7,6 +7,7 @@ import { useCart } from '../composables/useCart';
 import { usePage } from '@inertiajs/vue3';
 import { watch } from 'vue';
 import VueEasyLightbox from 'vue-easy-lightbox';
+import axios from 'axios';
 
 
 const page = usePage();
@@ -216,7 +217,7 @@ const submitReview = () => {
     if (!isValid) {
         return;
     }
-
+    
     
     router.post(`/product/${prop.productId}/review`, {
         name: reviewForm.name,
@@ -343,15 +344,25 @@ onUnmounted(() => {
     }
 });
 
-// Function to change main product image
-const changeMainImage = (imageUrl, event) => {
-    event.preventDefault();
-    currentMainImage.value = imageUrl;
-    
-    const galleryItems = document.querySelectorAll('.product-gallery-item');
-    galleryItems.forEach(item => item.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-};
+// Fetch settings data
+const deliveryReturnsText = ref('');
+const loadingSettings = ref(true);
+
+onMounted(async () => {
+    try {
+        const response = await axios.get('/settings', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        deliveryReturnsText.value = response.data.delivery_returns ?? '';
+    } catch (error) {
+        console.error('Failed to fetch settings:', error);
+        deliveryReturnsText.value = '';
+    } finally {
+        loadingSettings.value = false;
+    }
+});
 
 // Function to format answer based on question type
 const formatAnswer = (answer) => {
@@ -533,7 +544,8 @@ const formatAnswer = (answer) => {
                         <div class="tab-pane fade" id="product-shipping-tab" role="tabpanel" aria-labelledby="product-shipping-link">
                             <div class="product-desc-content">
                                 <h3>Delivery & returns</h3>
-                                <p>We deliver to over 100 countries around the world. For full details of the delivery options we offer, please view our <a href="#">Delivery information</a><br>
+                                <p v-if="deliveryReturnsText">{{ deliveryReturnsText }}<br></p>
+                                <p v-else>We deliver to over 100 countries around the world. For full details of the delivery options we offer, please view our <a href="#">Delivery information</a><br>
                                 We hope you'll love every purchase, but if you ever need to return an item you can do so within a month of receipt. For full details of how to make a return, please view our <a href="#">Returns information</a></p>
                             </div>
                         </div>

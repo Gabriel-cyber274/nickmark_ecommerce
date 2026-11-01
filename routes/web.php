@@ -289,6 +289,8 @@ Route::get('/checkout', function () {
     ]);
 })->name('checkout');
 
+Route::get('/settings', [\App\Http\Controllers\Api\SettingsController::class, 'index'])->name('settings.index');
+
 // Paystack routes
 Route::post('/paystack/initiate', [OrderController::class, 'initiatePaystack'])->name('paystack.initiate');
 Route::get('/paystack/callback', [OrderController::class, 'handlePaystackCallback'])->name('paystack.callback');

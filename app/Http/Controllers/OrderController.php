@@ -171,6 +171,9 @@ class OrderController extends Controller
             'cart_items.*.price' => 'required|numeric',
             'subtotal' => 'required|numeric',
             'total' => 'required|numeric',
+            'bank_name' => 'nullable|string',
+            'account_number' => 'nullable|string',
+            'account_name' => 'nullable|string',
         ]);
 
         try {
@@ -182,6 +185,19 @@ class OrderController extends Controller
             $userId = auth()->check() ? auth()->id() : null;
 
             $order = $this->createOrder($validated, 'whatsapp', $reference, $userId);
+
+            // Add bank details to order note for reference
+            $bankName = $request->input('bank_name') ?? '';
+            $accountNumber = $request->input('account_number') ?? '';
+            $accountName = $request->input('account_name') ?? '';
+
+            if ($bankName || $accountNumber || $accountName) {
+                $order->order_note = ($order->order_note ?? '') . "\n\nBank Details:
+- Bank: " . $bankName . "
+- Account Number: " . $accountNumber . "
+- Account Name: " . $accountName;
+                $order->save();
+            }
 
             DB::commit();
 
