@@ -11,6 +11,8 @@ use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Models\UserCart;
 use App\Models\UserWishlist;
+use App\Mail\WelcomeEmail;
+use Illuminate\Support\Facades\Mail;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -37,7 +39,8 @@ Route::post('/register', function (Request $request) {
     $order = Order::where('email', $validated['email'])
         ->update(['user_id' => $user->id]);
 
-
+    // Send welcome email via queue
+    Mail::to($user->email)->queue(new WelcomeEmail($user->name, $user->email));
 
     // Log the user in using web guard (session-based)
     Auth::login($user);
@@ -178,6 +181,7 @@ Route::post('/wishlist/products', function (Request $request) {
 
     return response()->json($products);
 })->name('api.wishlist.products');
+
 
 
 

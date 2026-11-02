@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use App\Mail\NewProductNotification;
+use Illuminate\Support\Facades\Mail;
 
 class Product extends Model
 {
@@ -63,6 +65,16 @@ class Product extends Model
 
             // Delete image records
             $product->images()->delete();
+        });
+
+        static::created(function (Product $product) {
+            // Send new product notification to all users via queue
+            // Using chunk to avoid memory issues with large user bases
+            \App\Models\User::chunkById(100, function ($users) use ($product) {
+                foreach ($users as $user) {
+                    Mail::to($user->email)->queue(new NewProductNotification($product));
+                }
+            });
         });
     }
 
