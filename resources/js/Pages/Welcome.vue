@@ -563,7 +563,7 @@ const brands = ref([
                 <hr class="mb-0">
             </div><!-- End .container -->
 
-            <div class="icon-boxes-container bg-transparent">
+            <!-- <div class="icon-boxes-container bg-transparent">
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-6 col-lg-3">
@@ -572,11 +572,11 @@ const brands = ref([
                                     <i class="icon-rocket"></i>
                                 </span>
                                 <div class="icon-box-content">
-                                    <h3 class="icon-box-title">Free Shipping</h3><!-- End .icon-box-title -->
+                                    <h3 class="icon-box-title">Free Shipping</h3>
                                     <p>Orders $50 or more</p>
-                                </div><!-- End .icon-box-content -->
-                            </div><!-- End .icon-box -->
-                        </div><!-- End .col-sm-6 col-lg-3 -->
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="col-sm-6 col-lg-3">
                             <div class="icon-box icon-box-side">
@@ -585,11 +585,11 @@ const brands = ref([
                                 </span>
 
                                 <div class="icon-box-content">
-                                    <h3 class="icon-box-title">Free Returns</h3><!-- End .icon-box-title -->
+                                    <h3 class="icon-box-title">Free Returns</h3>
                                     <p>Within 30 days</p>
-                                </div><!-- End .icon-box-content -->
-                            </div><!-- End .icon-box -->
-                        </div><!-- End .col-sm-6 col-lg-3 -->
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="col-sm-6 col-lg-3">
                             <div class="icon-box icon-box-side">
@@ -598,11 +598,11 @@ const brands = ref([
                                 </span>
 
                                 <div class="icon-box-content">
-                                    <h3 class="icon-box-title">Get 20% Off 1 Item</h3><!-- End .icon-box-title -->
+                                    <h3 class="icon-box-title">Get 20% Off 1 Item</h3>
                                     <p>when you sign up</p>
-                                </div><!-- End .icon-box-content -->
-                            </div><!-- End .icon-box -->
-                        </div><!-- End .col-sm-6 col-lg-3 -->
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="col-sm-6 col-lg-3">
                             <div class="icon-box icon-box-side">
@@ -611,15 +611,15 @@ const brands = ref([
                                 </span>
 
                                 <div class="icon-box-content">
-                                    <h3 class="icon-box-title">We Support</h3><!-- End .icon-box-title -->
+                                    <h3 class="icon-box-title">We Support</h3>
                                     <p>24/7 amazing services</p>
-                                </div><!-- End .icon-box-content -->
-                            </div><!-- End .icon-box -->
-                        </div><!-- End .col-sm-6 col-lg-3 -->
-                    </div><!-- End .row -->
-                </div><!-- End .container -->
-            </div><!-- End .icon-boxes-container -->
-        </main><!-- End .main -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+        </main>
 
 </Skeleton>
 </template>
