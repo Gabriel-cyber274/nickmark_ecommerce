@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import { onMounted, nextTick, onUnmounted, ref,  computed } from 'vue';
 import Skeleton from './Skeleton.vue'
@@ -10,8 +10,6 @@ import { useCart } from '../composables/useCart';
 import { watch } from 'vue';
 
 const page = usePage();
-
-
 
 let prop = defineProps({
     canLogin: {
@@ -147,12 +145,37 @@ const brands = ref([
   { id: 6, src: "assets/images/brands/6.png", name: 'hp' },
 ]);
 
+// Scroll Animation Observer
+onMounted(() => {
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px 0px -50px 0px',
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animated');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    const animatedElements = document.querySelectorAll('.animate-on-scroll');
+    animatedElements.forEach(el => observer.observe(el));
+
+    onUnmounted(() => {
+        observer.disconnect();
+    });
+});
+
 </script>
 
 <template>
     <Head title="Welcome" />
 
-      <!-- Toast Notification -->
+    <!-- Toast Notification -->
     <transition name="toast">
         <div v-if="toast.show" :class="['toast-notification', `toast-${toast.type}`]">
             <div class="toast-content">
@@ -172,8 +195,11 @@ const brands = ref([
 
     <Skeleton page="home" :auth="auth">
 
-                <main class="main">
-            <div class="intro-slider-container mb-5">
+        <main class="main">
+            <!-- Page Entrance Animation Wrapper -->
+            <transition name="page" mode="out-in">
+                <div class="page-content" key="welcome-page">
+                    <div class="intro-slider-container mb-5 animate-on-scroll" data-animation="fade-up" data-delay="0">
                 <div class="intro-slider owl-carousel owl-theme owl-nav-inside owl-light" data-toggle="owl" 
                     data-owl-options='{
                         "dots": true,
@@ -214,17 +240,17 @@ const brands = ref([
 
                         <div v-if="product.previous_price" class="intro-price">
                             <sup class="intro-old-price"> 
-                                ₦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                                â‚¦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                             </sup>
                             <span class="text-third">
-                                ₦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                                â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                             </span>
                         </div>
 
                         <div v-if="!product.previous_price" class="intro-price">
                             <sup>Today:</sup>
                             <span class="text-primary">
-                                ₦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                                â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                             </span>
                         </div>
 
@@ -244,23 +270,24 @@ const brands = ref([
                 <span class="slider-loader"></span><!-- End .slider-loader -->
             </div><!-- End .intro-slider-container -->
 
-            <div class="container">
-                <h2 class="title text-center mb-4">Explore Popular Categories</h2><!-- End .title text-center -->
+            <div class="container animate-on-scroll" data-animation="fade-up" data-delay="100">
+                <h2 class="title text-center mb-4 animate-on-scroll" data-animation="fade-up" data-delay="0">Explore Popular Categories</h2><!-- End .title text-center -->
                 
                 <div class="cat-blocks-container">
                     <div class="row">
-                        <div v-for="category in popularCategories" class="col-6 col-sm-4 col-lg-2"  :key="category.id">
-                            <Link href="/categories" class="cat-block">
-                                <figure>
-                                    <span>
-                                        <img :src="category.image" alt="Category image">
-                                    </span>
-                                </figure>
+                        <transition-group name="stagger" tag="div" class="row">
+                            <div v-for="(category, index) in popularCategories" :key="category.id" class="col-6 col-sm-4 col-lg-2" :style="{ transitionDelay: `${index * 100}ms` }">
+                                <Link href="/categories" class="cat-block animate-hover-lift">
+                                    <figure>
+                                        <span>
+                                            <img :src="category.image" alt="Category image">
+                                        </span>
+                                    </figure>
 
-                                <h3 class="cat-block-title">{{ category.name }}</h3><!-- End .cat-block-title -->
-                            </Link>
-                        </div><!-- End .col-sm-4 col-lg-2 -->
-
+                                    <h3 class="cat-block-title">{{ category.name }}</h3><!-- End .cat-block-title -->
+                                </Link>
+                            </div><!-- End .col-sm-4 col-lg-2 -->
+                        </transition-group>
                     </div><!-- End .row -->
                 </div><!-- End .cat-blocks-container -->
             </div><!-- End .container -->
@@ -268,14 +295,14 @@ const brands = ref([
 
             <div class="mb-3"></div><!-- End .mb-5 -->
 
-            <div class="container new-arrivals">
+            <div class="container new-arrivals animate-on-scroll" data-animation="fade-up" data-delay="200">
                     <div class="heading heading-flex mb-3">
                         <div class="heading-left">
-                            <h2 class="title">New Arrivals</h2><!-- End .title -->
+                            <h2 class="title animate-on-scroll" data-animation="fade-right" data-delay="0">New Arrivals</h2><!-- End .title -->
                         </div><!-- End .heading-left -->
 
                         <div class="heading-right">
-                            <ul class="nav nav-pills nav-border-anim justify-content-center" role="tablist">
+                            <ul class="nav nav-pills nav-border-anim justify-content-center animate-on-scroll" data-animation="fade-left" data-delay="100" role="tablist">
                                 <!-- First tab is "All" -->
                                 <li class="nav-item">
                                     <a class="nav-link active" id="new-all-link" data-toggle="tab" href="#new-all-tab" role="tab" aria-controls="new-all-tab" aria-selected="true">All</a>
@@ -291,7 +318,7 @@ const brands = ref([
                     <div class="tab-content tab-content-carousel just-action-icons-sm">
                         <!-- All Products Tab -->
                         <div class="tab-pane p-0 fade show active" id="new-all-tab" role="tabpanel" aria-labelledby="new-all-link">
-                            <div class="owl-carousel owl-full carousel-equal-height carousel-with-shadow" data-toggle="owl" 
+                            <transition-group name="product-list" tag="div" class="owl-carousel owl-full carousel-equal-height carousel-with-shadow" data-toggle="owl" 
                                 data-owl-options='{
                                     "nav": true, 
                                     "dots": true,
@@ -316,7 +343,7 @@ const brands = ref([
                                     }
                                 }'>
                                 <!-- Directly use the "all" products -->
-                                <div v-for="product in allProducts" :key="product.id" class="product product-2">
+                                <div v-for="(product, index) in allProducts" :key="product.id" class="product product-2 animate-on-scroll" data-animation="fade-up" :style="{ transitionDelay: `${index * 100}ms` }">
                                     <figure class="product-media">
                                         <span v-if="product.is_new" class="product-label label-circle label-new">New</span>
                                         <span v-if="product.previous_price" class="product-label label-circle label-sale">Sale</span>
@@ -355,12 +382,12 @@ const brands = ref([
                                             </span></Link>
                                         </h3><!-- End .product-title -->
                                         <div v-if="product.previous_price" class="product-price">
-                                            <span class="new-price">₦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
-                                            <span class="old-price">Was ₦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                            <span class="new-price">â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                            <span class="old-price">Was â‚¦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
                                         </div>
 
                                         <div v-if="!product.previous_price" class="product-price" style="color: #39f !important;">
-                                            ₦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                                            â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                         </div><!-- End .product-price -->
                                         <div class="ratings-container">
                                             <div class="ratings">
@@ -370,7 +397,7 @@ const brands = ref([
                                         </div><!-- End .rating-container -->
                                     </div><!-- End .product-body -->
                                 </div><!-- End .product -->
-                            </div><!-- End .owl-carousel -->
+                            </transition-group><!-- End .owl-carousel -->
                         </div><!-- .End .tab-pane -->
 
                         <!-- Category-specific Tabs using computed property -->
@@ -379,7 +406,7 @@ const brands = ref([
                             class="tab-pane p-0 fade" 
                             :id="'new-' + slugify(item.categoryName) + '-tab'" 
                             :aria-labelledby="'new-' + slugify(item.categoryName) + '-link'">
-                            <div class="owl-carousel owl-full carousel-equal-height carousel-with-shadow" data-toggle="owl" 
+                            <transition-group name="product-list" tag="div" class="owl-carousel owl-full carousel-equal-height carousel-with-shadow" data-toggle="owl" 
                                 data-owl-options='{
                                     "nav": true, 
                                     "dots": true,
@@ -403,7 +430,7 @@ const brands = ref([
                                         }
                                     }
                                 }'>
-                                <div v-for="product in item.categoryProducts" :key="product.id" class="product product-2">
+                                <div v-for="(product, index) in item.categoryProducts" :key="product.id" class="product product-2 animate-on-scroll" data-animation="fade-up" :style="{ transitionDelay: `${index * 100}ms` }">
                                     <figure class="product-media">
                                         <span v-if="product.is_new" class="product-label label-circle label-new">New</span>
                                         <span v-if="product.previous_price" class="product-label label-circle label-sale">Sale</span>
@@ -441,12 +468,12 @@ const brands = ref([
                                         </h3><!-- End .product-title -->
 
                                         <div v-if="product.previous_price" class="product-price">
-                                            <span class="new-price">₦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
-                                            <span class="old-price">Was ₦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                            <span class="new-price">â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                            <span class="old-price">Was â‚¦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
                                         </div>
 
                                         <div v-if="!product.previous_price" class="product-price" style="color: #39f !important;">
-                                            ₦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                                            â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                         </div><!-- End .product-price -->
                                         
                                         <div class="ratings-container">
@@ -457,7 +484,7 @@ const brands = ref([
                                         </div><!-- End .rating-container -->
                                     </div><!-- End .product-body -->
                                 </div><!-- End .product -->
-                            </div><!-- End .owl-carousel -->
+                            </transition-group><!-- End .owl-carousel -->
                         </div><!-- .End .tab-pane -->
                     </div><!-- End .tab-content -->
                 </div><!-- End .container -->
@@ -465,16 +492,16 @@ const brands = ref([
             <div class="mb-6"></div><!-- End .mb-6 -->
 
 
-<div class="container">
+<div class="container animate-on-scroll" data-animation="fade-up" data-delay="300">
   <hr class="mb-0">
   <div class="brand-marquee-container mt-5 mb-5">
     <div class="brand-marquee">
       <div class="brand-marquee-content">
-        <Link v-for="brand in brands" :key="brand.id" :href="'/categories?search='+brand.name" class="brand">
+        <Link v-for="brand in brands" :key="brand.id" :href="'/categories?search='+brand.name" class="brand animate-hover-scale">
           <img :src="brand.src" alt="Brand Name">
         </Link>
         <!-- Duplicate for seamless loop -->
-        <Link v-for="brand in brands" :key="`${brand.id}-duplicate`" :href="'/categories?search='+brand.name" class="brand">
+        <Link v-for="brand in brands" :key="`${brand.id}-duplicate`" :href="'/categories?search='+brand.name" class="brand animate-hover-scale">
           <img :src="brand.src" alt="Brand Name">
         </Link>
       </div>
@@ -484,22 +511,22 @@ const brands = ref([
 
             <div class="mb-5"></div><!-- End .mb-5 -->
 
-            <div class="container for-you">
+<div class="container for-you animate-on-scroll" data-animation="fade-up" data-delay="400">
                 <div class="heading heading-flex mb-3">
                     <div class="heading-left">
-                        <h2 class="title">Recommendation For You</h2><!-- End .title -->
+                        <h2 class="title animate-on-scroll" data-animation="fade-right" data-delay="0">Recommendation For You</h2><!-- End .title -->
                     </div><!-- End .heading-left -->
 
-                   <div class="heading-right">
-                        <Link href="/categories?sort=popularity" class="title-link">View All Recommendadion <i class="icon-long-arrow-right"></i></Link>
-                   </div><!-- End .heading-right -->
+                    <div class="heading-right">
+                        <Link href="/categories?sort=popularity" class="title-link animate-on-scroll" data-animation="fade-left" data-delay="100">View All Recommendadion <i class="icon-long-arrow-right"></i></Link>
+                    </div><!-- End .heading-right -->
                 </div><!-- End .heading -->
 
                 <div class="products">
                     <div class="row justify-content-start">
-                        <div v-for="product in recommendedProducts" :key="product.id" class="col-6 col-md-4 col-lg-3">
-                                                          
-                                <div class="product product-2">
+                        <transition-group name="product-list" tag="div" class="row justify-content-start">
+                            <div v-for="(product, index) in recommendedProducts" :key="product.id" class="col-6 col-md-4 col-lg-3" :style="{ transitionDelay: `${index * 100}ms` }">
+                                <div class="product product-2 animate-on-scroll animate-hover-lift" data-animation="fade-up" data-delay="0">
                                     <figure class="product-media">
                                         <span v-if="product.is_new" class="product-label label-circle label-new">New</span>
                                         <span v-if="product.previous_price" class="product-label label-circle label-sale">Sale</span>
@@ -536,12 +563,12 @@ const brands = ref([
                                             </span></Link>
                                         </h3><!-- End .product-title -->
                                         <div v-if="product.previous_price" class="product-price">
-                                            <span class="new-price">₦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
-                                            <span class="old-price">Was ₦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                            <span class="new-price">â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                            <span class="old-price">Was â‚¦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
                                         </div>
 
                                         <div v-if="!product.previous_price" class="product-price" style="color: #39f !important;">
-                                            ₦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                                            â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                         </div><!-- End .product-price -->
                                         <div class="ratings-container">
                                             <div class="ratings">
@@ -551,8 +578,8 @@ const brands = ref([
                                         </div><!-- End .rating-container -->
                                     </div><!-- End .product-body -->
                                 </div><!-- End .product -->
-                        </div><!-- End .col-sm-6 col-md-4 col-lg-3 -->
-
+                            </div><!-- End .col-sm-6 col-md-4 col-lg-3 -->
+                        </transition-group><!-- End .row -->
                     </div><!-- End .row -->
                 </div><!-- End .products -->
             </div><!-- End .container -->
@@ -562,64 +589,9 @@ const brands = ref([
             <div class="container">
                 <hr class="mb-0">
             </div><!-- End .container -->
-
-            <!-- <div class="icon-boxes-container bg-transparent">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="icon-box icon-box-side">
-                                <span class="icon-box-icon text-dark">
-                                    <i class="icon-rocket"></i>
-                                </span>
-                                <div class="icon-box-content">
-                                    <h3 class="icon-box-title">Free Shipping</h3>
-                                    <p>Orders $50 or more</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="icon-box icon-box-side">
-                                <span class="icon-box-icon text-dark">
-                                    <i class="icon-rotate-left"></i>
-                                </span>
-
-                                <div class="icon-box-content">
-                                    <h3 class="icon-box-title">Free Returns</h3>
-                                    <p>Within 30 days</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="icon-box icon-box-side">
-                                <span class="icon-box-icon text-dark">
-                                    <i class="icon-info-circle"></i>
-                                </span>
-
-                                <div class="icon-box-content">
-                                    <h3 class="icon-box-title">Get 20% Off 1 Item</h3>
-                                    <p>when you sign up</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="icon-box icon-box-side">
-                                <span class="icon-box-icon text-dark">
-                                    <i class="icon-life-ring"></i>
-                                </span>
-
-                                <div class="icon-box-content">
-                                    <h3 class="icon-box-title">We Support</h3>
-                                    <p>24/7 amazing services</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-        </main>
+        </div>
+    </transition>
+</main>
 
 </Skeleton>
 </template>
@@ -898,4 +870,317 @@ const brands = ref([
         opacity: 1;
     }
 }
+
+/* Page Transition Animations */
+.page-enter-active,
+.page-leave-active {
+    transition: all 0.4s ease;
+}
+
+.page-enter-from {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.page-leave-to {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+/* Stagger Animation for Lists */
+.stagger-enter-active,
+.stagger-leave-active {
+    transition: all 0.5s ease;
+}
+
+.stagger-enter-from,
+.stagger-leave-to {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.stagger-move {
+    transition: transform 0.5s ease;
+}
+
+/* Product List Animation */
+.product-list-enter-active,
+.product-list-leave-active {
+    transition: all 0.5s ease;
+}
+
+.product-list-enter-from,
+.product-list-leave-to {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+}
+
+.product-list-move {
+    transition: transform 0.5s ease;
+}
+
+/* Scroll-triggered Animations */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-on-scroll.animated {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.animate-on-scroll[data-animation="fade-up"] {
+    transform: translateY(40px);
+}
+
+.animate-on-scroll[data-animation="fade-down"] {
+    transform: translateY(-40px);
+}
+
+.animate-on-scroll[data-animation="fade-left"] {
+    transform: translateX(40px);
+}
+
+.animate-on-scroll[data-animation="fade-right"] {
+    transform: translateX(-40px);
+}
+
+.animate-on-scroll[data-animation="zoom-in"] {
+    transform: scale(0.9);
+}
+
+.animate-on-scroll[data-animation="zoom-out"] {
+    transform: scale(1.1);
+}
+
+.animate-on-scroll.animated[data-animation="fade-up"],
+.animate-on-scroll.animated[data-animation="fade-down"],
+.animate-on-scroll.animated[data-animation="fade-left"],
+.animate-on-scroll.animated[data-animation="fade-right"],
+.animate-on-scroll.animated[data-animation="zoom-in"],
+.animate-on-scroll.animated[data-animation="zoom-out"] {
+    transform: translate(0) scale(1);
+}
+
+/* Hover Lift Animation */
+.animate-hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.animate-hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Hover Scale Animation */
+.animate-hover-scale {
+    transition: transform 0.3s ease;
+}
+
+.animate-hover-scale:hover {
+    transform: scale(1.05);
+}
+
+/* Category Block Hover */
+.cat-block.animate-hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cat-block.animate-hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.cat-block.animate-hover-lift figure {
+    transition: transform 0.3s ease;
+}
+
+.cat-block.animate-hover-lift:hover figure {
+    transform: scale(1.05);
+}
+
+/* Product Card Enhancement */
+.product.product-2.animate-hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product.product-2.animate-hover-lift:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+.product.product-2.animate-hover-lift .product-image {
+    transition: transform 0.5s ease;
+}
+
+.product.product-2.animate-hover-lift:hover .product-image {
+    transform: scale(1.05);
+}
+
+/* Intro Slide Animations */
+.intro-slide {
+    animation: slideUpFade 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.intro-image {
+    animation: zoomIn 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both;
+}
+
+.intro-content {
+    animation: slideRightFade 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s both;
+}
+
+.intro-subtitle {
+    animation: fadeIn 0.6s ease 0.5s both;
+}
+
+.intro-title {
+    animation: slideUpFade 0.6s ease 0.6s both;
+}
+
+.intro-price {
+    animation: slideUpFade 0.6s ease 0.7s both;
+}
+
+.intro-content .btn {
+    animation: slideUpFade 0.6s ease 0.8s both;
+}
+
+/* Keyframe Animations */
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideRightFade {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideLeftFade {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Tab Content Animation */
+.tab-pane {
+    animation: fadeIn 0.4s ease;
+}
+
+/* Loading Skeleton Pulse Animation */
+.skeleton-loader {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .brand-marquee-content {
+        animation: none;
+    }
+    
+    .animate-on-scroll {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+
+/* Smooth Scroll Behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Focus Visible for Accessibility */
+:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Button Ripple Effect */
+.btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+    pointer-events: none;
+}
+
+.btn:active::after {
+    width: 300px;
+    height: 300px;
+    transition: 0s;
+}
 </style>
+
+
+
+
+
