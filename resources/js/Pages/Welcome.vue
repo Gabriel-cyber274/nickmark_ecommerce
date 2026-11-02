@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import { onMounted, nextTick, onUnmounted, ref,  computed } from 'vue';
 import Skeleton from './Skeleton.vue'
@@ -130,6 +130,12 @@ const allProducts = computed(() => {
     return  prop.newProductCategories?.all || [];
 });
 
+// Helper to calculate average rating percentage for stars display
+const getRatingWidth = (product) => {
+    if (!product.reviews || product.reviews.length === 0) return 0;
+    const avg = product.reviews.reduce((sum, r) => sum + (r.rate || 0), 0) / product.reviews.length;
+    return Math.round((avg / 5) * 100);
+};
 
 onMounted(()=>{
     console.log('recommend', prop.auth)
@@ -240,17 +246,17 @@ onMounted(() => {
 
                         <div v-if="product.previous_price" class="intro-price">
                             <sup class="intro-old-price"> 
-                                â‚¦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                                &#8358;{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                             </sup>
                             <span class="text-third">
-                                â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                                &#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                             </span>
                         </div>
 
                         <div v-if="!product.previous_price" class="intro-price">
                             <sup>Today:</sup>
                             <span class="text-primary">
-                                â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                                &#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                             </span>
                         </div>
 
@@ -380,20 +386,20 @@ onMounted(() => {
                                                     <span v-if="index < 1 && product.answers.length > 1">, </span>
                                                 </span>
                                             </span></Link>
-                                        </h3><!-- End .product-title -->
+</h3><!-- End .product-title -->
                                         <div v-if="product.previous_price" class="product-price">
-                                            <span class="new-price">â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
-                                            <span class="old-price">Was â‚¦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                            <span class="new-price">&#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                            <span class="old-price">Was &#8358;{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
                                         </div>
 
                                         <div v-if="!product.previous_price" class="product-price" style="color: #39f !important;">
-                                            â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                                            &#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                         </div><!-- End .product-price -->
                                         <div class="ratings-container">
                                             <div class="ratings">
-                                                <div class="ratings-val" :style="{ width: '80%' }"></div>
+                                                <div class="ratings-val" :style="{ width: getRatingWidth(product) + '%' }"></div>
                                             </div><!-- End .ratings -->
-                                            <span class="ratings-text">( 4 Reviews )</span>
+                                            <span class="ratings-text">( {{ product.reviews?.length || 0 }} Review{{ (product.reviews?.length || 0) !== 1 ? 's' : '' }} )</span>
                                         </div><!-- End .rating-container -->
                                     </div><!-- End .product-body -->
                                 </div><!-- End .product -->
@@ -468,19 +474,19 @@ onMounted(() => {
                                         </h3><!-- End .product-title -->
 
                                         <div v-if="product.previous_price" class="product-price">
-                                            <span class="new-price">â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
-                                            <span class="old-price">Was â‚¦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                            <span class="new-price">&#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                            <span class="old-price">Was &#8358;{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
                                         </div>
 
-                                        <div v-if="!product.previous_price" class="product-price" style="color: #39f !important;">
-                                            â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+<div v-if="!product.previous_price" class="product-price" style="color: #39f !important;">
+                                            &#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                                         </div><!-- End .product-price -->
                                         
                                         <div class="ratings-container">
                                             <div class="ratings">
-                                                <div class="ratings-val" :style="{ width: '80%' }"></div>
+                                                <div class="ratings-val" :style="{ width: getRatingWidth(product) + '%' }"></div>
                                             </div><!-- End .ratings -->
-                                            <span class="ratings-text">( 4 Reviews )</span>
+                                            <span class="ratings-text">( {{ product.reviews?.length || 0 }} Review{{ (product.reviews?.length || 0) !== 1 ? 's' : '' }} )</span>
                                         </div><!-- End .rating-container -->
                                     </div><!-- End .product-body -->
                                 </div><!-- End .product -->
@@ -563,18 +569,18 @@ onMounted(() => {
                                             </span></Link>
                                         </h3><!-- End .product-title -->
                                         <div v-if="product.previous_price" class="product-price">
-                                            <span class="new-price">â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
-                                            <span class="old-price">Was â‚¦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                            <span class="new-price">&#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                            <span class="old-price">Was &#8358;{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
                                         </div>
 
                                         <div v-if="!product.previous_price" class="product-price" style="color: #39f !important;">
-                                            â‚¦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
-                                        </div><!-- End .product-price -->
+                                            &#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+</div><!-- End .product-price -->
                                         <div class="ratings-container">
                                             <div class="ratings">
-                                                <div class="ratings-val" :style="{ width: '80%' }"></div>
+                                                <div class="ratings-val" :style="{ width: getRatingWidth(product) + '%' }"></div>
                                             </div><!-- End .ratings -->
-                                            <span class="ratings-text">( 4 Reviews )</span>
+                                            <span class="ratings-text">( {{ product.reviews?.length || 0 }} Review{{ (product.reviews?.length || 0) !== 1 ? 's' : '' }} )</span>
                                         </div><!-- End .rating-container -->
                                     </div><!-- End .product-body -->
                                 </div><!-- End .product -->
@@ -1179,6 +1185,10 @@ html {
     transition: 0s;
 }
 </style>
+
+
+
+
 
 
 

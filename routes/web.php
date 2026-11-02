@@ -37,13 +37,12 @@ Route::get('/', function () {
             ->values();
     }
 
-    $featuredProducts = Product::with(['answers', 'images'])
+    $featuredProducts = Product::with(['answers', 'images', 'reviews'])
         ->where('is_featured', true)
         ->orderBy('created_at', 'desc')
         ->get();
 
-
-    $newProducts = Product::with(['category', 'images', 'answers'])
+    $newProducts = Product::with(['category', 'images', 'answers', 'reviews'])
         ->where('is_new', true)
         ->orderByDesc('created_at')
         ->take(10)
@@ -82,7 +81,7 @@ Route::get('/', function () {
     });
 
 
-    $recommendedProducts = Product::with(['category', 'images', 'answers'])
+    $recommendedProducts = Product::with(['category', 'images', 'answers', 'reviews'])
         ->orderByDesc('views')
         ->take(8)
         ->get();
