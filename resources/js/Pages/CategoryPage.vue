@@ -4,6 +4,7 @@ import { computed, ref, watch } from 'vue';
 import { useWishlist } from '../composables/useWishlist';
 import { useCart } from '../composables/useCart';
 import { usePage } from '@inertiajs/vue3';
+import Skeleton from './Skeleton.vue';
 
 const page = usePage();
 
@@ -107,13 +108,13 @@ const breadcrumbJsonLd = computed(() => {
                 '@type': 'ListItem',
                 position: 1,
                 name: 'Home',
-                item: baseUrl
+                item: baseUrl.value
             },
             {
                 '@type': 'ListItem',
                 position: 2,
                 name: prop.category.name,
-                item: baseUrl + '/categories/' + prop.category.slug
+                item: baseUrl.value + '/categories/' + prop.category.slug
             }
         ]
     });
@@ -145,7 +146,7 @@ const baseUrl = computed(() => {
     </Head>
 
     <!-- JSON-LD BreadcrumbList for Category -->
-    <script type="application/ld+json" v-html="breadcrumbJsonLd"></script>
+    <div v-html="breadcrumbJsonLd" style="display:none"></div>
 
     <!-- Toast Notification -->
     <transition name="toast">
@@ -165,90 +166,92 @@ const baseUrl = computed(() => {
         </div>
     </transition>
 
-    <main class="main mt-3">
-        <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
-            <div class="container">
-                <h1 class="page-title">{{ prop.category.name }}</h1>
+    <Skeleton page="categories" :auth="auth">
+        <main class="main mt-3">
+            <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+                <div class="container">
+                    <h1 class="page-title">{{ prop.category.name }}</h1>
+                </div>
             </div>
-        </div>
 
-        <div class="page-content mt-4">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-9">
-                        <div class="products mb-3">
-                            <div class="row justify-content-center">
-                                <div
-                                    v-for="product in products"
-                                    :key="product.id"
-                                    class="col-6 col-md-4 col-lg-4"
-                                >
-                                    <div class="product product-7 text-center">
-                                        <figure class="product-media">
-                                            <span v-if="product.is_new" class="product-label label-new">New</span>
-                                            <span v-else-if="product.is_featured" class="product-label label-top">Featured</span>
+            <div class="page-content mt-4">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-9">
+                            <div class="products mb-3">
+                                <div class="row justify-content-center">
+                                    <div
+                                        v-for="product in products"
+                                        :key="product.id"
+                                        class="col-6 col-md-4 col-lg-4"
+                                    >
+                                        <div class="product product-7 text-center">
+                                            <figure class="product-media">
+                                                <span v-if="product.is_new" class="product-label label-new">New</span>
+                                                <span v-else-if="product.is_featured" class="product-label label-top">Featured</span>
 
-                                            <Link :href="`/products/${product.slug}`">
-                                                <img
-                                                    :src="product.images && product.images.length > 0 ? product.images[0].image_url : '/assets/images/products/product-default.jpg'"
-                                                    :alt="product.name + ' product image'"
-                                                    class="product-image"
-                                                    @error="$event.target.src='/assets/images/products/product-default.jpg'"
-                                                >
-                                            </Link>
+                                                <Link :href="`/products/${product.slug}`">
+                                                    <img
+                                                        :src="product.images && product.images.length > 0 ? product.images[0].image_url : '/assets/images/products/product-default.jpg'"
+                                                        :alt="product.name + ' product image'"
+                                                        class="product-image"
+                                                        @error="$event.target.src='/assets/images/products/product-default.jpg'"
+                                                    >
+                                                </Link>
 
-                                            <div class="product-action-vertical">
-                                                <a
-                                                    href="#"
-                                                    @click.prevent="handleWishlistToggle(product.id)"
-                                                    class="btn-product-icon btn-wishlist"
-                                                    :class="{ 'active': isInWishlist(product.id) }"
-                                                    :title="isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
-                                                ></a>
+                                                <div class="product-action-vertical">
+                                                    <a
+                                                        href="#"
+                                                        @click.prevent="handleWishlistToggle(product.id)"
+                                                        class="btn-product-icon btn-wishlist"
+                                                        :class="{ 'active': isInWishlist(product.id) }"
+                                                        :title="isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+                                                    ></a>
 
-                                                <Link
-                                                    :href="`/products/${product.slug}`"
-                                                    class="btn-product-icon btn-quickview"
-                                                    title="Quick view"
-                                                ><span>Quick view</span></Link>
-                                            </div>
-
-                                            <div class="product-action">
-                                                <a href="#" @click.prevent="handleAddToCart(product.id)" class="btn-product btn-cart"><span>add to cart</span></a>
-                                            </div>
-                                        </figure>
-
-                                        <div class="product-body">
-                                            <div class="product-cat">
-                                                <a :href="`/categories/${product.category.slug}`">{{ product.category?.name || 'Category' }}</a>
-                                            </div>
-                                            <h3 class="product-title">
-                                                <Link :href="`/products/${product.slug}`">{{ product.name }}</Link>
-                                            </h3>
-                                            <div class="product-price flex-column">
-                                                <div>₦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</div>
-                                                <span v-if="product.previous_price && product.previous_price > product.price" class="old-price" style="text-decoration: line-through;">
-                                                    ₦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}
-                                                </span>
-                                            </div>
-                                            <div class="ratings-container">
-                                                <div class="ratings">
-                                                    <div class="ratings-val" :style="{ width: getRatingWidth(product) + '%' }"></div>
+                                                    <Link
+                                                        :href="`/products/${product.slug}`"
+                                                        class="btn-product-icon btn-quickview"
+                                                        title="Quick view"
+                                                    ><span>Quick view</span></Link>
                                                 </div>
-                                                <span class="ratings-text">({{ product.views || 0 }} Views)</span>
+
+                                                <div class="product-action">
+                                                    <a href="#" @click.prevent="handleAddToCart(product.id)" class="btn-product btn-cart"><span>add to cart</span></a>
+                                                </div>
+                                            </figure>
+
+                                            <div class="product-body">
+                                                <div class="product-cat">
+                                                    <a :href="`/categories/${product.category.slug}`">{{ product.category?.name || 'Category' }}</a>
+                                                </div>
+                                                <h3 class="product-title">
+                                                    <Link :href="`/products/${product.slug}`">{{ product.name }}</Link>
+                                                </h3>
+                                                <div class="product-price flex-column">
+                                                    <div>₦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</div>
+                                                    <span v-if="product.previous_price && product.previous_price > product.price" class="old-price" style="text-decoration: line-through;">
+                                                        ₦{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}
+                                                    </span>
+                                                </div>
+                                                <div class="ratings-container">
+                                                    <div class="ratings">
+                                                        <div class="ratings-val" :style="{ width: getRatingWidth(product) + '%' }"></div>
+                                                    </div>
+                                                    <span class="ratings-text">({{ product.views || 0 }} Views)</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div v-if="!products || products.length === 0" class="col-12 text-center py-5">
-                                    <p class="text-muted">No products found in this category.</p>
+                                    <div v-if="!products || products.length === 0" class="col-12 text-center py-5">
+                                        <p class="text-muted">No products found in this category.</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </main>
+        </main>
+    </Skeleton>
 </template>
