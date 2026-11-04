@@ -13,6 +13,9 @@ const props = defineProps({
 const { cartItems, cartCount, cartTotal, updateQuantity, removeFromCart } = useCart(props.auth);
 const cartProducts = ref([]);
 const isLoading = ref(true);
+const showRemoveModal = ref(false);
+const removeProductId = ref(null);
+const isRemoving = ref(false);
 
 // Fetch cart products
 const fetchCartProducts = async () => {
@@ -61,10 +64,20 @@ const handleQuantityChange = async (productId, newQuantity) => {
 };
 
 // Handle remove from cart
-const handleRemove = async (productId) => {
-    if (confirm('Remove this item from your cart?')) {
-        await removeFromCart(productId);
+const handleRemove = (productId) => {
+    removeProductId.value = productId;
+    showRemoveModal.value = true;
+};
+
+const confirmRemove = async () => {
+    isRemoving.value = true;
+    try {
+        await removeFromCart(removeProductId.value);
         await fetchCartProducts();
+    } finally {
+        isRemoving.value = false;
+        showRemoveModal.value = false;
+        removeProductId.value = null;
     }
 };
 
@@ -209,6 +222,20 @@ onMounted(() => {
             </div>
         </div>
     </main>
+
+    <div v-if="showRemoveModal" class="modal-overlay" @click.self="showRemoveModal = false">
+        <div class="modal">
+            <h3 class="modal-title">Remove Item</h3>
+            <p class="modal-body">Are you sure you want to remove this item from your cart?</p>
+            <div class="modal-actions">
+                <button class="btn btn-outline-dark-2" @click="showRemoveModal = false" :disabled="isRemoving">Cancel</button>
+                <button class="btn btn-outline-primary-2" @click="confirmRemove" :disabled="isRemoving">
+                    <span v-if="isRemoving">Removing...</span>
+                    <span v-else>Remove</span>
+                </button>
+            </div>
+        </div>
+    </div>
 </Skeleton>
 </template>
 
@@ -222,5 +249,70 @@ onMounted(() => {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1060;
+    padding: 1rem;
+}
+
+.modal {
+    display: block;
+    background: #fff;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 420px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    position: relative;
+    height: max-content;
+}
+
+.modal-title {
+    margin: 0 0 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.modal-body {
+    margin: 0 0 1.5rem;
+    font-size: 1rem;
+    color: #555;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.modal-actions .btn {
+    padding: 0.5rem 1.25rem;
+    flex: 1 1 auto;
+    min-width: 110px;
+}
+
+@media (max-width: 576px) {
+    .modal-actions {
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .modal-actions .btn {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+.modal-actions .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 </style>
