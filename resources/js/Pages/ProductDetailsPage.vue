@@ -255,6 +255,13 @@ const getStarsPercentage = (rate) => {
     return (rate / 5) * 100;
 };
 
+// Average rating for the main product (0-5)
+const averageRating = computed(() => {
+    if (!prop.product.reviews || prop.product.reviews.length === 0) return 0;
+    const sum = prop.product.reviews.reduce((acc, r) => acc + (r.rate || 0), 0);
+    return sum / prop.product.reviews.length;
+});
+
 // Function to format date
 const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -468,7 +475,7 @@ const formatAnswer = (answer) => {
 
                                 <div class="ratings-container">
                                     <div class="ratings">
-                                        <div class="ratings-val" style="width: 80%;"></div>
+                                        <div class="ratings-val" :style="{ width: getStarsPercentage(averageRating) + '%' }"></div>
                                     </div>
                                     <a class="ratings-text" href="#product-review-link" id="review-link">( {{ product.reviews?.length || 0 }} Reviews )</a>
                                 </div>
@@ -734,7 +741,7 @@ const formatAnswer = (answer) => {
                             </div>
                             <div class="ratings-container">
                                 <div class="ratings">
-                                    <div class="ratings-val" style="width: 80%;"></div>
+                                    <div class="ratings-val" style="width: 0%;"></div>
                                 </div>
                                 <span class="ratings-text">( 0 Reviews )</span>
                             </div>
