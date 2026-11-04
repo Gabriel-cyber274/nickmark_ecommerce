@@ -35,6 +35,14 @@ let prop = defineProps({
     }
 });
 
+// Safe base URL for SEO (avoids SSR window reference errors)
+const baseUrl = computed(() => {
+    if (typeof window !== 'undefined' && window.location) {
+        return window.location.origin;
+    }
+    return '';
+});
+
 
 const toast = ref({
     show: false,
@@ -179,7 +187,19 @@ onMounted(() => {
 </script>
 
 <template>
-    <Head title="Welcome" />
+    <Head
+        title="Welcome to Nickmark - Quality Electronics & Gadgets"
+    >
+        <meta name="description" content="Shop the latest electronics, laptops, smartphones, tablets, and accessories at best prices. Quality products with warranty.">
+        <link rel="canonical" :href="`${baseUrl}`">
+        <meta property="og:title" content="Welcome to Nickmark - Quality Electronics & Gadgets">
+        <meta property="og:description" content="Shop the latest electronics, laptops, smartphones, tablets, and accessories at best prices.">
+        <meta property="og:type" content="website">
+        <meta property="og:url" :href="`${baseUrl}`">
+        <meta name="twitter:title" content="Welcome to Nickmark - Quality Electronics & Gadgets">
+        <meta name="twitter:description" content="Shop the latest electronics, laptops, smartphones, tablets, and accessories at best prices.">
+        <meta name="twitter:card" content="summary_large_image">
+    </Head>
 
     <!-- Toast Notification -->
     <transition name="toast">
@@ -260,7 +280,7 @@ onMounted(() => {
                             </span>
                         </div>
 
-                        <Link :href="'/product/'+product.id" class="btn btn-primary btn-round">
+                        <Link :href="`/products/${product.slug}`" class="btn btn-primary btn-round">
                             <span>Shop More</span>
                             <i class="icon-long-arrow-right"></i>
                         </Link>
@@ -283,7 +303,7 @@ onMounted(() => {
                     <div class="row">
                         <transition-group name="stagger" tag="div" class="row">
                             <div v-for="(category, index) in popularCategories" :key="category.id" class="col-6 col-sm-4 col-lg-2" :style="{ transitionDelay: `${index * 100}ms` }">
-                                <Link href="/categories" class="cat-block animate-hover-lift">
+                                <Link :href="`/categories/${category.slug}`" class="cat-block animate-hover-lift">
                                     <figure>
                                         <span>
                                             <img :src="category.image" alt="Category image">
@@ -353,7 +373,7 @@ onMounted(() => {
                                     <figure class="product-media">
                                         <span v-if="product.is_new" class="product-label label-circle label-new">New</span>
                                         <span v-if="product.previous_price" class="product-label label-circle label-sale">Sale</span>
-                                        <Link :href="'/product/' + product.id">
+                                        <Link :href="`/products/${product.slug}`">
                                             <img :src="product.images[0]?.image_url" :alt="product.name" class="product-image">
                                         </Link>
 
@@ -371,16 +391,16 @@ onMounted(() => {
 
                                         <div class="product-action">
                                             <a href="#" class="btn-product btn-cart" @click.prevent="handleAddToCart(product.id)"  title="Add to cart"><span>add to cart</span></a>
-                                            <Link :href="'/product/' + product.id" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></Link>
+                                            <Link :href="`/products/${product.slug}`" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></Link>
                                         </div><!-- End .product-action -->
                                     </figure><!-- End .product-media -->
 
                                     <div class="product-body">
                                         <div class="product-cat">
-                                            <Link :href="'/categories/' + product.category_id">{{ product.category.name }}</Link>
+                                            <Link :href="`/categories/${product.category.slug}`">{{ product.category.name }}</Link>
                                         </div><!-- End .product-cat -->
                                         <h3 class="product-title">
-                                            <Link :href="'/product/' + product.id">{{ product.name }} - <span v-if="product.answers && product.answers.length > 0">
+                                            <Link :href="`/products/${product.slug}`">{{ product.name }} - <span v-if="product.answers && product.answers.length > 0">
                                                 <span v-for="(answer, index) in product.answers.slice(0, 2)" :key="answer.id">
                                                     {{ answer.answer }}
                                                     <span v-if="index < 1 && product.answers.length > 1">, </span>
@@ -440,7 +460,7 @@ onMounted(() => {
                                     <figure class="product-media">
                                         <span v-if="product.is_new" class="product-label label-circle label-new">New</span>
                                         <span v-if="product.previous_price" class="product-label label-circle label-sale">Sale</span>
-                                        <Link :href="'/product/' + product.id">
+                                        <Link :href="`/products/${product.slug}`">
                                             <img :src="product.images[0]?.image_url" :alt="product.name" class="product-image">
                                         </Link>
 
@@ -456,16 +476,16 @@ onMounted(() => {
 
                                         <div class="product-action">
                                             <a href="#" class="btn-product btn-cart" @click.prevent="handleAddToCart(product.id)" title="Add to cart"><span>add to cart</span></a>
-                                            <Link :href="'/product/' + product.id" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></Link>
+                                            <Link :href="`/products/${product.slug}`" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></Link>
                                         </div><!-- End .product-action -->
                                     </figure><!-- End .product-media -->
 
                                     <div class="product-body">
                                         <div class="product-cat">
-                                            <Link :href="'/categories/' + product.category_id">{{ product.category.name }}</Link>
+                                            <Link :href="`/categories/${product.category.slug}`">{{ product.category.name }}</Link>
                                         </div><!-- End .product-cat -->
                                         <h3 class="product-title">
-                                            <Link :href="'/product/' + product.id">{{ product.name }} - <span v-if="product.answers && product.answers.length > 0">
+                                            <Link :href="`/products/${product.slug}`">{{ product.name }} - <span v-if="product.answers && product.answers.length > 0">
                                                 <span v-for="(answer, index) in product.answers.slice(0, 2)" :key="answer.id">
                                                     {{ answer.answer }}
                                                     <span v-if="index < 1 && product.answers.length > 1">, </span>
@@ -536,7 +556,7 @@ onMounted(() => {
                                     <figure class="product-media">
                                         <span v-if="product.is_new" class="product-label label-circle label-new">New</span>
                                         <span v-if="product.previous_price" class="product-label label-circle label-sale">Sale</span>
-                                        <Link :href="'/product/' + product.id">
+                                        <Link :href="`/products/${product.slug}`">
                                             <img :src="product.images[0]?.image_url" :alt="product.name" class="product-image">
                                         </Link>
 
@@ -552,16 +572,16 @@ onMounted(() => {
 
                                         <div class="product-action">
                                             <a href="#" class="btn-product btn-cart" @click.prevent="handleAddToCart(product.id)" title="Add to cart"><span>add to cart</span></a>
-                                            <Link :href="'/product/' + product.id" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></Link>
+                                            <Link :href="`/products/${product.slug}`" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></Link>
                                         </div><!-- End .product-action -->
                                     </figure><!-- End .product-media -->
 
                                     <div class="product-body">
                                         <div class="product-cat">
-                                            <Link :href="'/categories/' + product.category_id">{{ product.category.name }}</Link>
+                                            <Link :href="`/categories/${product.category.slug}`">{{ product.category.name }}</Link>
                                         </div><!-- End .product-cat -->
                                         <h3 class="product-title">
-                                            <Link :href="'/product/' + product.id">{{ product.name }} - <span v-if="product.answers && product.answers.length > 0">
+                                            <Link :href="`/products/${product.slug}`">{{ product.name }} - <span v-if="product.answers && product.answers.length > 0">
                                                 <span v-for="(answer, index) in product.answers.slice(0, 2)" :key="answer.id">
                                                     {{ answer.answer }}
                                                     <span v-if="index < 1 && product.answers.length > 1">, </span>
@@ -1185,6 +1205,8 @@ html {
     transition: 0s;
 }
 </style>
+
+
 
 
 

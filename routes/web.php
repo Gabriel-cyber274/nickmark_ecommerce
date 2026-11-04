@@ -3,6 +3,7 @@
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProductController;
 use App\Mail\ContactUsAdminMail;
 use App\Models\Category;
 use App\Models\CompanyReview;
@@ -327,85 +328,39 @@ Route::post('/contact-us', function (Request $request) {
 
 
 
+Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show');
+
+// Redirect old product ID URLs to new slug-based URLs (SEO preservation)
 Route::get('/product/{id}', function ($id) {
-    // Load product with question relationship included in answers
-    $product = Product::with(['category', 'images', 'answers.question', 'reviews.user'])->find($id);
+    $product = \App\Models\Product::findOrFail($id);
+    return redirect()->route('products.show', ['product' => $product->slug], 301);
+})->name('product.show.redirect');
 
-    $product->increment('views');
+// Category detail page with slug
+Route::get('/categories/{category:slug}', function (\App\Models\Category $category) {
+    $category->load(['products' => function ($query) {
+        $query->with(['category', 'images', 'answers'])
+            ->orderByDesc('created_at');
+    }]);
 
-    $answerMap = $product->answers->map(fn($a) => [
-        'category_question_id' => $a->category_question_id,
-        'answer' => $a->answer,
-    ])->values();
-
-    $recommendProducts = Product::with(['images', 'category'])
-        ->where('id', '!=', $product->id)
-        ->where('category_id', $product->category_id)
-        ->whereHas('answers', function ($q) use ($answerMap) {
-            foreach ($answerMap as $answer) {
-                $q->orWhere(function ($sub) use ($answer) {
-                    $sub->where('category_question_id', $answer['category_question_id'])
-                        ->where('answer', $answer['answer']);
-                });
-            }
-        })
-        ->get()
-        ->sortBy(function ($p) use ($product, $answerMap) {
-            $matchScore = $p->answers->filter(function ($a) use ($answerMap) {
-                return $answerMap->contains(
-                    fn($x) =>
-                    $x['category_question_id'] == $a->category_question_id &&
-                        $x['answer'] == $a->answer
-                );
-            })->count();
-
-            $priceScore = abs($product->price - $p->price);
-
-            return - ($matchScore * 1000 - $priceScore);
-        })
-        ->take(4);
-
-    return Inertia::render('ProductDetailsPage', [
-        'productId' => $id,
-        'product' => $product,
-        'recommendProducts' => $recommendProducts,
+    return Inertia::render('CategoryPage', [
+        'category' => $category,
+        'products' => $category->products,
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'auth' => auth()->user(),
     ]);
-});
+})->name('categories.show');
+
+// Redirect old category ID URLs to new slug-based URLs (SEO preservation)
+Route::get('/category/{id}', function ($id) {
+    $category = \App\Models\Category::findOrFail($id);
+    return redirect()->route('categories.show', ['category' => $category->slug], 301);
+})->name('category.show.redirect');
 
 
 // Review Submission Endpoint
-Route::post('/product/{id}/review', function (Request $request, $id) {
-    // Validate the request
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255',
-        'rate' => 'required|integer|min:1|max:5',
-        'comment' => 'required|string|max:1000',
-    ]);
-
-    // Check if product exists
-    $product = Product::findOrFail($id);
-
-    // Create the review
-    $review = new ProductReview();
-    $review->product_id = $id;
-    $review->name = $validated['name'];
-    $review->rate = $validated['rate'];
-    $review->comment = $validated['comment'];
-
-    // If user is authenticated, associate the review with the user
-    if (auth()->check()) {
-        $review->user_id = auth()->id();
-    }
-
-    $review->save();
-
-    // Redirect back with success message
-    return redirect()->back()->with('success', 'Thank you for your review! It has been submitted successfully.');
-})->name('product.review');
+Route::post('/products/{product:slug}/review', [ProductController::class, 'storeReview'])->name('product.review');
 
 
 Route::get('/dashboard', function () {
@@ -487,5 +442,86 @@ Route::get('/storage/{path}', function ($path) {
     
     return response()->file($fullPath, $headers);
 })->where('path', '.*');
+
+// Sitemap.xml for SEO
+Route::get('/sitemap.xml', function () {
+    $products = \App\Models\Product::whereNotNull('slug')->select('id', 'slug', 'updated_at')->get();
+    $categories = \App\Models\Category::whereNotNull('slug')->select('id', 'slug', 'updated_at')->get();
+
+    $sitemap = '<?xml version="1.0" encoding="UTF-8"?>';
+    $sitemap .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
+    // Homepage
+    $sitemap .= '<url>';
+    $sitemap .= '<loc>' . url('/') . '</loc>';
+    $sitemap .= '<lastmod>' . now()->toISOString() . '</lastmod>';
+    $sitemap .= '<changefreq>daily</changefreq>';
+    $sitemap .= '<priority>1.0</priority>';
+    $sitemap .= '</url>';
+
+    // Categories
+    foreach ($categories as $category) {
+        $sitemap .= '<url>';
+        $sitemap .= '<loc>' . url('/categories/' . $category->slug) . '</loc>';
+        $sitemap .= '<lastmod>' . $category->updated_at->toISOString() . '</lastmod>';
+        $sitemap .= '<changefreq>weekly</changefreq>';
+        $sitemap .= '<priority>0.8</priority>';
+        $sitemap .= '</url>';
+    }
+
+    // Products
+    foreach ($products as $product) {
+        $sitemap .= '<url>';
+        $sitemap .= '<loc>' . url('/products/' . $product->slug) . '</loc>';
+        $sitemap .= '<lastmod>' . $product->updated_at->toISOString() . '</lastmod>';
+        $sitemap .= '<changefreq>weekly</changefreq>';
+        $sitemap .= '<priority>0.9</priority>';
+        $sitemap .= '</url>';
+    }
+
+    // Static pages
+    $staticPages = [
+        '/' => ['daily', 1.0],
+        '/categories' => ['weekly', 0.8],
+        '/about' => ['monthly', 0.5],
+        '/faq' => ['monthly', 0.5],
+        '/contact-us' => ['monthly', 0.5],
+    ];
+
+    foreach ($staticPages as $url => $data) {
+        $sitemap .= '<url>';
+        $sitemap .= '<loc>' . url($url) . '</loc>';
+        $sitemap .= '<lastmod>' . now()->toISOString() . '</lastmod>';
+        $sitemap .= '<changefreq>' . $data[0] . '</changefreq>';
+        $sitemap .= '<priority>' . $data[1] . '</priority>';
+        $sitemap .= '</url>';
+    }
+
+    $sitemap .= '</urlset>';
+
+    return response($sitemap, 200, ['Content-Type' => 'application/xml']);
+})->name('sitemap');
+
+// Robots.txt for SEO
+Route::get('/robots.txt', function () {
+    $content = "User-agent: *\n";
+    $content .= "Allow: /\n";
+    $content .= "Disallow: /cart\n";
+    $content .= "Disallow: /checkout\n";
+    $content .= "Disallow: /dashboard\n";
+    $content .= "Disallow: /orders\n";
+    $content .= "Disallow: /profile\n";
+    $content .= "Disallow: /wishlist\n";
+    $content .= "Disallow: /paystack\n";
+    $content .= "Disallow: /order\n";
+    $content .= "Disallow: /user/\n";
+    $content .= "Disallow: /_next/\n";
+    $content .= "Disallow: /*?\n";
+    $content .= "Disallow: /*&*\n";
+    $content .= "\n";
+    $content .= "Sitemap: " . url('/sitemap.xml') . "\n";
+
+    return response($content, 200, ['Content-Type' => 'text/plain']);
+})->name('robots');
 
 require __DIR__ . '/auth.php';

@@ -335,7 +335,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-<Skeleton page='contact-us' :auth="auth">
+    <Head title="Contact Us - Nickmark">
+        <meta name="description" content="Get in touch with Nickmark customer support for help with orders, products, and inquiries.">
+        <link rel="canonical" :href="`${baseUrl}/contact-us`">
+    </Head>
+
+    <Skeleton page='contact-us' :auth="auth">
         <main class="main mt-3">
             <div class="container">
                 <div class="page-header page-header-big text-center" style="background-image: url('assets/images/contactus.jpg')">

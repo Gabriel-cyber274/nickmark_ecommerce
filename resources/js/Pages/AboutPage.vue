@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { onMounted, nextTick, onUnmounted } from 'vue';
+import { onMounted, nextTick, onUnmounted, computed } from 'vue';
 import Skeleton from './Skeleton.vue'
 
 let props = defineProps({
@@ -68,10 +68,23 @@ onUnmounted(() => {
     }
 });
 
+// Safe base URL for SEO
+const baseUrl = computed(() => {
+    if (typeof window !== 'undefined' && window.location) {
+        return window.location.origin;
+    }
+    return '';
+});
+
 </script>
 
 <template>
-<Skeleton page="about" :auth="auth">
+    <Head title="About Us - Nickmark">
+        <meta name="description" content="Learn more about Nickmark - your trusted source for quality electronics, laptops, smartphones, and gadgets.">
+        <link rel="canonical" :href="`${baseUrl}/about`">
+    </Head>
+
+    <Skeleton page="about" :auth="auth">
         <main class="main mt-3">
             <div class="container">
 	        	<div class="page-header page-header-big text-center" style="background-image: url('assets/images/aboutus.jpg')">

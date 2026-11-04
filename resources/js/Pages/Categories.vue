@@ -41,6 +41,14 @@ let prop = defineProps({
 });
 
 
+// Safe base URL for SEO
+const baseUrl = computed(() => {
+    if (typeof window !== 'undefined' && window.location) {
+        return window.location.origin;
+    }
+    return '';
+});
+
 const toast = ref({
     show: false,
     message: '',
@@ -290,6 +298,26 @@ onMounted(() => {
 </script>
 
 <template>
+    <Head
+        :title="`${filters.search ? 'Search results for: ' + filters.search : 'Shop'} - Nickmark`"
+    >
+        <meta
+            :name="description"
+            :content="
+                filters.search
+                    ? 'Search results for ' + filters.search + ' at Nickmark - Quality electronics and gadgets'
+                    : 'Shop the latest electronics, laptops, smartphones, tablets, and accessories at best prices.'
+            "
+        >
+        <link rel="canonical" :href="`${baseUrl}/categories`">
+        <meta property="og:title" :content="`${filters.search ? 'Search results for: ' + filters.search : 'Shop'} - Nickmark`">
+        <meta property="og:description" content="Shop the latest electronics, laptops, smartphones, tablets, and accessories at best prices.">
+        <meta property="og:type" content="website">
+        <meta property="og:url" :href="`${baseUrl}/categories`">
+        <meta name="twitter:title" :content="`${filters.search ? 'Search results for: ' + filters.search : 'Shop'} - Nickmark`">
+        <meta name="twitter:description" content="Shop the latest electronics, laptops, smartphones, tablets, and accessories at best prices.">
+        <meta name="twitter:card" content="summary_large_image">
+    </Head>
 
       <!-- Toast Notification -->
     <transition name="toast">
@@ -358,7 +386,7 @@ onMounted(() => {
                                             <span v-if="product.is_new" class="product-label label-new">New</span>
                                             <span v-else-if="product.is_featured" class="product-label label-top">Featured</span>
                                             
-                                            <Link :href="`/product/${product.id}`">
+                                            <Link :href="`/products/${product.slug}`">
                                                 <img :src="productImages[product.id]?.currentImage || (product.images && product.images.length > 0 ? product.images[0].image_url : '/assets/images/products/product-default.jpg')" 
                                                      alt="Product image" 
                                                      class="product-image"
@@ -374,7 +402,7 @@ onMounted(() => {
                                                 :title="isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
                                             ></a>
 
-                                                <Link :href="`/product/${product.id}`" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></Link>
+                                                <Link :href="`/products/${product.slug}`" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></Link>
                                             </div>
 
                                             <div class="product-action">
@@ -384,10 +412,10 @@ onMounted(() => {
 
                                         <div class="product-body">
                                             <div class="product-cat">
-                                                <a href="#">{{ product.category?.name || 'Category' }}</a>
+                                                <a :href="`/categories/${product.category.slug}`">{{ product.category?.name || 'Category' }}</a>
                                             </div>
                                             <h3 class="product-title">
-                                                <Link :href="`/product/${product.id}`">{{ product.name }}</Link>
+                                                <Link :href="`/products/${product.slug}`">{{ product.name }}</Link>
                                             </h3>
                                             <div class="product-price flex-column">
                                                <div>₦{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</div> 
@@ -768,3 +796,4 @@ onMounted(() => {
     }
 }
 </style>
+

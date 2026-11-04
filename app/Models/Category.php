@@ -5,27 +5,39 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'description', 'image'];
+    protected $fillable = ['name', 'slug', 'description', 'image'];
 
-    public function products()
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
     {
-        return $this->hasMany(Product::class);
+        return 'slug';
     }
 
-    public function questions()
-    {
-        return $this->hasMany(CategoryQuestion::class);
-    }
-
-
-
+    /**
+     * Generate slug on creating.
+     */
     protected static function booted(): void
     {
+        static::creating(function (Category $category) {
+            if (empty($category->slug)) {
+                $category->slug = Str::slug($category->name);
+            }
+        });
+
+        static::updating(function (Category $category) {
+            if ($category->isDirty('name') && empty($category->slug)) {
+                $category->slug = Str::slug($category->name);
+            }
+        });
+
         // When force deleting (permanent)
         static::forceDeleted(function ($category) {
             self::deleteImageFromStorage($category);
@@ -37,6 +49,16 @@ class Category extends Model
                 self::deleteImageFromStorage($category);
             }
         });
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(CategoryQuestion::class);
     }
 
     protected static function deleteImageFromStorage(self $category): void

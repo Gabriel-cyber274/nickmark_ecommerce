@@ -561,7 +561,7 @@ onMounted(async () => {
                     <div v-for="item in cartProducts" :key="item.product_id || item.id" class="product">
                         <div class="product-cart-details">
                             <h4 class="product-title">
-                                <Link :href="`/product/${item.product_id || item.id}`">
+                                <Link :href="`/products/${item.product?.slug || item.slug}`">
                                     {{ item.product?.name || item.name }}
                                 </Link>
                             </h4>
@@ -571,7 +571,7 @@ onMounted(async () => {
                             </span>
                         </div>
                         <figure class="product-image-container">
-                            <Link :href="`/product/${item.product_id || item.id}`" class="product-image">
+                            <Link :href="`/products/${item.product?.slug || item.slug}`" class="product-image">
                                 <img 
                                     :src="item.product?.images?.[0]?.image_url || item.images?.[0]?.image_url" 
                                     :alt="item.product?.name || item.name"

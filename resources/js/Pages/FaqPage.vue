@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { onMounted, nextTick, onUnmounted } from 'vue';
+import { onMounted, nextTick, onUnmounted, computed } from 'vue';
 import Skeleton from './Skeleton.vue'
 
 let prop = defineProps({
@@ -21,10 +21,23 @@ let prop = defineProps({
 onMounted(()=> {
     console.log('faq', prop.faq)
 })
+
+// Safe base URL for SEO
+const baseUrl = computed(() => {
+    if (typeof window !== 'undefined' && window.location) {
+        return window.location.origin;
+    }
+    return '';
+});
 </script>
 
 <template>
-<Skeleton page='faq' :auth="auth">
+    <Head title="FAQ - Nickmark">
+        <meta name="description" content="Frequently asked questions about Nickmark - shipping, returns, payments, and more.">
+        <link rel="canonical" :href="`${baseUrl}/faq`">
+    </Head>
+
+    <Skeleton page='faq' :auth="auth">
         <main class="main">
             <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
                 <div class="container">

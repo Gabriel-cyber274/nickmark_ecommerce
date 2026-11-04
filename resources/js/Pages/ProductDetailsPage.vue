@@ -30,8 +30,18 @@ let prop = defineProps({
         type: Object  
     },
     auth: {
-        type: Object  
+        type: Object
     }
+});
+
+// SEO: meta tags handled by Head component; JSON-LD rendered server-side in Blade layout
+
+// Safe base URL for SEO
+const baseUrl = computed(() => {
+    if (typeof window !== 'undefined' && window.location) {
+        return window.location.origin;
+    }
+    return '';
 });
 
 const toast = ref({
@@ -219,7 +229,7 @@ const submitReview = () => {
     }
     
     
-    router.post(`/product/${prop.productId}/review`, {
+    router.post(`/products/${prop.product.slug}/review`, {
         name: reviewForm.name,
         email: reviewForm.email,
         rate: reviewForm.rate,
@@ -395,6 +405,25 @@ const formatAnswer = (answer) => {
         </div>
     </transition>
 
+    <Head :title="`${prop.product.name} - Nickmark`">
+        <meta
+            name="description"
+            :content="`${prop.product.name} - ${prop.product.description || 'Quality electronics at best prices.'} | Nickmark`"
+        >
+        <link rel="canonical" :href="`${baseUrl.value}/products/${prop.product.slug}`">
+        <meta property="og:title" :content="`${prop.product.name} - Nickmark`">
+        <meta property="og:description" :content="`${prop.product.name} - ${prop.product.description || 'Quality electronics at best prices.'} | Nickmark`">
+        <meta property="og:type" content="product">
+        <meta property="og:url" :href="`${baseUrl.value}/products/${prop.product.slug}`">
+        <meta property="og:price:amount" :content="prop.product.price">
+        <meta property="og:price:currency" content="NGN">
+        <meta property="og:image" :content="prop.product.images?.[0]?.image_url || '/assets/images/products/product-default.jpg'">
+        <meta name="twitter:title" :content="`${prop.product.name} - Nickmark`">
+        <meta name="twitter:description" :content="`${prop.product.name} - ${prop.product.description || 'Quality electronics at best prices.'} | Nickmark`">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:image" :content="prop.product.images?.[0]?.image_url || '/assets/images/products/product-default.jpg'">
+    </Head>
+
 <Skeleton page='product' :auth="auth">
     <main class="main mt-3">
         <div class="page-content">
@@ -405,7 +434,7 @@ const formatAnswer = (answer) => {
                             <div class="product-gallery product-gallery-vertical">
                                 <div class="row">
                                     <figure class="product-main-image">
-                                        <img id="product-zoom" :src="currentMainImage" :data-zoom-image="currentMainImage" alt="product image">
+                                        <img id="product-zoom" :src="currentMainImage" :data-zoom-image="currentMainImage" :alt="prop.product.name + ' product image'">
 
                                         <button id="btn-product-gallery" class="btn-product-gallery" @click.stop.prevent="openLightbox(currentMainImage)">
                                             <i class="icon-arrows"></i>
@@ -417,10 +446,10 @@ const formatAnswer = (answer) => {
                                            :key="item.id" 
                                            :class="['product-gallery-item', { active: index === 0 }]" 
                                            href="#" 
-                                           :data-image="item.image_url" 
+                                           :data-image="item.image_url"
                                            :data-zoom-image="item.image_url"
                                            @click="changeMainImage(item.image_url, $event)">
-                                            <img :src="item.image_url" alt="product side">
+                                            <img :src="item.image_url" :alt="prop.product.name + ' image ' + (index + 1)">
                                         </a>
                                     </div>
                                     <VueEasyLightbox
@@ -487,7 +516,7 @@ const formatAnswer = (answer) => {
                                 <div class="product-details-footer">
                                     <div class="product-cat">
                                         <span>Category:</span>
-                                        <a href="#">{{ product.category.name }}</a>
+                                        <a :href="`/categories/${product.category.slug}`">{{ product.category.name }}</a>
                                     </div>
                                 </div>
                             </div>
@@ -671,7 +700,7 @@ const formatAnswer = (answer) => {
                     <div v-for="recProduct in recommendProducts" :key="recProduct.id" class="product product-7 text-center">
                         <figure class="product-media">
                             <span v-if="recProduct.is_new" class="product-label label-new">New</span>
-                            <Link :href="`/product/${recProduct.id}`">
+                            <Link :href="`/products/${recProduct.slug}`">
                                 <img :src="recommendedProductImages[recProduct.id]?.currentImage || recProduct.images[0]?.image_url || '/assets/images/products/product-4.jpg'" 
                                      alt="Product image" 
                                      class="product-image">
@@ -685,7 +714,7 @@ const formatAnswer = (answer) => {
                                                 :class="{ 'active': isInWishlist(recProduct.id) }"
                                                 :title="isInWishlist(recProduct.id) ? 'Remove from wishlist' : 'Add to wishlist'"
                                             ></a>
-                                <Link :href="`/product/${recProduct.id}`" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></Link>
+                                <Link :href="`/products/${recProduct.slug}`" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></Link>
                             </div>
 
                             <div class="product-action">
@@ -695,10 +724,10 @@ const formatAnswer = (answer) => {
 
                         <div class="product-body">
                             <div class="product-cat">
-                                <a href="#">{{ recProduct.category?.name || 'Category' }}</a>
+                                <a :href="`/categories/${recProduct.category.slug}`">{{ recProduct.category?.name || 'Category' }}</a>
                             </div>
                             <h3 class="product-title">
-                                <Link :href="`/product/${recProduct.id}`">{{ recProduct.name }}</Link>
+                                <Link :href="`/products/${recProduct.slug}`">{{ recProduct.name }}</Link>
                             </h3>
                             <div class="product-price">
                                 ₦{{ parseFloat(recProduct.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}

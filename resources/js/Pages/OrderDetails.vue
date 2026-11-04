@@ -139,7 +139,7 @@ const getProductImage = (product) => {
                                                     <td class="product-col">
                                                         <div class="product">
                                                             <figure class="product-media">
-                                                                <Link :href="`/product/${item.product.id}`">
+                                                                <Link :href="`/products/${item.product.slug}`">
                                                                     <img 
                                                                         :src="getProductImage(item.product)" 
                                                                         :alt="item.product.name"
@@ -149,7 +149,7 @@ const getProductImage = (product) => {
                                                             </figure>
                                                             <div class="product-title-container">
                                                                 <h3 class="product-title">
-                                                                    <Link :href="`/product/${item.product.id}`">
+                                                                    <Link :href="`/products/${item.product.slug}`">
                                                                         {{ item.product.name }}
                                                                     </Link>
                                                                 </h3>
