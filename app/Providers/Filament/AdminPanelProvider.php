@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\InjectOgImageMeta;
 use App\Models\Admin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -54,6 +55,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                InjectOgImageMeta::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
