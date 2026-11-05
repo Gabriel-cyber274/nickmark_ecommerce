@@ -69,6 +69,13 @@ const closeToast = () => {
     toast.value.show = false;
 };
 
+// Scroll to top on page/navigation changes (filters, pagination, etc.)
+watch(() => page.url, () => {
+    nextTick(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+    });
+});
+
 // Watch for flash messages
 watch(() => page.props.flash, (flash) => {
     if (flash?.success) {
@@ -455,8 +462,7 @@ onMounted(() => {
                                           class="page-link page-link-prev" 
                                           aria-label="Previous" 
                                           :tabindex="!products.prev_page_url ? -1 : 0"
-                                          preserve-state
-                                          preserve-scroll>
+                                          preserve-state>
                                         <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
                                     </Link>
                                 </li>
@@ -466,8 +472,7 @@ onMounted(() => {
                                     :class="['page-item', { active: page === products.current_page }]">
                                     <Link :href="`/categories?page=${page}`" 
                                           class="page-link"
-                                          preserve-state
-                                          preserve-scroll>{{ page }}</Link>
+                                          preserve-state>{{ page }}</Link>
                                 </li>
                                 
                                 <li class="page-item-total">of {{ products.last_page }}</li>
@@ -476,8 +481,7 @@ onMounted(() => {
                                     <Link :href="products.next_page_url || '#'" 
                                           class="page-link page-link-next" 
                                           aria-label="Next"
-                                          preserve-state
-                                          preserve-scroll>
+                                          preserve-state>
                                         Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
                                     </Link>
                                 </li>
