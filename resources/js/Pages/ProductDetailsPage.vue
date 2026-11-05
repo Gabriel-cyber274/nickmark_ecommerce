@@ -152,6 +152,17 @@ const handleWishlistToggle = async (productId) => {
 
 // State for current main image of the main product
 const currentMainImage = ref(null);
+const mainImageIndex = ref(0);
+
+const changeMainImage = (imageUrl, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    currentMainImage.value = imageUrl;
+
+    const idx = (prop.product.images || []).findIndex(img => img.image_url === imageUrl);
+    if (idx >= 0) mainImageIndex.value = idx;
+};
 
 // Track current image for each recommended product
 const recommendedProductImages = reactive({});
@@ -451,7 +462,7 @@ const formatAnswer = (answer) => {
                                     <div id="product-zoom-gallery" class="product-image-gallery">
                                         <a v-for="(item, index) in product.images" 
                                            :key="item.id" 
-                                           :class="['product-gallery-item', { active: index === 0 }]" 
+                                           :class="['product-gallery-item', { active: mainImageIndex.value === index }]" 
                                            href="#" 
                                            :data-image="item.image_url"
                                            :data-zoom-image="item.image_url"
