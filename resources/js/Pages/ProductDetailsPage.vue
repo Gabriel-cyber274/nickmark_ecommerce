@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
-import { onMounted, nextTick, onUnmounted, ref, reactive, computed } from 'vue';
+import { onMounted, nextTick, onUnmounted, ref, reactive, computed, Teleport } from 'vue';
 import Skeleton from './Skeleton.vue';
 import { useWishlist } from '../composables/useWishlist';
 import { useCart } from '../composables/useCart';
@@ -96,6 +96,13 @@ const closeLightbox = () => {
 };
 
 const quantity = ref(1);
+
+const validateQuantity = () => {
+    const qty = parseInt(quantity.value);
+    if (qty < 1 || qty > 10 || isNaN(qty)) {
+        quantity.value = 1;
+    }
+};
 
 // Add this function
 const handleAddToCart = async (productId) => {
@@ -428,11 +435,11 @@ const formatAnswer = (answer) => {
             name="description"
             :content="`${prop.product.name} - ${prop.product.description || 'Quality electronics at best prices.'} | Nickmark`"
         >
-        <link rel="canonical" :href="`${baseUrl.value}/products/${prop.product.slug}`">
+        <link rel="canonical" :href="`${baseUrl}/products/${prop.product.slug}`">
         <meta property="og:title" :content="`${prop.product.name} - Nickmark`">
         <meta property="og:description" :content="`${prop.product.name} - ${prop.product.description || 'Quality electronics at best prices.'} | Nickmark`">
         <meta property="og:type" content="product">
-        <meta property="og:url" :href="`${baseUrl.value}/products/${prop.product.slug}`">
+        <meta property="og:url" :content="`${baseUrl}/products/${prop.product.slug}`">
         <meta property="og:price:amount" :content="prop.product.price">
         <meta property="og:price:currency" content="NGN">
         <meta property="og:image" :content="prop.product.images?.[0]?.image_url || '/assets/images/products/product-default.jpg'">
@@ -462,7 +469,7 @@ const formatAnswer = (answer) => {
                                     <div id="product-zoom-gallery" class="product-image-gallery">
                                         <a v-for="(item, index) in product.images" 
                                            :key="item.id" 
-                                           :class="['product-gallery-item', { active: mainImageIndex.value === index }]" 
+                                            :class="['product-gallery-item', { active: mainImageIndex === index }]" 
                                            href="#" 
                                            :data-image="item.image_url"
                                            :data-zoom-image="item.image_url"
@@ -470,12 +477,14 @@ const formatAnswer = (answer) => {
                                             <img :src="item.image_url" :alt="prop.product.name + ' image ' + (index + 1)">
                                         </a>
                                     </div>
-                                    <VueEasyLightbox
+                                    <Teleport to="body">
+                                        <VueEasyLightbox
     :visible="lightboxVisible"
     :imgs="lightboxImages"
     :index="lightboxIndex"
     @hide="closeLightbox"
 />
+                                    </Teleport>
                                 </div>
                             </div>
                         </div>
@@ -982,8 +991,28 @@ input:valid {
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: none;
     }
+}
+
+:global(.vel-modal) {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.9);
+}
+
+:global(.vel-img-wrapper) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
 }
 
 /* Staggered list items */
