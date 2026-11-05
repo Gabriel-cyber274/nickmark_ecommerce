@@ -241,14 +241,14 @@ onMounted(() => {
         <div class="container">
             <div class="row align-items-center">
                 <!-- Left side - Product Image -->
-                <div class="col-5 col-md-6">
+                <div class="col-12 col-md-6">
                     <div class="intro-image">
                         <img :src="product.images[0]?.image_url" :alt="product.name" class="img-fluid">
                     </div>
                 </div>
                 
                 <!-- Right side - Product Content -->
-                <div class="col-7 col-md-6">
+                <div class="col-12 col-md-6">
                     <div class="intro-content">
                         <h3 :class="['intro-subtitle', product.previous_price? 'text-third': 'text-primary']">
                             {{ product.previous_price ?'Deals and Promotions':product.is_new?'New Arrival': 'Promotions' }}
@@ -691,6 +691,38 @@ onMounted(() => {
     
     .intro-price {
         font-size: 24px;
+    }
+
+    /* Ellipsis for long titles on mobile */
+    .intro-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+
+    /* Full-width Shop More button on mobile */
+    .intro-content .btn {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Mobile-friendly heights for slider container and stage */
+    .intro-slider-container,
+    :deep(.owl-stage-outer) {
+        height: 500px !important;
+        min-height: 500px !important;
+        max-height: 500px !important;
+    }
+
+    /* Intro image more visible on mobile */
+    .intro-image img {
+        max-height: 400px;
+        width: 100%;
+        object-fit: cover;
     }
 }
 
