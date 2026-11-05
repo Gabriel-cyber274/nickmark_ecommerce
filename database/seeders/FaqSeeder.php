@@ -15,43 +15,27 @@ class FaqSeeder extends Seeder
         $faqs = [
             [
                 'question' => 'How do I place an order?',
-                'answer' => 'Browse our products, add the items you want to your cart, and proceed to checkout to complete your purchase.'
+                'answer' => 'Browse our products, add your items to the cart, and proceed to checkout. Enter your delivery details and complete your payment to finalize your order.',
             ],
             [
-                'question' => 'Do I need an account to make a purchase?',
-                'answer' => 'You can place an order as a guest, but creating an account allows you to track orders and manage your details easily.'
+                'question' => 'Do I need an account to shop?',
+                'answer' => 'You can checkout as a guest, but creating an account lets you track orders, save your delivery address, and enjoy faster checkout next time.',
             ],
             [
                 'question' => 'What payment methods do you accept?',
-                'answer' => 'We accept secure online payments including debit/credit cards and other supported payment options shown at checkout.'
-            ],
-            [
-                'question' => 'Is my payment information secure?',
-                'answer' => 'Yes, all payments are processed through secure and encrypted payment gateways to protect your information.'
+                'answer' => 'We accept bank transfer, card payments, and other secure payment options shown at checkout.',
             ],
             [
                 'question' => 'How long does delivery take?',
-                'answer' => 'Delivery times depend on your location. Estimated delivery dates are shown during checkout and in your order confirmation.'
+                'answer' => 'Delivery usually takes 2-5 business days within Nigeria, depending on your location. Estimated delivery dates are shown at checkout.',
             ],
             [
-                'question' => 'Do you offer nationwide delivery?',
-                'answer' => 'Yes, we deliver to multiple locations. Available delivery options will be displayed during checkout.'
-            ],
-            [
-                'question' => 'How can I track my order?',
-                'answer' => 'After your order is shipped, you will receive tracking details via email or can check your order status on the website.'
-            ],
-            [
-                'question' => 'What is your return and refund policy?',
-                'answer' => 'We accept returns on eligible items within the specified return period. Please ensure items are unused and in original packaging.'
-            ],
-            [
-                'question' => 'What should I do if I receive a damaged item?',
-                'answer' => 'If your item arrives damaged, please contact our support team immediately with your order details for assistance.'
+                'question' => 'What is your return policy?',
+                'answer' => 'You may return unused items in original packaging within 7 days of delivery for a refund or exchange. Contact our support team to start a return.',
             ],
             [
                 'question' => 'How can I contact customer support?',
-                'answer' => 'You can reach us through the contact page or support email listed on the website. We’re happy to help.'
+                'answer' => 'Reach us through the contact form on our website or via the support email listed on the site. We typically respond within 24 hours.',
             ],
         ];
 
