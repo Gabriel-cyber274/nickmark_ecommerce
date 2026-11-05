@@ -240,6 +240,9 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.main {
+    padding: 20px;
+}
 .product-media {
     width: 100px;
     height: 100px;

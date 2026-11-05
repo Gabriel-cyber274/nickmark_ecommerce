@@ -764,6 +764,9 @@ const formatAnswer = (answer) => {
 </template>
 
 <style scoped>
+.main {
+    padding: 20px;
+}
 .product-media {
     height: 277px;
 }

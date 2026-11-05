@@ -536,6 +536,9 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.main {
+    padding: 20px;
+}
 .is-invalid {
     border-color: #dc3545;
 }

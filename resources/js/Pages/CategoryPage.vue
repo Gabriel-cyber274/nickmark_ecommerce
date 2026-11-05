@@ -255,3 +255,9 @@ const baseUrl = computed(() => {
         </main>
     </Skeleton>
 </template>
+
+<style scoped>
+.main {
+    padding: 20px;
+}
+</style>

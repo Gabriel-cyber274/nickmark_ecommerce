@@ -873,6 +873,9 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.main {
+    padding: 20px;
+}
 .btn-outline-success-2 {
     color: #25D366;
     border-color: #25D366;

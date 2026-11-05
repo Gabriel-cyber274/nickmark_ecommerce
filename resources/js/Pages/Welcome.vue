@@ -660,6 +660,10 @@ onMounted(() => {
     font-weight: 700;
     margin-bottom: 20px;
     line-height: 1.2;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
 }
 
 .intro-price {
@@ -696,9 +700,8 @@ onMounted(() => {
     /* Ellipsis for long titles on mobile */
     .intro-title {
         overflow: hidden;
-        text-overflow: ellipsis;
         display: -webkit-box;
-        -webkit-line-clamp: 3;
+        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
     }
 
@@ -713,16 +716,21 @@ onMounted(() => {
     /* Mobile-friendly heights for slider container and stage */
     .intro-slider-container,
     :deep(.owl-stage-outer) {
-        height: 500px !important;
-        min-height: 500px !important;
-        max-height: 500px !important;
+        height: 580px !important;
+        min-height: 560px !important;
+        max-height: 560px !important;
     }
 
     /* Intro image more visible on mobile */
     .intro-image img {
-        max-height: 400px;
+        height: 160px !important;
         width: 100%;
         object-fit: cover;
+    }
+
+    /* Add top spacing to image column on smaller screens */
+    .intro-image {
+        padding-top: 251px !important;
     }
 }
 

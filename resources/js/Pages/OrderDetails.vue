@@ -265,6 +265,9 @@ const getProductImage = (product) => {
 </template>
 
 <style scoped>
+.main {
+    padding: 20px;
+}
 .card {
     border: 1px solid #ebebeb;
     border-radius: 0;

@@ -28,3 +28,9 @@ import { Head } from '@inertiajs/vue3';
         </div>
     </AuthenticatedLayout>
 </template>
+
+<style scoped>
+.main {
+    padding: 20px;
+}
+</style>

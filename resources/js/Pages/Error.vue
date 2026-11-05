@@ -18,3 +18,9 @@ const titles = {
     <Link href="/" class="mt-6 underline">Go home</Link>
   </div>
 </template>
+
+<style scoped>
+.main {
+    padding: 20px;
+}
+</style>
