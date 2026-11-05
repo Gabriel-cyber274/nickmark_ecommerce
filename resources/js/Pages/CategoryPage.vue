@@ -183,7 +183,7 @@ const baseUrl = computed(() => {
                                     <div
                                         v-for="product in products"
                                         :key="product.id"
-                                        class="col-6 col-md-4 col-lg-4"
+                                        class="col-12 col-md-4 col-lg-4"
                                     >
                                         <div class="product product-7 text-center lift-card">
                                             <figure class="product-media zoom-img">

@@ -380,7 +380,7 @@ onMounted(() => {
 
                         <div class="products mb-3">
                             <div class="row justify-content-center">
-                                    <div v-for="product in products.data" :key="product.id" class="col-6 col-md-4 col-lg-4">
+                                    <div v-for="product in products.data" :key="product.id" class="col-12 col-md-4 col-lg-4">
                                         <div class="product product-7 text-center lift-card">
                                             <figure class="product-media zoom-img">
                                             <span v-if="product.is_new" class="product-label label-new">New</span>
