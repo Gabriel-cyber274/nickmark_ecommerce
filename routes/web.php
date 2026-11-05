@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Mail\ContactUsAdminMail;
+use App\Mail\ContactUsUserMail;
 use App\Models\Category;
 use App\Models\CompanyReview;
 use App\Models\ContactUs;
@@ -319,9 +320,11 @@ Route::post('/contact-us', function (Request $request) {
 
     $adminEmail = config('app.admin_email');
 
-    // Send email to admin
-    Mail::to($adminEmail)->send(new ContactUsAdminMail($contact));
+    // Queue email to admin
+    Mail::to($adminEmail)->queue(new ContactUsAdminMail($contact));
 
+    // Queue confirmation email to the user who submitted the form
+    Mail::to($contact->email)->queue(new ContactUsUserMail($contact));
 
     return redirect()->back()->with('success', 'Thank you for contacting us! We will get back to you soon.');
 })->name('contact-us.store');
