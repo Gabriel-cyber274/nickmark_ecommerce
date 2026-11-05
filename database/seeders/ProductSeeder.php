@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductAnswer;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
@@ -441,6 +442,7 @@ class ProductSeeder extends Seeder
                 $product = Product::create([
                     'category_id' => $categories[$categoryName]->id,
                     ...$productData,
+                    'slug' => Str::slug($productData['name']),
                     'views' => rand(100, 10000),
                 ]);
 

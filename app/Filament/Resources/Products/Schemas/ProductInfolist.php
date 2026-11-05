@@ -22,6 +22,9 @@ class ProductInfolist
                 TextEntry::make('name')
                     ->label('Product Name'),
 
+                TextEntry::make('slug')
+                    ->label('Slug'),
+
                 TextEntry::make('category.name')
                     ->label('Category'),
 

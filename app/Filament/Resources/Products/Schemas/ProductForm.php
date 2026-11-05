@@ -31,7 +31,17 @@ class ProductForm
                     ->schema([
                         TextInput::make('name')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, $state) {
+                                $set('slug', Str::slug($state));
+                            }),
+
+                        TextInput::make('slug')
+                            ->required()
+                            ->maxLength(255)
+                            ->disabled()
+                            ->dehydrated(),
 
                         Textarea::make('description')
                             ->rows(3)

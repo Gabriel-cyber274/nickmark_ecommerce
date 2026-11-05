@@ -5,10 +5,12 @@ namespace App\Filament\Resources\Categories\Schemas;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Illuminate\Support\Str;
 
 class CategoryForm
 {
@@ -16,7 +18,17 @@ class CategoryForm
     {
         return $schema
             ->components([
-                TextInput::make('name')->required(),
+                TextInput::make('name')
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function (Set $set, $state) {
+                        $set('slug', Str::slug($state));
+                    }),
+                TextInput::make('slug')
+                    ->required()
+                    ->maxLength(255)
+                    ->disabled()
+                    ->dehydrated(),
                 Textarea::make('description'),
                 // TextInput::make('image')->url(),
 

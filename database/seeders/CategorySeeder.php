@@ -6,6 +6,7 @@ use App\Models\CategoryQuestion;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
@@ -92,6 +93,11 @@ class CategorySeeder extends Seeder
                 'updated_at' => $now,
             ],
         ]);
+
+        // Generate slugs for all seeded categories
+        \App\Models\Category::whereNull('slug')->each(function ($category) {
+            $category->update(['slug' => Str::slug($category->name)]);
+        });
 
         $categories = \App\Models\Category::all()->keyBy('name');
 

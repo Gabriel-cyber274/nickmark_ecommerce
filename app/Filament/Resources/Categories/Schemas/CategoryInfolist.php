@@ -14,6 +14,8 @@ class CategoryInfolist
             ->components([
                 ImageEntry::make('image'),
                 TextEntry::make('name'),
+                TextEntry::make('slug')
+                    ->label('Slug'),
                 TextEntry::make('description'),
                 TextEntry::make('deleted_at')
                     ->dateTime(),
