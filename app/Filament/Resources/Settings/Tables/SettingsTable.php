@@ -52,6 +52,18 @@ class SettingsTable
                 TextColumn::make('whatsapp_number')
                     ->label('WhatsApp Number')
                     ->toggleable(),
+                TextColumn::make('facebook_url')
+                    ->label('Facebook URL')
+                    ->toggleable(),
+                TextColumn::make('twitter_url')
+                    ->label('Twitter URL')
+                    ->toggleable(),
+                TextColumn::make('instagram_url')
+                    ->label('Instagram URL')
+                    ->toggleable(),
+                TextColumn::make('youtube_url')
+                    ->label('YouTube URL')
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()

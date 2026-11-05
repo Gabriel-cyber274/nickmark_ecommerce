@@ -17,6 +17,10 @@ class Setting extends Model
         'whatsapp_number',
         'is_paystack_enabled',
         'is_whatsapp_enabled',
+        'facebook_url',
+        'twitter_url',
+        'instagram_url',
+        'youtube_url',
     ];
 
     protected function casts(): array

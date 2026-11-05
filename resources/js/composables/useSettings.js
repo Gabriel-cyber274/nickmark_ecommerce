@@ -10,7 +10,11 @@ const settings = ref({
     bank_name: '',
     is_paystack_enabled: false,
     is_whatsapp_enabled: false,
-    dispatch_return: ''
+    dispatch_return: '',
+    facebook_url: '',
+    twitter_url: '',
+    instagram_url: '',
+    youtube_url: '',
 });
 
 let isLoaded = false;
@@ -38,7 +42,11 @@ export function useSettings() {
                     bank_name: response.data.bank_name || '',
                     is_paystack_enabled: response.data.is_paystack_enabled === true,
                     is_whatsapp_enabled: response.data.is_whatsapp_enabled === true,
-                    dispatch_return: response.data.dispatch_return || ''
+                    dispatch_return: response.data.dispatch_return || '',
+                    facebook_url: response.data.facebook_url || '',
+                    twitter_url: response.data.twitter_url || '',
+                    instagram_url: response.data.instagram_url || '',
+                    youtube_url: response.data.youtube_url || ''
                 };
                 isLoaded = true;
             } catch (error) {

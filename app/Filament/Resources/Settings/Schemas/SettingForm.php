@@ -34,6 +34,18 @@ class SettingForm
                     ->helperText('WhatsApp number in international format (e.g., 2347018521912)'),
                 Toggle::make('is_paystack_enabled'),
                 Toggle::make('is_whatsapp_enabled'),
+                TextInput::make('facebook_url')
+                    ->label('Facebook URL')
+                    ->url(),
+                TextInput::make('twitter_url')
+                    ->label('Twitter URL')
+                    ->url(),
+                TextInput::make('instagram_url')
+                    ->label('Instagram URL')
+                    ->url(),
+                TextInput::make('youtube_url')
+                    ->label('YouTube URL')
+                    ->url(),
             ]);
     }
 }

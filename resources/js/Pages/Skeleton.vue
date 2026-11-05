@@ -780,10 +780,10 @@ onMounted(async () => {
             </div>
 
             <div class="social-icons">
-                <a href="#" class="social-icon" target="_blank" title="Facebook"><i class="icon-facebook-f"></i></a>
-                <a href="#" class="social-icon" target="_blank" title="Twitter"><i class="icon-twitter"></i></a>
-                <a href="#" class="social-icon" target="_blank" title="Instagram"><i class="icon-instagram"></i></a>
-                <a href="#" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
+                <a v-if="settings.facebook_url" :href="settings.facebook_url" class="social-icon" target="_blank" title="Facebook"><i class="icon-facebook-f"></i></a>
+                <a v-if="settings.twitter_url" :href="settings.twitter_url" class="social-icon" target="_blank" title="Twitter"><i class="icon-twitter"></i></a>
+                <a v-if="settings.instagram_url" :href="settings.instagram_url" class="social-icon" target="_blank" title="Instagram"><i class="icon-instagram"></i></a>
+                <a v-if="settings.youtube_url" :href="settings.youtube_url" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
             </div>
         </div>
     </div>

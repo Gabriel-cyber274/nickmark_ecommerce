@@ -24,6 +24,14 @@ class SettingInfolist
                     ->label('Phone Number 3'),
                 TextEntry::make('whatsapp_number')
                     ->label('WhatsApp Number'),
+                TextEntry::make('facebook_url')
+                    ->label('Facebook URL'),
+                TextEntry::make('twitter_url')
+                    ->label('Twitter URL'),
+                TextEntry::make('instagram_url')
+                    ->label('Instagram URL'),
+                TextEntry::make('youtube_url')
+                    ->label('YouTube URL'),
                 IconEntry::make('is_paystack_enabled')->boolean(),
                 IconEntry::make('is_whatsapp_enabled')->boolean(),
             ]);

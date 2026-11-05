@@ -23,6 +23,10 @@ class SettingsController extends Controller
                 'phone_number2' => '',
                 'phone_number3' => '',
                 'whatsapp_number' => '',
+                'facebook_url' => '',
+                'twitter_url' => '',
+                'instagram_url' => '',
+                'youtube_url' => '',
             ]);
         }
 
@@ -37,6 +41,10 @@ class SettingsController extends Controller
             'phone_number2',
             'phone_number3',
             'whatsapp_number',
+            'facebook_url',
+            'twitter_url',
+            'instagram_url',
+            'youtube_url',
         ]));
     }
 }
