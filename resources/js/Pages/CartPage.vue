@@ -245,7 +245,7 @@ onMounted(() => {
 }
 .product-media {
     width: 100px;
-    height: 100px;
+    height: max-content;
 }
 
 .product-media img {
