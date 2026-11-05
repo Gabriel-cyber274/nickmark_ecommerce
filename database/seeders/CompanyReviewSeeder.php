@@ -12,25 +12,25 @@ class CompanyReviewSeeder extends Seeder
      */
     public function run(): void
     {
-        // Sample reviews
+        // Sample reviews with Nigerian names
         $reviews = [
             [
-                'name' => 'Alice Johnson',
+                'name' => 'Chidi Nnamdi',
                 'review' => 'Great company to work with. Highly professional team!',
                 'relationship' => 'Client',
             ],
             [
-                'name' => 'Bob Smith',
+                'name' => 'Aisha Bello',
                 'review' => 'Had a wonderful experience collaborating with them.',
-                'relationship' => 'Partner',
+                'relationship' => 'Client',
             ],
             [
-                'name' => 'Charlie Brown',
+                'name' => 'Kelechi Okafor',
                 'review' => 'The team is very responsive and skilled.',
-                'relationship' => 'Employee',
+                'relationship' => 'Client',
             ],
             [
-                'name' => 'Diana Prince',
+                'name' => 'Zainab Ibrahim',
                 'review' => 'Excellent services and support throughout.',
                 'relationship' => 'Client',
             ],
