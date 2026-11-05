@@ -224,7 +224,7 @@ onMounted(() => {
         <main class="main">
             <!-- Page Entrance Animation Wrapper -->
             <transition name="page" mode="out-in">
-                <div class="page-content" key="welcome-page">
+                <div class="page-content" key="welcome-page" style="padding-left: 20px; padding-right: 20px;">
                     <div class="intro-slider-container mb-5 animate-on-scroll" data-animation="fade-up" data-delay="0">
                 <div class="intro-slider owl-carousel owl-theme owl-nav-inside owl-light" data-toggle="owl" 
                     data-owl-options='{
@@ -344,86 +344,69 @@ onMounted(() => {
                     <div class="tab-content tab-content-carousel just-action-icons-sm">
                         <!-- All Products Tab -->
                         <div class="tab-pane p-0 fade show active" id="new-all-tab" role="tabpanel" aria-labelledby="new-all-link">
-                            <transition-group name="product-list" tag="div" class="owl-carousel owl-full carousel-equal-height carousel-with-shadow" data-toggle="owl" 
-                                data-owl-options='{
-                                    "nav": true, 
-                                    "dots": true,
-                                    "margin": 20,
-                                    "loop": false,
-                                    "responsive": {
-                                        "0": {
-                                            "items":2
-                                        },
-                                        "480": {
-                                            "items":2
-                                        },
-                                        "768": {
-                                            "items":3
-                                        },
-                                        "992": {
-                                            "items":4
-                                        },
-                                        "1200": {
-                                            "items":5
-                                        }
-                                    }
-                                }'>
-                                <!-- Directly use the "all" products -->
-                                <div v-for="(product, index) in allProducts" :key="product.id" class="product product-2 animate-on-scroll" data-animation="fade-up" :style="{ transitionDelay: `${index * 100}ms` }">
-                                    <figure class="product-media">
-                                        <span v-if="product.is_new" class="product-label label-circle label-new">New</span>
-                                        <span v-if="product.previous_price" class="product-label label-circle label-sale">Sale</span>
-                                        <Link :href="`/products/${product.slug}`">
-                                            <img :src="product.images[0]?.image_url" :alt="product.name" class="product-image">
-                                        </Link>
-
-                                        <div class="product-action-vertical">
-                                            <a
-                                                href="#"
-                                                @click.prevent="handleWishlistToggle(product.id)"
-                                                class="btn-product-icon btn-wishlist"
-                                                :class="{ 'active': isInWishlist(product.id) }"
-                                                :title="isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
-                                            ></a>
-
-                                        </div><!-- End .product-action -->
-                                        
-
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart" @click.prevent="handleAddToCart(product.id)"  title="Add to cart"><span>add to cart</span></a>
-                                            <Link :href="`/products/${product.slug}`" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></Link>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
-
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            <Link :href="`/categories/${product.category.slug}`">{{ product.category.name }}</Link>
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title">
-                                            <Link :href="`/products/${product.slug}`">{{ product.name }} - <span v-if="product.answers && product.answers.length > 0">
-                                                <span v-for="(answer, index) in product.answers.slice(0, 2)" :key="answer.id">
-                                                    {{ answer.answer }}
-                                                    <span v-if="index < 1 && product.answers.length > 1">, </span>
-                                                </span>
-                                            </span></Link>
-</h3><!-- End .product-title -->
-                                        <div v-if="product.previous_price" class="product-price">
-                                            <span class="new-price">&#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
-                                            <span class="old-price">Was &#8358;{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
-                                        </div>
-
-                                        <div v-if="!product.previous_price" class="product-price" style="color: #39f !important;">
-                                            &#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
-                                        </div><!-- End .product-price -->
-                                        <div class="ratings-container">
-                                            <div class="ratings">
-                                                <div class="ratings-val" :style="{ width: getRatingWidth(product) + '%' }"></div>
-                                            </div><!-- End .ratings -->
-                                            <span class="ratings-text">( {{ product.reviews?.length || 0 }} Review{{ (product.reviews?.length || 0) !== 1 ? 's' : '' }} )</span>
-                                        </div><!-- End .rating-container -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </transition-group><!-- End .owl-carousel -->
+                            <div class="products">
+                                <div class="row justify-content-start">
+                                    <transition-group name="product-list" tag="div" class="row justify-content-start">
+                                        <!-- Directly use the "all" products -->
+                                        <div v-for="(product, index) in allProducts" :key="product.id" class="col-6 col-md-4 col-lg-3" :style="{ transitionDelay: `${index * 100}ms` }">
+                                            <div class="product product-2 animate-on-scroll animate-hover-lift" data-animation="fade-up" data-delay="0">
+                                                <figure class="product-media">
+                                                    <span v-if="product.is_new" class="product-label label-circle label-new">New</span>
+                                                    <span v-if="product.previous_price" class="product-label label-circle label-sale">Sale</span>
+                                                    <Link :href="`/products/${product.slug}`">
+                                                        <img :src="product.images[0]?.image_url" :alt="product.name" class="product-image">
+                                                    </Link>
+            
+                                                    <div class="product-action-vertical">
+                                                        <a
+                                                            href="#"
+                                                            @click.prevent="handleWishlistToggle(product.id)"
+                                                            class="btn-product-icon btn-wishlist"
+                                                            :class="{ 'active': isInWishlist(product.id) }"
+                                                            :title="isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+                                                        ></a>
+            
+                                                    </div><!-- End .product-action -->
+                                                    
+            
+                                                    <div class="product-action">
+                                                        <a href="#" class="btn-product btn-cart" @click.prevent="handleAddToCart(product.id)"  title="Add to cart"><span>add to cart</span></a>
+                                                        <Link :href="`/products/${product.slug}`" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></Link>
+                                                    </div><!-- End .product-action -->
+                                                </figure><!-- End .product-media -->
+            
+                                                <div class="product-body">
+                                                    <div class="product-cat">
+                                                        <Link :href="`/categories/${product.category.slug}`">{{ product.category.name }}</Link>
+                                                    </div><!-- End .product-cat -->
+                                                    <h3 class="product-title">
+                                                        <Link :href="`/products/${product.slug}`">{{ product.name }} - <span v-if="product.answers && product.answers.length > 0">
+                                                            <span v-for="(answer, index) in product.answers.slice(0, 2)" :key="answer.id">
+                                                                {{ answer.answer }}
+                                                                <span v-if="index < 1 && product.answers.length > 1">, </span>
+                                                            </span>
+                                                        </span></Link>
+            </h3><!-- End .product-title -->
+                                                    <div v-if="product.previous_price" class="product-price">
+                                                        <span class="new-price">&#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                                        <span class="old-price">Was &#8358;{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                                    </div>
+            
+                                                    <div v-if="!product.previous_price" class="product-price" style="color: #39f !important;">
+                                                        &#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                                                    </div><!-- End .product-price -->
+                                                    <div class="ratings-container">
+                                                        <div class="ratings">
+                                                            <div class="ratings-val" :style="{ width: getRatingWidth(product) + '%' }"></div>
+                                                        </div><!-- End .ratings -->
+                                                        <span class="ratings-text">( {{ product.reviews?.length || 0 }} Review{{ (product.reviews?.length || 0) !== 1 ? 's' : '' }} )</span>
+                                                    </div><!-- End .rating-container -->
+                                                </div><!-- End .product-body -->
+                                            </div><!-- End .product -->
+                                        </div><!-- End .col -->
+                                    </transition-group>
+                                </div><!-- End .row -->
+                            </div><!-- End .products -->
                         </div><!-- .End .tab-pane -->
 
                         <!-- Category-specific Tabs using computed property -->
@@ -432,86 +415,69 @@ onMounted(() => {
                             class="tab-pane p-0 fade" 
                             :id="'new-' + slugify(item.categoryName) + '-tab'" 
                             :aria-labelledby="'new-' + slugify(item.categoryName) + '-link'">
-                            <transition-group name="product-list" tag="div" class="owl-carousel owl-full carousel-equal-height carousel-with-shadow" data-toggle="owl" 
-                                data-owl-options='{
-                                    "nav": true, 
-                                    "dots": true,
-                                    "margin": 20,
-                                    "loop": false,
-                                    "responsive": {
-                                        "0": {
-                                            "items":2
-                                        },
-                                        "480": {
-                                            "items":2
-                                        },
-                                        "768": {
-                                            "items":3
-                                        },
-                                        "992": {
-                                            "items":4
-                                        },
-                                        "1200": {
-                                            "items":5
-                                        }
-                                    }
-                                }'>
-                                <div v-for="(product, index) in item.categoryProducts" :key="product.id" class="product product-2 animate-on-scroll" data-animation="fade-up" :style="{ transitionDelay: `${index * 100}ms` }">
-                                    <figure class="product-media">
-                                        <span v-if="product.is_new" class="product-label label-circle label-new">New</span>
-                                        <span v-if="product.previous_price" class="product-label label-circle label-sale">Sale</span>
-                                        <Link :href="`/products/${product.slug}`">
-                                            <img :src="product.images[0]?.image_url" :alt="product.name" class="product-image">
-                                        </Link>
-
-                                        <div class="product-action-vertical">
-                                            <a
-                                                href="#"
-                                                @click.prevent="handleWishlistToggle(product.id)"
-                                                class="btn-product-icon btn-wishlist"
-                                                :class="{ 'active': isInWishlist(product.id) }"
-                                                :title="isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
-                                            ></a>
-                                        </div><!-- End .product-action -->
-
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart" @click.prevent="handleAddToCart(product.id)" title="Add to cart"><span>add to cart</span></a>
-                                            <Link :href="`/products/${product.slug}`" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></Link>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
-
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            <Link :href="`/categories/${product.category.slug}`">{{ product.category.name }}</Link>
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title">
-                                            <Link :href="`/products/${product.slug}`">{{ product.name }} - <span v-if="product.answers && product.answers.length > 0">
-                                                <span v-for="(answer, index) in product.answers.slice(0, 2)" :key="answer.id">
-                                                    {{ answer.answer }}
-                                                    <span v-if="index < 1 && product.answers.length > 1">, </span>
-                                                </span>
-                                            </span></Link>
-                                        </h3><!-- End .product-title -->
-
-                                        <div v-if="product.previous_price" class="product-price">
-                                            <span class="new-price">&#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
-                                            <span class="old-price">Was &#8358;{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
-                                        </div>
-
-<div v-if="!product.previous_price" class="product-price" style="color: #39f !important;">
-                                            &#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
-                                        </div><!-- End .product-price -->
-                                        
-                                        <div class="ratings-container">
-                                            <div class="ratings">
-                                                <div class="ratings-val" :style="{ width: getRatingWidth(product) + '%' }"></div>
-                                            </div><!-- End .ratings -->
-                                            <span class="ratings-text">( {{ product.reviews?.length || 0 }} Review{{ (product.reviews?.length || 0) !== 1 ? 's' : '' }} )</span>
-                                        </div><!-- End .rating-container -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </transition-group><!-- End .owl-carousel -->
-                        </div><!-- .End .tab-pane -->
+                            <div class="products">
+                                <div class="row justify-content-start">
+                                    <transition-group name="product-list" tag="div" class="row justify-content-start">
+                                        <div v-for="(product, index) in item.categoryProducts" :key="product.id" class="col-6 col-md-4 col-lg-3" :style="{ transitionDelay: `${index * 100}ms` }">
+                                            <div class="product product-2 animate-on-scroll animate-hover-lift" data-animation="fade-up" data-delay="0">
+                                                <figure class="product-media">
+                                                    <span v-if="product.is_new" class="product-label label-circle label-new">New</span>
+                                                    <span v-if="product.previous_price" class="product-label label-circle label-sale">Sale</span>
+                                                    <Link :href="`/products/${product.slug}`">
+                                                        <img :src="product.images[0]?.image_url" :alt="product.name" class="product-image">
+                                                    </Link>
+            
+                                                    <div class="product-action-vertical">
+                                                        <a
+                                                            href="#"
+                                                            @click.prevent="handleWishlistToggle(product.id)"
+                                                            class="btn-product-icon btn-wishlist"
+                                                            :class="{ 'active': isInWishlist(product.id) }"
+                                                            :title="isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+                                                        ></a>
+                                                    </div><!-- End .product-action -->
+            
+                                                    <div class="product-action">
+                                                        <a href="#" class="btn-product btn-cart" @click.prevent="handleAddToCart(product.id)" title="Add to cart"><span>add to cart</span></a>
+                                                        <Link :href="`/products/${product.slug}`" class="btn-product btn-quickview" title="Quick view"><span>quick view</span></Link>
+                                                    </div><!-- End .product-action -->
+                                                </figure><!-- End .product-media -->
+            
+                                                <div class="product-body">
+                                                    <div class="product-cat">
+                                                        <Link :href="`/categories/${product.category.slug}`">{{ product.category.name }}</Link>
+                                                    </div><!-- End .product-cat -->
+                                                    <h3 class="product-title">
+                                                        <Link :href="`/products/${product.slug}`">{{ product.name }} - <span v-if="product.answers && product.answers.length > 0">
+                                                            <span v-for="(answer, index) in product.answers.slice(0, 2)" :key="answer.id">
+                                                                {{ answer.answer }}
+                                                                <span v-if="index < 1 && product.answers.length > 1">, </span>
+                                                            </span>
+                                                        </span></Link>
+                                                    </h3><!-- End .product-title -->
+            
+                                                    <div v-if="product.previous_price" class="product-price">
+                                                        <span class="new-price">&#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                                        <span class="old-price">Was &#8358;{{ parseFloat(product.previous_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                                                    </div>
+            
+            <div v-if="!product.previous_price" class="product-price" style="color: #39f !important;">
+                                                        &#8358;{{ parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                                                    </div><!-- End .product-price -->
+                                                    
+                                                    <div class="ratings-container">
+                                                        <div class="ratings">
+                                                            <div class="ratings-val" :style="{ width: getRatingWidth(product) + '%' }"></div>
+                                                        </div><!-- End .ratings -->
+                                                        <span class="ratings-text">( {{ product.reviews?.length || 0 }} Review{{ (product.reviews?.length || 0) !== 1 ? 's' : '' }} )</span>
+                                                    </div><!-- End .rating-container -->
+                                                </div><!-- End .product-body -->
+                                            </div><!-- End .product -->
+                                        </div><!-- End .col -->
+                                    </transition-group>
+                                </div><!-- End .row -->
+                            </div><!-- End .products -->
+                        </div><!-- End .tab-pane -->
                     </div><!-- End .tab-content -->
                 </div><!-- End .container -->
 
@@ -640,6 +606,23 @@ onMounted(() => {
 .owl-carousel .owl-item img {
     height: 100%;
     object-fit: cover;
+}
+
+/* Single-column product grid only on screens below 767px */
+@media (max-width: 767px) {
+    .products {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    .products .row {
+        display: contents;
+    }
+    .products [class*="col-"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
 }
 
 
