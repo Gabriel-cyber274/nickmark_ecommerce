@@ -18,8 +18,6 @@ class UserForm
                     ->label('Email address')
                     ->email()
                     ->required(),
-                \Filament\Forms\Components\Toggle::make('is_admin')
-                    ->label('Is Admin'),
                 DateTimePicker::make('email_verified_at'),
                 TextInput::make('password')
                     ->password()

@@ -9,7 +9,7 @@ use App\Filament\Resources\Admin\Pages\ViewAdmin;
 use App\Filament\Resources\Admin\Schemas\AdminForm;
 use App\Filament\Resources\Admin\Schemas\AdminInfolist;
 use App\Filament\Resources\Admin\Tables\AdminsTable;
-use App\Models\User;
+use App\Models\Admin;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -18,7 +18,7 @@ use Filament\Tables\Table;
 
 class AdminResource extends Resource
 {
-    protected static ?string $model = User::class;
+    protected static ?string $model = Admin::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldCheck;
 
@@ -66,6 +66,6 @@ class AdminResource extends Resource
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::getEloquentQuery()->where('is_admin', true);
+        return parent::getEloquentQuery();
     }
 }

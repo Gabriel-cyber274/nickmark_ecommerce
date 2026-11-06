@@ -4,7 +4,6 @@ namespace App\Providers\Filament;
 
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\InjectOgImageMeta;
-use App\Models\Admin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -31,7 +30,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->authGuard('web')
+            ->authGuard('admin')
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -61,10 +60,6 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
                 EnsureUserIsAdmin::class,
             ])
-            // ->auth(
-            //     guard: 'admin',     // Use the admin guard from config/auth.php
-            //     userProvider: Admin::class,  // Use the Admin model
-            // )
         ;
     }
 }

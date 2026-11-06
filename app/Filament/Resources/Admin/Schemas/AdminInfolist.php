@@ -14,9 +14,6 @@ class AdminInfolist
                 TextEntry::make('name'),
                 TextEntry::make('email')
                     ->label('Email address'),
-                TextEntry::make('is_admin')
-                    ->label('Is Admin')
-                    ->badge(),
                 TextEntry::make('email_verified_at')
                     ->dateTime(),
                 TextEntry::make('created_at')

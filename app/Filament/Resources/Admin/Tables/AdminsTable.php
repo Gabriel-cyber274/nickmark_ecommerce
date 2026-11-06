@@ -21,10 +21,6 @@ class AdminsTable
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
-                TextColumn::make('is_admin')
-                    ->label('Admin')
-                    ->badge()
-                    ->color('success'),
                 TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->sortable(),

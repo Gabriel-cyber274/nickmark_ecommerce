@@ -67,6 +67,6 @@ class UserResource extends Resource
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::getEloquentQuery()->where('is_admin', false);
+        return parent::getEloquentQuery();
     }
 }
