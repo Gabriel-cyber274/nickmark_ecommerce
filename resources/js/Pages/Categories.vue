@@ -285,6 +285,13 @@ const formatPrice = (price) => {
     }).format(price);
 };
 
+// Get stars width percentage based on average review rating
+const getRatingWidth = (product) => {
+    if (!product.reviews || product.reviews.length === 0) return 0;
+    const avg = product.reviews.reduce((sum, r) => sum + (r.rate || 0), 0) / product.reviews.length;
+    return Math.round((avg / 5) * 100);
+};
+
 onMounted(() => {
     console.log('categories', prop.categories);
     console.log('products', prop.products);
@@ -430,7 +437,7 @@ onMounted(() => {
                                             </div>
                                             <div class="ratings-container">
                                                 <div class="ratings">
-                                                    <div class="ratings-val" style="width: 80%;"></div>
+                                                    <div class="ratings-val" :style="{ width: getRatingWidth(product) + '%' }"></div>
                                                 </div>
                                                 <span class="ratings-text">( {{ product.views || 0 }} Views )</span>
                                             </div>

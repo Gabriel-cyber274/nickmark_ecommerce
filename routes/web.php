@@ -113,7 +113,7 @@ Route::get('/categories', function (Request $request) {
     ];
 
     // Start building the query
-    $query = Product::with(['category', 'images', 'answers.question']);
+    $query = Product::with(['category', 'images', 'answers.question', 'reviews']);
 
     // Search functionality - searches across products, categories, and answers
     if ($request->has('search') && !empty($request->search)) {
