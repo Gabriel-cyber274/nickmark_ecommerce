@@ -143,7 +143,8 @@ class ProductForm
                                 }
 
                                 $component->state(
-                                    $record->images()->pluck('image_url')
+                                    $record->images
+                                        ->map(fn ($img) => $img->getRawOriginal('image_url'))
                                         ->mapWithKeys(fn ($url) => [(string) Str::uuid() => $url])
                                         ->all()
                                 );

@@ -47,18 +47,9 @@ class Product extends Model
 
         static::deleting(function (Product $product) {
             foreach ($product->images as $image) {
-                if (! $image->image_url) {
-                    continue;
-                }
+                $path = ltrim($image->getRawOriginal('image_url') ?? '', '/');
 
-                // Convert full URL → storage path
-                $path = str_replace(
-                    Storage::disk('public')->url(''),
-                    '',
-                    $image->image_url
-                );
-
-                if (Storage::disk('public')->exists($path)) {
+                if ($path && ! Str::startsWith($path, ['http://', 'https://'])) {
                     Storage::disk('public')->delete($path);
                 }
             }

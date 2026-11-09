@@ -11,33 +11,66 @@ trait SyncsProductImages
 {
     protected function syncProductImages(): void
     {
-        $product  = $this->record;
-        $state    = collect($this->form->getRawState()['images'] ?? []);
+        $product = $this->record;
+        $state   = collect($this->form->getRawState()['images'] ?? []);
 
-        $kept     = $state->filter(fn ($f) => is_string($f))->values();
-        $new      = $state->filter(fn ($f) => $f instanceof TemporaryUploadedFile || $f instanceof UploadedFile);
-        $existing = $product->images()->pluck('image_url');
+        // paths/urls Filament says should exist after this save
+        $kept = $state->filter(fn ($f) => is_string($f))
+            ->map(fn ($f) => $this->localImagePath($f) ?? $f)
+            ->unique()
+            ->values();
 
-        // delete removed images
-        foreach ($product->images()->get() as $image) {
-            if (! $kept->contains($image->image_url)) {
-                if (! Str::startsWith($image->image_url, ['http://', 'https://'])) {
-                    Storage::disk('public')->delete($image->image_url);
+        $new = $state->filter(fn ($f) => $f instanceof TemporaryUploadedFile || $f instanceof UploadedFile);
+
+        $images = $product->images()->get();
+
+        // 1. delete removed/replaced images (DB row + file on disk)
+        foreach ($images as $image) {
+            $raw  = $image->getRawOriginal('image_url');
+            $path = $this->localImagePath($raw);
+            $key  = $path ?? $raw;
+
+            if (! $kept->contains($key)) {
+                if ($path && Str::startsWith($path, 'products/')) {
+                    Storage::disk('public')->delete($path);
                 }
                 $image->delete();
             }
         }
 
-        // strings already stored by Filament but not in the DB yet
+        // 2. add paths Filament stored that aren't in the DB yet
+        $existing = $product->images()->get()
+            ->map(fn ($i) => $this->localImagePath($i->getRawOriginal('image_url')) ?? $i->getRawOriginal('image_url'));
+
         foreach ($kept->diff($existing) as $path) {
             $product->images()->create(['image_url' => $path]);
         }
 
-        // raw uploads (if Filament didn't store them)
+        // 3. raw uploads Filament didn't store itself
         foreach ($new as $file) {
             $product->images()->create([
                 'image_url' => $file->store('products', 'public'),
             ]);
         }
+    }
+
+    /**
+     * Returns the path on the public disk, or null if it's an external URL.
+     */
+    protected function localImagePath(?string $value): ?string
+    {
+        if (blank($value)) {
+            return null;
+        }
+
+        if (Str::startsWith($value, ['http://', 'https://'])) {
+            $base = rtrim(Storage::disk('public')->url(''), '/') . '/';
+
+            return Str::startsWith($value, $base)
+                ? urldecode(Str::after($value, $base))
+                : null; // external URL, never touch
+        }
+
+        return ltrim($value, '/');
     }
 }
