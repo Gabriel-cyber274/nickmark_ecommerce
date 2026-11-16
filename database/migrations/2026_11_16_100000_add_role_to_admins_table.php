@@ -12,9 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('admins', function (Blueprint $table): void {
-            $table->string('role')->default('super_admin')->after('password');
-        });
+        if (! Schema::hasColumn('admins', 'role')) {
+            Schema::table('admins', function (Blueprint $table): void {
+                $table->string('role')->default('super_admin')->after('password');
+            });
+        }
 
         DB::table('admins')->whereNull('role')->update(['role' => 'super_admin']);
     }
