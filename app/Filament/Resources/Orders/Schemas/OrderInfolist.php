@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Orders\Schemas;
 
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -27,6 +28,12 @@ class OrderInfolist
                 TextEntry::make('postal_code'),
                 TextEntry::make('payment_method'),
                 TextEntry::make('delivery_method'),
+                ImageEntry::make('receipt')
+                    ->label('Payment Receipt')
+                    ->disk('public')
+                    ->square()
+                    ->height(200)
+                    ->columnSpanFull(),
                 TextEntry::make('status'),
                 TextEntry::make('total')
                     ->numeric(),

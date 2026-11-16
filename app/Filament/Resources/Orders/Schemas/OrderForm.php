@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Orders\Schemas;
 
 use App\Models\City;
 use App\Models\State;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -73,6 +74,14 @@ class OrderForm
                                 'pickup' => 'Pickup',
                                 'delivery' => 'Delivery',
                             ]),
+
+                        FileUpload::make('receipt')
+                            ->label('Payment Receipt')
+                            ->disk('public')
+                            ->image()
+                            ->directory('receipts')
+                            ->visibility('public')
+                            ->columnSpanFull(),
 
                         TextInput::make('subtotal')->numeric()->disabled(),
                         TextInput::make('total')->numeric()->disabled(),
