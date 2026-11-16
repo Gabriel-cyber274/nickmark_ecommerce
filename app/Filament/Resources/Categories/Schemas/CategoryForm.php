@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Categories\Schemas;
 
+use App\Models\Category;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -10,7 +11,9 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class CategoryForm
 {
@@ -30,16 +33,47 @@ class CategoryForm
                     ->disabled()
                     ->dehydrated(),
                 Textarea::make('description'),
-                // TextInput::make('image')->url(),
-
                 FileUpload::make('image')
                     ->label('Category Image')
                     ->disk('public')
                     ->image()
                     ->directory('categories')
                     ->visibility('public')
-                    ->required(fn(string $context): bool => $context === 'create'),
+                    ->required(fn(string $context): bool => $context === 'create')
+                    ->dehydrated(false)
+                    ->afterStateHydrated(function (FileUpload $component, ?Category $record) {
+                        if (! $record || blank($record->image)) {
+                            return;
+                        }
 
+                        $component->state($record->image);
+                    })
+                    ->getUploadedFileUsing(function (FileUpload $component, $file): ?array {
+                        if ($file instanceof TemporaryUploadedFile) {
+                            return [
+                                'name' => $file->getClientOriginalName(),
+                                'size' => $file->getSize(),
+                                'type' => $file->getMimeType(),
+                                'url'  => $file->temporaryUrl(),
+                            ];
+                        }
+
+                        if (is_string($file)) {
+                            $isUrl = Str::startsWith($file, ['http://', 'https://']);
+
+                            return [
+                                'name' => basename(parse_url($file, PHP_URL_PATH) ?: $file),
+                                'size' => (! $isUrl && Storage::disk('public')->exists($file))
+                                    ? Storage::disk('public')->size($file)
+                                    : 0,
+                                'type' => 'image/jpeg',
+                                'url'  => $isUrl ? $file : Storage::disk('public')->url($file),
+                            ];
+                        }
+
+                        return null;
+                    })
+                    ->deleteUploadedFileUsing(fn () => null),
                 Repeater::make('questions')
                     ->relationship('questions')
                     ->label('Questions')

@@ -8,7 +8,9 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class EditCategory extends EditRecord
 {
@@ -24,54 +26,52 @@ class EditCategory extends EditRecord
         ];
     }
 
-    protected function mutateFormDataBeforeFill(array $data): array
-    {
-        // Convert the full URL back to storage path for the FileUpload component
-        if (isset($data['image']) && $data['image']) {
-            $data['image'] = str_replace(
-                Storage::disk('public')->url(''),
-                '',
-                $data['image']
-            );
-        }
-
-        return $data;
-    }
-
-    protected function mutateFormDataBeforeSave(array $data): array
-    {
-        // Store old image path for deletion
-        if ($this->record->image) {
-            $this->oldImagePath = str_replace(
-                Storage::disk('public')->url(''),
-                '',
-                $this->record->image
-            );
-        }
-
-        // Handle new image upload
-        if (isset($data['image']) && $data['image']) {
-            $this->newImagePath = $data['image'];
-            // Convert storage path to full URL for database
-            $data['image'] = Storage::disk('public')->url($data['image']);
-        } else {
-            // If no new image, keep the existing image URL
-            $data['image'] = $this->record->image;
-        }
-
-        return $data;
-    }
-
     protected function afterSave(): void
     {
-        // Delete old image if a new one was uploaded and old one exists
-        if ($this->newImagePath && $this->oldImagePath && $this->oldImagePath !== $this->newImagePath) {
-            if (Storage::disk('public')->exists($this->oldImagePath)) {
-                Storage::disk('public')->delete($this->oldImagePath);
-            }
+        $image = $this->form->getState()['image'] ?? null;
+        $record = $this->record;
+        $old = $record->image;
+
+        // Only act when a new image was uploaded to replace the existing one.
+        // The image column is NOT NULL, so never set it to null.
+        if (! $image instanceof UploadedFile) {
+            return;
+        }
+
+        $path = $image->store('categories', 'public');
+        $url = Storage::disk('public')->url($path);
+
+        $record->update(['image' => $url]);
+
+        $this->deleteLocalImage($old);
+    }
+
+    protected function deleteLocalImage(?string $url): void
+    {
+        $path = $this->localImagePath($url);
+
+        if ($path && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
         }
     }
 
-    protected ?string $oldImagePath = null;
-    protected ?string $newImagePath = null;
+    /**
+     * Returns the path on the public disk, or null if it's blank or an external URL.
+     */
+    protected function localImagePath(?string $value): ?string
+    {
+        if (blank($value)) {
+            return null;
+        }
+
+        if (Str::startsWith($value, ['http://', 'https://'])) {
+            $base = rtrim(Storage::disk('public')->url(''), '/') . '/';
+
+            return Str::startsWith($value, $base)
+                ? urldecode(Str::after($value, $base))
+                : null;
+        }
+
+        return ltrim($value, '/');
+    }
 }
