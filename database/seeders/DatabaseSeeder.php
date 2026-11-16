@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             CompanyReviewSeeder::class,
             ProductSeeder::class,
             SettingSeeder::class,
+            BankSeeder::class,
         ]);
     }
 }

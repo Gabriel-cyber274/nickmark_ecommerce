@@ -16,9 +16,6 @@ class SettingForm
                 Textarea::make('dispatch_return')
                     ->rows(4)
                     ->columnSpanFull(),
-                TextInput::make('account_number'),
-                TextInput::make('bank_name'),
-                TextInput::make('account_name'),
                 TextInput::make('phone_number1')
                     ->label('Phone Number 1')
                     ->tel(),

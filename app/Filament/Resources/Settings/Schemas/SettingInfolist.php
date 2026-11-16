@@ -13,9 +13,6 @@ class SettingInfolist
         return $schema
             ->components([
                 TextEntry::make('dispatch_return')->columnSpanFull(),
-                TextEntry::make('account_number'),
-                TextEntry::make('bank_name'),
-                TextEntry::make('account_name'),
                 TextEntry::make('phone_number1')
                     ->label('Phone Number 1'),
                 TextEntry::make('phone_number2')

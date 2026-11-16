@@ -36,11 +36,8 @@ watch(() => page.props.flash, (flash) => {
 // Fetch settings including payment method preferences
 const paystackEnabled = ref(false);
 const whatsappEnabled = ref(false);
-const bankDetails = ref({
-    account_name: '',
-    account_number: '',
-    bank_name: ''
-});
+const banks = ref([]);
+const selectedBankId = ref(null);
 const whatsappNumber = ref('');
 
 onMounted(async () => {
@@ -55,11 +52,21 @@ onMounted(async () => {
         console.log('Settings response:', response.data);
         paystackEnabled.value = response.data.is_paystack_enabled === true;
         whatsappEnabled.value = response.data.is_whatsapp_enabled === true;
-        bankDetails.value = {
-            account_name: response.data.account_name || '',
-            account_number: response.data.account_number || '',
-            bank_name: response.data.bank_name || ''
-        };
+
+        if (whatsappEnabled.value) {
+            try {
+                const banksResponse = await axios.get('/banks', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                banks.value = banksResponse.data || [];
+            } catch (error) {
+                console.error('Failed to fetch banks:', error);
+                banks.value = [];
+            }
+        }
+
         whatsappNumber.value = response.data.whatsapp_number || '';
         console.log('paystackEnabled:', paystackEnabled.value);
         console.log('whatsappEnabled:', whatsappEnabled.value);
@@ -68,11 +75,7 @@ onMounted(async () => {
         console.error('Failed to fetch settings:', error);
         paystackEnabled.value = true;
         whatsappEnabled.value = false;
-        bankDetails.value = {
-            account_name: '',
-            account_number: '',
-            bank_name: ''
-        };
+        banks.value = [];
         whatsappNumber.value = '';
     } finally {
         isProcessing.value = false;
@@ -178,6 +181,11 @@ const dispatchFee = computed(() => {
     }
     
     return 2000;
+});
+
+// Selected bank object from the banks list
+const selectedBank = computed(() => {
+    return banks.value.find(bank => bank.id == selectedBankId.value) || null;
 });
 
 // Watch state changes to update cities
@@ -425,9 +433,9 @@ const handleWhatsAppOrder = async () => {
         const orderData = prepareOrderData();
         
         // Add bank details to order data
-        orderData.bank_name = bankDetails.value.bank_name;
-        orderData.account_number = bankDetails.value.account_number;
-        orderData.account_name = bankDetails.value.account_name;
+        orderData.bank_name = selectedBank.value?.bank_name || '';
+        orderData.account_number = selectedBank.value?.account_number || '';
+        orderData.account_name = selectedBank.value?.account_name || '';
 
         const formData = new FormData();
         Object.keys(orderData).forEach(key => {
@@ -491,10 +499,12 @@ ${appliedDiscount.value ? `*Discount (${appliedDiscount.value.code}):* -₦${dis
 ${checkoutForm.value.notes ? `*Notes:* ${checkoutForm.value.notes}` : ''}
 
 *Payment Method: WhatsApp*
+${selectedBank.value ? `
 *Bank Details for Payment:*
-Account Name: ${bankDetails.value.account_name}
-Account Number: ${bankDetails.value.account_number}
-Bank: ${bankDetails.value.bank_name}
+Bank: ${selectedBank.value.bank_name}
+Account Name: ${selectedBank.value.account_name}
+Account Number: ${selectedBank.value.account_number}
+` : ''}
 ${receiptInfo}
 
 *Please make payment and upload receipt. Order status will be pending until payment is verified.*
@@ -820,12 +830,23 @@ onMounted(() => {
                                     </button>
                                     
                                     <!-- Bank Details for WhatsApp Payment -->
-                                    <div v-if="whatsappEnabled && (bankDetails.account_name || bankDetails.account_number || bankDetails.bank_name)" class="mt-3 p-3 bg-light rounded">
+                                    <div v-if="whatsappEnabled && banks.length" class="mt-3 p-3 bg-light rounded">
                                         <h5 class="mb-3"><i class="icon-bank mr-2"></i>Bank Account Details</h5>
-                                        <p class="mb-1"><strong>Account Name:</strong> {{ bankDetails.account_name }}</p>
-                                        <p class="mb-1"><strong>Account Number:</strong> {{ bankDetails.account_number }}</p>
-                                        <p class="mb-1"><strong>Bank:</strong> {{ bankDetails.bank_name }}</p>
-                                        <p class="text-muted small mb-2">Make payment to the above account and upload receipt below.</p>
+                                        <p class="text-muted small mb-3">Select the bank account you paid to:</p>
+                                        <div v-for="bank in banks" :key="bank.id" class="custom-control custom-radio mb-2">
+                                            <input 
+                                                type="radio" 
+                                                :id="'bank-' + bank.id" 
+                                                :value="bank.id" 
+                                                v-model="selectedBankId" 
+                                                class="custom-control-input"
+                                            >
+                                            <label class="custom-control-label" :for="'bank-' + bank.id">
+                                                <strong>{{ bank.bank_name }}</strong><br>
+                                                <span class="text-muted">Account Name: {{ bank.account_name }} · Account Number: {{ bank.account_number }}</span>
+                                            </label>
+                                        </div>
+                                        <p class="text-muted small mb-2">Make payment to the selected account above and upload receipt below.</p>
                                         
                                         <!-- Info about WhatsApp order -->
                                         <div class="alert alert-info py-2 mb-3" style="font-size: 0.875rem;">

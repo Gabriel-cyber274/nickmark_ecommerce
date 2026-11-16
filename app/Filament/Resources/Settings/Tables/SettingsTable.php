@@ -34,12 +34,6 @@ class SettingsTable
                         'danger' => false,
                     ])
                     ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No'),
-                TextColumn::make('account_name')
-                    ->label('Account Name'),
-                TextColumn::make('account_number')
-                    ->label('Account Number'),
-                TextColumn::make('bank_name')
-                    ->label('Bank Name'),
                 TextColumn::make('phone_number1')
                     ->label('Phone 1')
                     ->toggleable(),

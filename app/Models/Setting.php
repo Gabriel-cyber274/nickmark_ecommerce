@@ -6,11 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
- protected $fillable = [
+    protected $fillable = [
         'dispatch_return',
-        'account_number',
-        'bank_name',
-        'account_name',
         'phone_number1',
         'phone_number2',
         'phone_number3',

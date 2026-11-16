@@ -5,6 +5,10 @@
     'app.filament.resources.admin.pages.edit-admin' => 'App\\Filament\\Resources\\Admin\\Pages\\EditAdmin',
     'app.filament.resources.admin.pages.list-admin' => 'App\\Filament\\Resources\\Admin\\Pages\\ListAdmin',
     'app.filament.resources.admin.pages.view-admin' => 'App\\Filament\\Resources\\Admin\\Pages\\ViewAdmin',
+    'app.filament.resources.banks.pages.create-bank' => 'App\\Filament\\Resources\\Banks\\Pages\\CreateBank',
+    'app.filament.resources.banks.pages.edit-bank' => 'App\\Filament\\Resources\\Banks\\Pages\\EditBank',
+    'app.filament.resources.banks.pages.list-banks' => 'App\\Filament\\Resources\\Banks\\Pages\\ListBanks',
+    'app.filament.resources.banks.pages.view-bank' => 'App\\Filament\\Resources\\Banks\\Pages\\ViewBank',
     'app.filament.resources.categories.pages.create-category' => 'App\\Filament\\Resources\\Categories\\Pages\\CreateCategory',
     'app.filament.resources.categories.pages.edit-category' => 'App\\Filament\\Resources\\Categories\\Pages\\EditCategory',
     'app.filament.resources.categories.pages.list-categories' => 'App\\Filament\\Resources\\Categories\\Pages\\ListCategories',
@@ -99,6 +103,7 @@
   'resources' => 
   array (
     'D:\\Desktop-projects\\nickmark-ecommerce\\app\\Filament\\Resources\\Admin\\AdminResource.php' => 'App\\Filament\\Resources\\Admin\\AdminResource',
+    'D:\\Desktop-projects\\nickmark-ecommerce\\app\\Filament\\Resources\\Banks\\BankResource.php' => 'App\\Filament\\Resources\\Banks\\BankResource',
     'D:\\Desktop-projects\\nickmark-ecommerce\\app\\Filament\\Resources\\Categories\\CategoryResource.php' => 'App\\Filament\\Resources\\Categories\\CategoryResource',
     'D:\\Desktop-projects\\nickmark-ecommerce\\app\\Filament\\Resources\\CompanyReviews\\CompanyReviewResource.php' => 'App\\Filament\\Resources\\CompanyReviews\\CompanyReviewResource',
     'D:\\Desktop-projects\\nickmark-ecommerce\\app\\Filament\\Resources\\ContactUs\\ContactUsResource.php' => 'App\\Filament\\Resources\\ContactUs\\ContactUsResource',
