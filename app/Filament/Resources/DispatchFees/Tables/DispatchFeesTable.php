@@ -16,7 +16,7 @@ class DispatchFeesTable
         return $table
             ->defaultSort('id', 'desc')
             ->columns([
-                TextColumn::make('state.name')->label('State')->sortable(),
+                TextColumn::make('state.name')->label('State')->sortable()->searchable(),
                 TextColumn::make('city.name')->label('City')->sortable()->toggleable(),
                 TextColumn::make('amount')
                     ->label('Amount')
