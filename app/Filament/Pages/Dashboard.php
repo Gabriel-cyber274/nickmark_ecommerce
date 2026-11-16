@@ -13,9 +13,4 @@ class Dashboard extends BaseDashboard
 
         return (bool) $user;
     }
-
-    public function mount(): void
-    {
-        parent::mount();
-    }
 }
