@@ -109,7 +109,7 @@ class ProductForm
                                     foreach ($questions as $question) {
                                         $answers[] = [
                                             'category_question_id' => $question->id,
-                                            'answer' => '',
+                                            'answer' => $question->type === 'boolean' ? '0' : '',
                                         ];
                                     }
 
@@ -187,85 +187,48 @@ class ProductForm
                             ->schema([
                                 Hidden::make('category_question_id'),
 
+                                // real DB column: always "visible" so it always saves
+                                Hidden::make('answer'),
+
                                 Placeholder::make('question_display')
                                     ->label('Question')
-                                    ->content(function (Get $get) {
-                                        $questionId = $get('category_question_id');
-                                        if ($questionId) {
-                                            $question = CategoryQuestion::find($questionId);
-                                            return $question ? $question->question : '';
-                                        }
-                                        return '';
-                                    }),
+                                    ->content(fn (Get $get) =>
+                                        CategoryQuestion::find($get('category_question_id'))?->question ?? ''
+                                    ),
 
-                                TextInput::make('answer')
+                                // TEXT (also the fallback for any unknown type)
+                                TextInput::make('answer_text')
                                     ->label('Answer')
-                                    ->required(function (Get $get) {
-                                        $questionId = $get('category_question_id');
-                                        if ($questionId) {
-                                            $question = CategoryQuestion::find($questionId);
-                                            return $question ? $question->is_required : false;
-                                        }
-                                        return false;
-                                    })
-                                    ->visible(function (Get $get) {
-                                        $questionId = $get('category_question_id');
-                                        if ($questionId) {
-                                            $question = CategoryQuestion::find($questionId);
-                                            return $question && $question->type === 'text';
-                                        }
-                                        return false;
-                                    })
-                                    ->columnSpanFull(),
-
-                                TextInput::make('answer_number')
-                                    ->label('Answer')
-                                    ->numeric()
-                                    ->required(function (Get $get) {
-                                        $questionId = $get('category_question_id');
-                                        if ($questionId) {
-                                            $question = CategoryQuestion::find($questionId);
-                                            return $question ? $question->is_required : false;
-                                        }
-                                        return false;
-                                    })
-                                    ->visible(function (Get $get) {
-                                        $questionId = $get('category_question_id');
-                                        if ($questionId) {
-                                            $question = CategoryQuestion::find($questionId);
-                                            return $question && $question->type === 'number';
-                                        }
-                                        return false;
-                                    })
-                                    ->afterStateUpdated(function (Set $set, $state) {
-                                        $set('answer', $state);
-                                    })
-                                    ->live()
+                                    ->required(fn (Get $get) => (bool) CategoryQuestion::find($get('category_question_id'))?->is_required)
+                                    ->visible(fn (Get $get) => ! in_array(
+                                        CategoryQuestion::find($get('category_question_id'))?->type,
+                                        ['number', 'boolean']
+                                    ))
+                                    ->afterStateHydrated(fn (TextInput $component, Get $get) => $component->state($get('answer')))
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(fn (Set $set, $state) => $set('answer', $state))
                                     ->dehydrated(false)
                                     ->columnSpanFull(),
 
+                                // NUMBER
+                                TextInput::make('answer_number')
+                                    ->label('Answer')
+                                    ->numeric()
+                                    ->required(fn (Get $get) => (bool) CategoryQuestion::find($get('category_question_id'))?->is_required)
+                                    ->visible(fn (Get $get) => CategoryQuestion::find($get('category_question_id'))?->type === 'number')
+                                    ->afterStateHydrated(fn (TextInput $component, Get $get) => $component->state($get('answer')))
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(fn (Set $set, $state) => $set('answer', $state))
+                                    ->dehydrated(false)
+                                    ->columnSpanFull(),
+
+                                // BOOLEAN (no required(): that would force it to be ON)
                                 Toggle::make('answer_boolean')
                                     ->label('Answer (Yes/No)')
-                                    ->required(function (Get $get) {
-                                        $questionId = $get('category_question_id');
-                                        if ($questionId) {
-                                            $question = CategoryQuestion::find($questionId);
-                                            return $question ? $question->is_required : false;
-                                        }
-                                        return false;
-                                    })
-                                    ->visible(function (Get $get) {
-                                        $questionId = $get('category_question_id');
-                                        if ($questionId) {
-                                            $question = CategoryQuestion::find($questionId);
-                                            return $question && $question->type === 'boolean';
-                                        }
-                                        return false;
-                                    })
-                                    ->afterStateUpdated(function (Set $set, $state) {
-                                        $set('answer', $state ? '1' : '0');
-                                    })
+                                    ->visible(fn (Get $get) => CategoryQuestion::find($get('category_question_id'))?->type === 'boolean')
+                                    ->afterStateHydrated(fn (Toggle $component, Get $get) => $component->state((bool) $get('answer')))
                                     ->live()
+                                    ->afterStateUpdated(fn (Set $set, $state) => $set('answer', $state ? '1' : '0'))
                                     ->dehydrated(false)
                                     ->columnSpanFull(),
                             ])
@@ -273,14 +236,13 @@ class ProductForm
                             ->addable(false)
                             ->deletable(false)
                             ->reorderable(false)
-                            ->itemLabel(
-                                fn(array $state): ?string =>
-                                isset($state['category_question_id']) && $state['category_question_id']
+                            ->itemLabel(fn (array $state): ?string =>
+                                ! empty($state['category_question_id'])
                                     ? CategoryQuestion::find($state['category_question_id'])?->question
                                     : 'Answer'
                             )
                             ->columnSpanFull()
-                            ->hidden(fn(Get $get) => !$get('category_id')),
+                            ->hidden(fn (Get $get) => ! $get('category_id')),
                     ]),
             ]);
     }
