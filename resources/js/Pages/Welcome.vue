@@ -608,20 +608,26 @@ onMounted(() => {
     object-fit: cover;
 }
 
-/* Single-column product grid only on screens below 767px */
-@media (max-width: 767px) {
+/* Product grid: up to 4 columns, full width; items stretch to fill when few */
+.products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 8px;
+    width: 100%;
+}
+.products .row {
+    display: contents;
+}
+.products [class*="col-"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+}
+
+/* Single column on small screens */
+@media (max-width: 575px) {
     .products {
-        display: grid;
         grid-template-columns: 1fr;
-        gap: 24px;
-    }
-    .products .row {
-        display: contents;
-    }
-    .products [class*="col-"] {
-        width: 100% !important;
-        max-width: 100% !important;
-        flex: 0 0 100% !important;
     }
 }
 
