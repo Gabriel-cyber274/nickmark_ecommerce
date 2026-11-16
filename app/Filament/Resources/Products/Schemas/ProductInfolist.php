@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use Filament\Forms\Components\Toggle;
-use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -38,14 +37,13 @@ class ProductInfolist
                     ->placeholder('—'),
 
 
-                IconEntry::make('is_new')
+                TextEntry::make('is_new')
                     ->label('Is New')
-                    ->boolean(),
+                    ->formatStateUsing(fn($state) => $state ? 'New' : 'Used'),
 
-
-                IconEntry::make('is_featured')
+                TextEntry::make('is_featured')
                     ->label('Is Featured')
-                    ->boolean(),
+                    ->formatStateUsing(fn($state) => $state ? 'Featured' : 'Not Featured'),
 
                 TextEntry::make('brand_name'),
 
