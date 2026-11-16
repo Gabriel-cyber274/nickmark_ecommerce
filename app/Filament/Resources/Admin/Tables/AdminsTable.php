@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Admin\Tables;
 
+use App\Models\Admin;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -21,6 +23,12 @@ class AdminsTable
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
+                BadgeColumn::make('role')
+                    ->label('Role')
+                    ->colors([
+                        'danger' => Admin::ROLE_SUPER_ADMIN,
+                        'warning' => Admin::ROLE_PRODUCT_ADMIN,
+                    ]),
                 TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->sortable(),

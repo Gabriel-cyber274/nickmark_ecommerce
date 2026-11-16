@@ -10,13 +10,13 @@ use App\Filament\Resources\Faqs\Schemas\FaqForm;
 use App\Filament\Resources\Faqs\Schemas\FaqInfolist;
 use App\Filament\Resources\Faqs\Tables\FaqsTable;
 use App\Models\Faq;
+use App\Filament\Resources\BaseResource;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class FaqResource extends Resource
+class FaqResource extends BaseResource
 {
     protected static ?string $model = Faq::class;
 

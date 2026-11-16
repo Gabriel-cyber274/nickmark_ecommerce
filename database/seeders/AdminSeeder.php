@@ -19,6 +19,16 @@ class AdminSeeder extends Seeder
             [
                 'name' => 'Admin',
                 'password' => Hash::make('password'),
+                'role' => \App\Models\Admin::ROLE_SUPER_ADMIN,
+            ]
+        );
+
+        Admin::updateOrCreate(
+            ['email' => 'product_admin@nickmark.com'],
+            [
+                'name' => 'Product Admin',
+                'password' => Hash::make('password'),
+                'role' => \App\Models\Admin::ROLE_PRODUCT_ADMIN,
             ]
         );
     }

@@ -40,4 +40,6 @@ return [
         ],
     ],
 
+    'admin_email_action' => env('ADMIN_EMAIL_ACTION'),
+
 ];

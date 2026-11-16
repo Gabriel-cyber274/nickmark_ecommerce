@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Admin;
 use App\Models\Order;
 use Filament\Widgets\ChartWidget;
 use Flowframe\Trend\Trend;
@@ -12,6 +13,14 @@ class MonthlyRevenueChartWidget extends ChartWidget
 {
     protected static ?int $sort = 3;
 
+    public static function canView(): bool
+    {
+        $user = \Filament\Facades\Filament::auth()->user();
+
+        return ! ($user?->isProductAdmin() ?? false);
+    }
+
+    
     public function getHeading(): string
     {
         return 'Monthly Revenue Trend';

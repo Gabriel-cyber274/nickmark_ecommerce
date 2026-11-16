@@ -9,14 +9,14 @@ use App\Filament\Resources\Admin\Pages\ViewAdmin;
 use App\Filament\Resources\Admin\Schemas\AdminForm;
 use App\Filament\Resources\Admin\Schemas\AdminInfolist;
 use App\Filament\Resources\Admin\Tables\AdminsTable;
+use App\Filament\Resources\BaseResource;
 use App\Models\Admin;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class AdminResource extends Resource
+class AdminResource extends BaseResource
 {
     protected static ?string $model = Admin::class;
 

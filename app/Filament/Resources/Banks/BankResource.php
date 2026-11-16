@@ -10,13 +10,13 @@ use App\Filament\Resources\Banks\Schemas\BankForm;
 use App\Filament\Resources\Banks\Schemas\BankInfolist;
 use App\Filament\Resources\Banks\Tables\BanksTable;
 use App\Models\Bank;
+use App\Filament\Resources\BaseResource;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class BankResource extends Resource
+class BankResource extends BaseResource
 {
     protected static ?string $model = Bank::class;
 

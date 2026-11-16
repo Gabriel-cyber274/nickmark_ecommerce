@@ -10,13 +10,13 @@ use App\Filament\Resources\ContactUs\Schemas\ContactUsForm;
 use App\Filament\Resources\ContactUs\Schemas\ContactUsInfolist;
 use App\Filament\Resources\ContactUs\Tables\ContactUsTable;
 use App\Models\ContactUs;
+use App\Filament\Resources\BaseResource;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class ContactUsResource extends Resource
+class ContactUsResource extends BaseResource
 {
     protected static ?string $model = ContactUs::class;
 

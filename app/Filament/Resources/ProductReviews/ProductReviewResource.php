@@ -10,13 +10,13 @@ use App\Filament\Resources\ProductReviews\Schemas\ProductReviewForm;
 use App\Filament\Resources\ProductReviews\Schemas\ProductReviewInfolist;
 use App\Filament\Resources\ProductReviews\Tables\ProductReviewsTable;
 use App\Models\ProductReview;
+use App\Filament\Resources\BaseResource;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class ProductReviewResource extends Resource
+class ProductReviewResource extends BaseResource
 {
     protected static ?string $model = ProductReview::class;
 

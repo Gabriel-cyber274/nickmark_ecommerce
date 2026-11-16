@@ -10,13 +10,13 @@ use App\Filament\Resources\DiscountCodes\Schemas\DiscountCodeForm;
 use App\Filament\Resources\DiscountCodes\Schemas\DiscountCodeInfolist;
 use App\Filament\Resources\DiscountCodes\Tables\DiscountCodesTable;
 use App\Models\DiscountCode;
+use App\Filament\Resources\BaseResource;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class DiscountCodeResource extends Resource
+class DiscountCodeResource extends BaseResource
 {
     protected static ?string $model = DiscountCode::class;
 

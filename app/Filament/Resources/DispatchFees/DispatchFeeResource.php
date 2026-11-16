@@ -10,13 +10,13 @@ use App\Filament\Resources\DispatchFees\Schemas\DispatchFeeForm;
 use App\Filament\Resources\DispatchFees\Schemas\DispatchFeeInfolist;
 use App\Filament\Resources\DispatchFees\Tables\DispatchFeesTable;
 use App\Models\DispatchFee;
+use App\Filament\Resources\BaseResource;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class DispatchFeeResource extends Resource
+class DispatchFeeResource extends BaseResource
 {
     protected static ?string $model = DispatchFee::class;
 

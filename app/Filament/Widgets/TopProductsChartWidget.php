@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Admin;
 use App\Models\OrderItem;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\DB;
@@ -9,6 +10,13 @@ use Illuminate\Support\Facades\DB;
 class TopProductsChartWidget extends ChartWidget
 {
     protected static ?int $sort = 5;
+
+public static function canView(): bool
+{
+    $user = \Filament\Facades\Filament::auth()->user();
+
+    return ! ($user?->isProductAdmin() ?? false);
+}
 
     public function getHeading(): string
     {

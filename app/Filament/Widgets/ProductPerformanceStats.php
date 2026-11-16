@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Admin;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -11,6 +12,13 @@ use Illuminate\Support\Facades\DB;
 class ProductPerformanceStats extends BaseWidget
 {
     protected static ?int $sort = 4;
+
+public static function canView(): bool
+{
+    $user = \Filament\Facades\Filament::auth()->user();
+
+    return ! ($user?->isProductAdmin() ?? false);
+}
 
     protected function getStats(): array
     {

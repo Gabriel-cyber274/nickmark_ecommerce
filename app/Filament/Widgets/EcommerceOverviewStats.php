@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Admin;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -12,6 +13,13 @@ use Illuminate\Support\Facades\DB;
 class EcommerceOverviewStats extends BaseWidget
 {
     protected static ?int $sort = 1;
+
+public static function canView(): bool
+{
+    $user = \Filament\Facades\Filament::auth()->user();
+
+    return ! ($user?->isProductAdmin() ?? false);
+}
 
     protected function getStats(): array
     {
