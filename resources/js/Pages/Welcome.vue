@@ -510,7 +510,7 @@ onMounted(() => {
                     </div><!-- End .heading-left -->
 
                     <div class="heading-right">
-                        <Link href="/categories?sort=popularity" class="title-link animate-on-scroll" data-animation="fade-left" data-delay="100">View All Recommendadion <i class="icon-long-arrow-right"></i></Link>
+                        <Link href="/categories?sort=popularity" class="title-link animate-on-scroll" data-animation="fade-left" data-delay="100">View All Recommendation <i class="icon-long-arrow-right"></i></Link>
                     </div><!-- End .heading-right -->
                 </div><!-- End .heading -->
 
